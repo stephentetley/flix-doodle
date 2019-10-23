@@ -10,7 +10,13 @@ def isAscii01() : Bool =
 def isAscii02() : Bool = 
     assertNot!(String2.isAscii("∀(x: e, y: e, z: e). ((z ⊑ x) ∧ (z ⊑ y)) → (z ⊑ (x ⊓ y))"))
 
+@test
+def drop01() : Bool = 
+    String2.drop(1,"hello") `assertEq!` "ello"
 
+@test
+def splitAt01() : Bool = 
+    String2.splitAt(1,"hello") `assertEq!` ("h", "ello")
 
 @test
 def isBlank01() : Bool = 

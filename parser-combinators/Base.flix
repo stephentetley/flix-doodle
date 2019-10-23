@@ -32,10 +32,21 @@ namespace Parser {
         case Parser(f) => f(input) |> getAnswer
     }
 
+    def apply1(parser: Parser[t], input: Str): Result[(Str, t), Str] = match parser { 
+        case Parser(f) => f(input) 
+    }
+
+
     pub def merror(msg: Str): Parser[t] = 
         Parser(_ -> Err(msg))
 
-    pub def mreturn(x: t): Parser[t] =
-        Parser(st -> Ok (st,x))
+    pub def return(x: t): Parser[t] =
+        Parser(str -> Ok (str,x))
+
+    pub def bind (ma: Parser[t], fn: t -> Parser[u]): Parser[u] = 
+        Parser(str -> match apply1(ma, str) {
+            case Ok(str1, a) => apply1(fn(a), str1)
+            case Err(msg) => Err(msg)
+        })
 
 }
