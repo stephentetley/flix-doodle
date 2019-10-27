@@ -104,7 +104,15 @@ namespace String2 {
     pub def lines(s: Str): Array[Str] = 
         String.split(s, lineSeparator())
 
-    pub def unlines(arr: Array[Str]) : Str = 
+    def unlinesHelper(ac: Str, s: Str) : Str = 
+        ac + lineSeparator() + s
+
+    pub def unlines(a: Array[Str]) : Str = 
+        if (Array.length(a) > 0)
+            let a1 = Array2.drop(1,a);
+            Array2.foldLeft(unlinesHelper, a[0], a1)
+        else ""
+
         
 
 }

@@ -26,4 +26,11 @@ namespace Array2 {
     pub def foldRight(f: (b, a) -> b, s: b, a: Array[a]): b = 
         foldRightHelper(f, s, a, Array.length(a) - 1)
 
+    pub def take(n: Int, a: Array[a]) : Array[a] = 
+        Array.slice(a, 0, n)
+
+    pub def drop(n: Int, a: Array[a]) : Array[a] = 
+        let last = Array.length(a);
+        Array.slice(a, n, last)
+
 }    
