@@ -32,15 +32,18 @@ def viewr01() : Bool =
 def viewr02() : Bool = 
     String2.viewr("hello") `assertEq!` Some("hell", 'o')
 
-
 @test
-def isAscii01() : Bool = 
-    assert!(String2.isAscii("The Flix Programming Language"))
+def exists01() : Bool = 
+    assert!(String2.exists(Char.isDigit, "number 5"))
 
 @test
 def isAsciiChar01() : Bool = 
     assertNot!(Char.isAscii('∀'))
 
+
+@test
+def isAscii01() : Bool = 
+    assert!(String2.isAscii("The Flix Programming Language"))
 
 @test
 def isAscii02() : Bool = 
@@ -100,4 +103,14 @@ def unlines01() : Str =
     String2.unlines(a)
 
 
+@test 
+def words01() : Bool =     
+    let s = "one two three  four";
+    Array.length(String2.words(s)) `assertEq!` 4
 
+@test 
+def unwords01() : Bool =     
+    let a = Array.new("", 2);
+    a[0] = "one";
+    a[1] = "two";
+    String2.unwords(a) `assertEq!` "one two"

@@ -46,12 +46,17 @@ namespace String2 {
     pub def viewr(s: Str): Option[(Str, Char)] = 
         let x = String.length(s);
         switch {
-            case x > 1  => Some(take(x-1,s), String.charAt(x-1, s))
+            case x > 1  => Some(take(x-1, s), String.charAt(x-1, s))
             case x == 1 => Some("", String.charAt(0, s))
             case x < 1  => None
         }
 
-    pub def forall(f: a -> Bool, s: Str): Bool = match viewl(s) {
+    pub def exists(f: Char -> Bool, s: Str): Bool = match viewl(s) {
+        case None => false
+        case Some(c, s1) => if (f(c)) true else exists(f, s1)
+    }
+
+    pub def forall(f: Char -> Bool, s: Str): Bool = match viewl(s) {
         case None => true
         case Some(c, s1) => if (!f(c)) false else forall(f, s1)
     }
@@ -113,6 +118,16 @@ namespace String2 {
             Array2.foldLeft(unlinesHelper, a[0], a1)
         else ""
 
-        
+    pub def words(s: Str): Array[Str] = 
+        String.split(s, "\s+")
+
+    def unwordsHelper(ac: Str, s: Str) : Str = 
+        ac + " " + s
+
+    pub def unwords(a: Array[Str]) : Str = 
+        if (Array.length(a) > 0)
+            let a1 = Array2.drop(1,a);
+            Array2.foldLeft(unwordsHelper, a[0], a1)
+        else ""
 
 }

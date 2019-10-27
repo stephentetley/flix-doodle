@@ -33,4 +33,30 @@ namespace Array2 {
         let last = Array.length(a);
         Array.slice(a, n, last)
 
+    def existsHelper(f: a -> Bool, a: Array[a], ix: Int): Bool = 
+        if (ix >= Array.length(a))
+            false
+        else 
+            if (f(a[ix]) == true) 
+                true 
+            else 
+                existsHelper(f, a, ix+1)
+
+
+    pub def exists(f: a -> Bool, a: Array[a]): Bool = 
+        existsHelper(f, a, 0)
+
+    def forallHelper(f: a -> Bool, a: Array[a], ix: Int): Bool = 
+        if (ix >= Array.length(a))
+            true
+        else 
+            if (f(a[ix]) == false) 
+                false 
+            else 
+                forallHelper(f, a, ix+1)
+
+
+    pub def forall(f: a -> Bool, a: Array[a]): Bool = 
+        forallHelper(f, a, 0)
+
 }    

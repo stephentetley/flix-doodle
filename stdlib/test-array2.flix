@@ -29,3 +29,14 @@ def take01() : Bool =
 def drop01() : Bool = 
     let a = Array.new(1, 10);
     Array.length(Array2.drop(3, a)) `assertEq!` 7
+
+@test
+def exists01() : Bool = 
+    let a = Array.new(1, 10);
+    a[6] = 2;
+    assert!(Array2.exists(x -> x > 1, a))
+
+@test
+def forall01() : Bool = 
+    let a = Array.new(1, 10);
+    assert!(Array2.forall(x -> x == 1, a))
