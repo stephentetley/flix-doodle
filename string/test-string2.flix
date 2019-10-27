@@ -16,11 +16,32 @@ def drop01() : Bool =
 def drop02() : Bool = 
     String2.drop(1, "hello") `assertEq!` "ello"
 
+@test
+def viewl01() : Bool = 
+    String2.viewl("") `assertEq!` None
+
+@test
+def viewl02() : Bool = 
+    String2.viewl("hello") `assertEq!` Some('h', "ello")
+
+@test
+def viewr01() : Bool = 
+    String2.viewr("") `assertEq!` None
+
+@test
+def viewr02() : Bool = 
+    String2.viewr("hello") `assertEq!` Some("hell", 'o')
+
 
 @test
 def isAscii01() : Bool = 
     assert!(String2.isAscii("The Flix Programming Language"))
 
+@test
+def isAsciiChar01() : Bool = 
+    assertNot!(Char.isAscii('∀'))
+
+    
 @test
 def isAscii02() : Bool = 
     assertNot!(String2.isAscii("∀(x: e, y: e, z: e). ((z ⊑ x) ∧ (z ⊑ y)) → (z ⊑ (x ⊓ y))"))

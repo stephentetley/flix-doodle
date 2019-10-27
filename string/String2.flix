@@ -37,34 +37,42 @@ namespace String2 {
         case Err(_) => ""
     }
         
-    pub def splitAt(n: Int32, s: Str) : (Str,Str) = 
+    pub def splitAt(n: Int32, s: Str) : (Str, Str) = 
         (take(n,s), drop(n,s))
 
-    pub def isAscii(s: Str): Bool = 
-        List.forall(Char.isAscii, String.toList(s))
+    pub def viewl(s: Str): Option[(Char, Str)] = 
+        if (String.length(s) == 0) None else Some(String.charAt(0, s), drop(1,s))
 
-    pub def isBlank(s: Str): Bool = 
-        List.forall(Char.isWhiteSpace, String.toList(s))
-
-    /// Dummy implementation via List[Char]
-    pub def trimStart(s: Str): Str = 
-        s |> String.toList
-          |> List.dropWhile(Char.isWhiteSpace)
-          |> List.toString
-
-    def dropWhileRight(f: a -> Bool, xs: List[a]): List[a] = match xs {
-        case Nil => Nil
-        case x :: Nil => if (f(x)) Nil else (x :: Nil)
-        case x :: rs => match dropWhileRight(f, rs) {
-            case Nil => if (f(x)) Nil else (x :: Nil) 
-            case xs => (x :: xs)
+    pub def viewr(s: Str): Option[(Str, Char)] = 
+        let x = String.length(s);
+        switch {
+            case x > 1  => Some(take(x-1,s), String.charAt(x-1, s))
+            case x == 1 => Some("", String.charAt(0, s))
+            case x < 1  => None
         }
+
+    pub def forall(f: a -> Bool, s: Str): Bool = match viewl(s) {
+        case None => true
+        case Some(c, s1) => if (!f(c)) false else forall(f, s1)
     }
 
-    /// Dummy implementation via List[Char]
-    pub def trimEnd(s: Str): Str = 
-        s |> String.toList
-          |> dropWhileRight(Char.isWhiteSpace)
-          |> List.toString
+    pub def isAscii(s: Str): Bool = 
+        forall(Char.isAscii, s)
+
+    pub def isBlank(s: Str): Bool = 
+        forall(Char.isWhiteSpace, s)
+
+    /// Better (hopefully) implementation with viewl
+    pub def trimStart(s: Str): Str = match viewl(s) {
+        case None => ""
+        case Some(c, s1) => if (!(Char.isWhiteSpace(c))) s else trimStart(s1)
+    } 
+        
+    /// Better (hopefully) implementation with viewr
+    pub def trimEnd(s: Str): Str = match viewr(s) {
+        case None => ""
+        case Some(s1, c) => if (!(Char.isWhiteSpace(c))) s else trimEnd(s1)
+    } 
+      
 
 }
