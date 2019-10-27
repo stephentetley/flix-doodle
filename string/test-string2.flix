@@ -1,5 +1,20 @@
 
+@test
+def take01() : Bool = 
+    String2.take(10, "hello") `assertEq!` "hello"
 
+@test
+def take02() : Bool = 
+    String2.take(1, "hello") `assertEq!` "h"
+
+
+@test
+def drop01() : Bool = 
+    String2.drop(10, "hello") `assertEq!` ""
+
+@test
+def drop02() : Bool = 
+    String2.drop(1, "hello") `assertEq!` "ello"
 
 
 @test
@@ -10,9 +25,6 @@ def isAscii01() : Bool =
 def isAscii02() : Bool = 
     assertNot!(String2.isAscii("∀(x: e, y: e, z: e). ((z ⊑ x) ∧ (z ⊑ y)) → (z ⊑ (x ⊓ y))"))
 
-@test
-def drop01() : Bool = 
-    String2.drop(1,"hello") `assertEq!` "ello"
 
 @test
 def splitAt01() : Bool = 

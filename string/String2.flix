@@ -8,18 +8,35 @@ namespace String2 {
 
     pub def hashCode(s: Str): Int = native method java.lang.String.hashCode(s) as Int
 
-    // pub def substring(i: Int, s: Str) = native method java.lang.String.substring(i, s) as Str
+    /// It would be quite nice to export this, but what do we do about 
+    /// representing failure - Result, Option, empty-string?
+    def substring(i: Int, j: Int, s: Str) : Result[Str,Str] = try {
+        let a = native method java.lang.String.substring(s, i, j) as Str;
+        Ok(a)
+    } catch { 
+        case _: ##java.lang.IndexOutOfBoundsException => Err("IndexOutOfBounds")
+    }
+    
+    def substring1(i: Int, s: Str) : Result[Str,Str] = try {
+        let a = native method java.lang.String.substring(s, i) as Str;
+        Ok(a)
+    } catch { 
+        case _: ##java.lang.IndexOutOfBoundsException => Err("IndexOutOfBounds")
+    }
 
-    /// TODO - behaviour when string shorter than n
-    /// FAILS with java error - Bad type on the operand stack
-    pub def take(n: Int, s: Str) : Str = native method java.lang.String.substring(0, n-1, s) as Str
 
-    /// TODO - behaviour when string shorter than n
-    /// FAILS with java error - Bad type on the operand stack
-    pub def drop(n: Int, s: Str) : Str = 
-        let o = String.length(s) - 1;
-        native method java.lang.String.substring(n, o, s) as Str
+    /// If n extends past the end of string s, return s anyway.
+    pub def take(n: Int, s: Str) : Str = match substring(0, n, s) {
+        case Ok(ans) => ans
+        case Err(_) => s
+    }
 
+    /// If n extends past the end of string s, return s anyway.
+    pub def drop(n: Int, s: Str) : Str = match substring1(n, s) {
+        case Ok(ans) => ans
+        case Err(_) => ""
+    }
+        
     pub def splitAt(n: Int32, s: Str) : (Str,Str) = 
         (take(n,s), drop(n,s))
 
@@ -29,6 +46,7 @@ namespace String2 {
     pub def isBlank(s: Str): Bool = 
         List.forall(Char.isWhiteSpace, String.toList(s))
 
+    /// Dummy implementation via List[Char]
     pub def trimStart(s: Str): Str = 
         s |> String.toList
           |> List.dropWhile(Char.isWhiteSpace)
@@ -43,6 +61,7 @@ namespace String2 {
         }
     }
 
+    /// Dummy implementation via List[Char]
     pub def trimEnd(s: Str): Str = 
         s |> String.toList
           |> dropWhileRight(Char.isWhiteSpace)
