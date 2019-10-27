@@ -41,7 +41,7 @@ def isAscii01() : Bool =
 def isAsciiChar01() : Bool = 
     assertNot!(Char.isAscii('∀'))
 
-    
+
 @test
 def isAscii02() : Bool = 
     assertNot!(String2.isAscii("∀(x: e, y: e, z: e). ((z ⊑ x) ∧ (z ⊑ y)) → (z ⊑ (x ⊓ y))"))
@@ -67,5 +67,28 @@ def trimStart01() : Bool =
 def trimEnd01() : Bool = 
     String2.trimEnd(" body      ") `assertEq!` " body"
 
+@test
+def padStart01() : Bool = 
+    String2.padStart(3, "body") `assertEq!` "   body"
 
+@test
+def padEnd01() : Bool = 
+    String2.padEnd(3, "body") `assertEq!` "body   "
+
+@test 
+def replaceAll01() : Bool =     
+    String2.replaceAll("[aeiou]", "*", "Hello") `assertEq!` "H*ll*"
+
+@test 
+def replaceFirst01() : Bool =     
+    String2.replaceFirst("[L]", "l", "HeLLo") `assertEq!` "HelLo"
+
+@test 
+def indent01() : Bool =     
+    String2.indent(2, "onetwo") `assertEq!` "  onetwo"
+
+@test 
+def lines01() : Bool =     
+    let s = "one" + String2.lineSeparator() + "two";
+    Array.toList(String2.lines(s)) `assertEq!` ("one" :: "two" :: Nil)
 

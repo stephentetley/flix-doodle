@@ -74,5 +74,37 @@ namespace String2 {
         case Some(s1, c) => if (!(Char.isWhiteSpace(c))) s else trimEnd(s1)
     } 
       
+    pub def repeat(n: Int, s: Str): Str =
+        native method java.lang.String.repeat(s, n) as Str
+    
+
+    pub def padStart(n: Int, s: Str): Str = {
+        repeat(n, " ") + s
+    }
+
+    pub def padEnd(n: Int, s: Str): Str = {
+        s + repeat(n, " ")
+    }
+
+    // pub def replace(oldChar: Char, newChar: Char, s: Str): Str =
+    //     native method java.lang.String.replace(s: Str, oldChar: Char, newChar: Char) as Str
+
+    pub def replaceAll(regex: Str, replacement: Str, s: Str): Str =
+        native method java.lang.String.replaceAll(s, regex, replacement) as Str
+
+    pub def replaceFirst(regex: Str, replacement: Str, s: Str): Str =
+        native method java.lang.String.replaceFirst(s, regex, replacement) as Str
+
+    pub def indent(n: Int, s: Str): Str = 
+        native method java.lang.String.indent(s, n) as Str
+
+    pub def lineSeparator() : Str = 
+        native method java.lang.System.lineSeparator() as Str
+
+    pub def lines(s: Str): Array[Str] = 
+        String.split(s, lineSeparator())
+
+    pub def unlines(arr: Array[Str]) : Str = 
+        
 
 }
