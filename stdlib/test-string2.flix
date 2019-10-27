@@ -96,11 +96,11 @@ def lines01() : Bool =
     Array.toList(String2.lines(s)) `assertEq!` ("one" :: "two" :: Nil)
 
 @test 
-def unlines01() : Str = 
+def unlines01() : Bool = 
     let a = Array.new("", 2);
     a[0] = "one";
     a[1] = "two";
-    String2.unlines(a)
+    String2.unlines(a) `assertEq!` ("one" + String2.lineSeparator() + "two")
 
 
 @test 

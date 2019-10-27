@@ -2,6 +2,12 @@
 // def sampleArray() : Array[Int] = Array.new(1, 10)
 
 @test
+def map01() : Bool = 
+    let a = Array.new(1, 10);
+    let fn = _ -> 'a';
+    assert!(Array2.forall(x -> x=='a', Array2.map(fn, a)))
+
+@test
 def foldLeft01() : Bool = 
     let a = Array.new(1, 10);
     let fn = x -> y -> x + y;
