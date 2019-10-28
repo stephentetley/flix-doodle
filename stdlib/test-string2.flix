@@ -33,6 +33,10 @@ def viewr02() : Bool =
     String2.viewr("hello") `assertEq!` Some("hell", 'o')
 
 @test
+def dropWhile01() : Bool = 
+    String2.dropWhile(Char.isDigit, "12345 hello") `assertEq!` " hello"
+
+@test
 def exists01() : Bool = 
     assert!(String2.exists(Char.isDigit, "number 5"))
 

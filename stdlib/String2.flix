@@ -13,16 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 namespace String2 {
 
     ///
     /// Returns `true` if the string `s` matches the `regex`.
     ///
     pub def matches(s: Str, regex: Str): Bool = native method java.lang.String.matches(s, regex) as Bool
-
+    
+    ///
+    /// Returns the hash code of the string `s`.
+    ///
     pub def hashCode(s: Str): Int = native method java.lang.String.hashCode(s) as Int
 
+    
+    
+    ///
+    /// Returns the substring of string `s` between `i` and `j`.
+    ///
     /// It would be quite nice to export this, but what do we do about 
     /// representing failure - Result, Option, empty-string?
     def substring(i: Int, j: Int, s: Str) : Result[Str,Str] = try {
@@ -40,18 +48,35 @@ namespace String2 {
     }
 
 
-    /// If n extends past the end of string s, return s anyway.
+
+    ///
+    /// Take the first `n` characters of string `s`.
+    ///
+    /// If `n` extends past the end of string `s`, return all the characters 
+    /// of `s`.
+    ///
     pub def take(n: Int, s: Str) : Str = match substring(0, n, s) {
         case Ok(ans) => ans
         case Err(_) => s
     }
 
-    /// If n extends past the end of string s, return s anyway.
+    ///
+    /// Drop the first `n` characters of string `s`.
+    ///
+    /// If `n` extends past the end of string s, return the empty string.
+    ///
     pub def drop(n: Int, s: Str) : Str = match substring1(n, s) {
         case Ok(ans) => ans
         case Err(_) => ""
     }
         
+
+
+    ///
+    /// Split the string `s` at the position `n`.
+    ///
+    /// If `n` extends past the end of string s, return the empty string.
+    ///
     pub def splitAt(n: Int32, s: Str) : (Str, Str) = 
         (take(n,s), drop(n,s))
 
@@ -65,6 +90,14 @@ namespace String2 {
             case x == 1 => Some("", String.charAt(0, s))
             case x < 1  => None
         }
+    
+    ///
+    /// Returns `s` without the longest prefix that satisfies the predicate `f`.
+    ///
+    pub def dropWhile(f: Char -> Bool, s: Str): Str = match viewl(s) {
+        case None => ""
+        case Some(c, s1) => if (f(c)) dropWhile(f, s1) else s
+    }
 
     pub def exists(f: Char -> Bool, s: Str): Bool = match viewl(s) {
         case None => false
@@ -94,8 +127,16 @@ namespace String2 {
         case Some(s1, c) => if (!(Char.isWhiteSpace(c))) s else trimEnd(s1)
     } 
       
+    ///
+    /// Returns a string with the string `s` repeated `n` times.
+    ///
+    /// Returns the empty string if `n < 0`.
+    ///
     pub def repeat(n: Int, s: Str): Str =
-        native method java.lang.String.repeat(s, n) as Str
+        if (n < 0) 
+            ""
+        else 
+            native method java.lang.String.repeat(s, n) as Str
     
 
     pub def padStart(n: Int, s: Str): Str = {
@@ -121,12 +162,20 @@ namespace String2 {
     pub def lineSeparator() : Str = 
         native method java.lang.System.lineSeparator() as Str
 
+    ///
+    /// Split the string `s` into an array array of lines on the system 
+    /// dependent line separator.
+    ///
     pub def lines(s: Str): Array[Str] = 
         String.split(s, lineSeparator())
 
     def unlinesHelper(ac: Str, s: Str) : Str = 
         ac + lineSeparator() + s
 
+    ///
+    /// Join the array of strings `a` with the system dependent line 
+    /// separator.
+    ///
     pub def unlines(a: Array[Str]) : Str = 
         if (Array.length(a) > 0)
             let a1 = Array2.drop(1,a);
@@ -139,6 +188,9 @@ namespace String2 {
     def unwordsHelper(ac: Str, s: Str) : Str = 
         ac + " " + s
 
+    ///
+    /// Join the array of strings `a` with a single space character.
+    ///
     pub def unwords(a: Array[Str]) : Str = 
         if (Array.length(a) > 0)
             let a1 = Array2.drop(1,a);
