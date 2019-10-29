@@ -37,6 +37,11 @@ def dropWhile01() : Bool =
     String2.dropWhile(Char.isDigit, "12345 hello") `assertEq!` " hello"
 
 @test
+def takeWhile01() : Bool = 
+    String2.takeWhile(Char.isDigit, "12345 hello") `assertEq!` "12345"
+
+
+@test
 def exists01() : Bool = 
     assert!(String2.exists(Char.isDigit, "number 5"))
 
@@ -76,11 +81,11 @@ def trimEnd01() : Bool =
 
 @test
 def padStart01() : Bool = 
-    String2.padStart(3, "body") `assertEq!` "   body"
+    String2.padStart(10, '.', "body") `assertEq!` "......body"
 
 @test
 def padEnd01() : Bool = 
-    String2.padEnd(3, "body") `assertEq!` "body   "
+    String2.padEnd(10, '.', "body") `assertEq!` "body......"
 
 @test 
 def replaceAll01() : Bool =     

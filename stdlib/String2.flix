@@ -92,12 +92,27 @@ namespace String2 {
         }
     
     ///
-    /// Returns `s` without the longest prefix that satisfies the predicate `f`.
+    /// Returns `s` dropping all the initial chars that satisfy the predicate 
+    /// `f`.
     ///
     pub def dropWhile(f: Char -> Bool, s: Str): Str = match viewl(s) {
         case None => ""
         case Some(c, s1) => if (f(c)) dropWhile(f, s1) else s
     }
+
+
+    def takeWhileHelper(f: Char -> Bool, s: Str): List[Char] = match viewl(s) {
+        case None => Nil
+        case Some(c, s1) => if (f(c)) (c :: takeWhileHelper(f, s1)) else Nil
+    }
+
+    ///
+    /// Returns the initial prefix of `s` where all the chars satisfy the 
+    /// predicate `f`.
+    ///
+    pub def takeWhile(f: Char -> Bool, s: Str): Str = 
+        takeWhileHelper(f, s) |> List.toString
+
 
     pub def exists(f: Char -> Bool, s: Str): Bool = match viewl(s) {
         case None => false
@@ -138,13 +153,28 @@ namespace String2 {
         else 
             native method java.lang.String.repeat(s, n) as Str
     
-
-    pub def padStart(n: Int, s: Str): Str = {
-        repeat(n, " ") + s
+    ///
+    /// Pad the string `s` at the left with the supplied char `c` to fit 
+    /// width `w`.
+    ///
+    pub def padStart(w: Int, c: Char, s: Str): Str = {
+        let x = String.length(s);
+        if (x < w) 
+            repeat(w - x, Char.toString(c)) + s
+        else 
+            s
     }
 
-    pub def padEnd(n: Int, s: Str): Str = {
-        s + repeat(n, " ")
+    ///
+    /// Pad the string `s` at the right with the supplied char `c` to fit 
+    /// width `w`.
+    ///
+    pub def padEnd(w: Int, c: Char, s: Str): Str = {
+        let x = String.length(s);
+        if (x < w) 
+            s + repeat(w- x, Char.toString(c))
+        else 
+            s
     }
 
     // pub def replace(oldChar: Char, newChar: Char, s: Str): Str =
@@ -196,5 +226,7 @@ namespace String2 {
             let a1 = Array2.drop(1,a);
             Array2.foldLeft(unwordsHelper, a[0], a1)
         else ""
+
+
 
 }
