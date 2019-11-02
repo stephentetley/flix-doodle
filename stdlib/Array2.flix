@@ -29,7 +29,7 @@ namespace Array2 {
             foldLeft(mapHelper(b, f), 0, a);
             b
         else
-            panic "map - Empty Array"
+            []
 
     ///
     /// Alias for `foldLeft`.
@@ -88,5 +88,20 @@ namespace Array2 {
 
     pub def forall(f: a -> Bool, a: Array[a]): Bool = 
         forallHelper(f, a, 0)
+
+    pub def memberOf(x: a, a: Array[a]): Bool = 
+        exists(y -> y == x, a)
+    
+    pub def indexOf(x: a, a: Array[a]): Int32 = indexOfHelper(x, a, 0)
+
+    ///
+    /// Helper function for `indexOf`.
+    ///
+    def indexOfHelper(x: a, a: Array[a], i: Int32): Int32 = 
+        if (i >= Array.length(a))
+            -1
+        else 
+            if (a[i] == x) i else indexOfHelper(x, a, i+1)
+
 
 }    

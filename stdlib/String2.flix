@@ -73,16 +73,24 @@ namespace String2 {
 
 
     ///
-    /// Split the string `s` at the position `n`.
+    /// Split the string `s` at the position `n` returning the left and 
+    /// right parts.
     ///
-    /// If `n` extends past the end of string s, return the empty string.
+    /// If `n` exceeds the length of string `s`, return the whole string 
+    /// paired with the empty string.
     ///
     pub def splitAt(n: Int32, s: Str) : (Str, Str) = 
         (take(n,s), drop(n,s))
 
+    ///
+    /// Deconstruct the string `s` from the left.
+    ///
     pub def viewl(s: Str): Option[(Char, Str)] = 
         if (String.length(s) == 0) None else Some(String.charAt(0, s), drop(1,s))
 
+    ///
+    /// Deconstruct the string `s` from the right.
+    ///
     pub def viewr(s: Str): Option[(Str, Char)] = 
         let x = String.length(s);
         switch {
@@ -92,8 +100,8 @@ namespace String2 {
         }
     
     ///
-    /// Returns `s` dropping all the initial chars that satisfy the predicate 
-    /// `f`.
+    /// Returns the tail of string `s` after dropping all the initial chars 
+    /// that satisfy the predicate `f`.
     ///
     pub def dropWhile(f: Char -> Bool, s: Str): Str = match viewl(s) {
         case None => ""
@@ -107,8 +115,8 @@ namespace String2 {
     }
 
     ///
-    /// Returns the initial prefix of `s` where all the chars satisfy the 
-    /// predicate `f`.
+    /// Returns the initial prefix of string `s` where all the chars satisfy
+    /// the predicate `f`.
     ///
     pub def takeWhile(f: Char -> Bool, s: Str): Str = 
         takeWhileHelper(f, s) |> List.toString

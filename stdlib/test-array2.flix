@@ -1,11 +1,31 @@
 
 // def sampleArray() : Array[Int] = Array.new(1, 10)
 
+
+// def toArrayHelper (a: Array[b], i: Int, b: b) : Int = 
+//     a[i] = b;
+//     i + 1
+
+// def toArray(xs: List[a]) : Array[a] = match List.head(xs) {
+//     case None => []
+//     case Some(x) => 
+//         let a = Array.new(x, List.length(xs));
+//         List.fold(toArrayHelper(a), 0, xs);
+//         a
+//     } 
+    
+
 @test
 def map01() : Bool = 
     let a = Array.new(1, 10);
     let fn = _ -> 'a';
     assert!(Array2.forall(x -> x=='a', Array2.map(fn, a)))
+
+@test
+def map02() : Bool = 
+    let a : Array[Int] = [];
+    let fn = _ -> 'a';
+    Array2.map(fn, a) |> Array.length `assertEq!` 0
 
 @test
 def foldLeft01() : Bool = 
@@ -46,3 +66,14 @@ def exists01() : Bool =
 def forall01() : Bool = 
     let a = Array.new(1, 10);
     assert!(Array2.forall(x -> x == 1, a))
+
+@test
+def memberOf01() : Bool = 
+    // let a = toArray(1 :: 2 :: 3 :: Nil);
+    let a : Array[Int] = [1, 2, 3];
+    assert!(Array2.memberOf(2, a))
+
+@test
+def indexOf01() : Bool = 
+    let a : Array[Int] = [0, 1, 2, 3];
+    Array2.indexOf(2, a) `assertEq!` 2
