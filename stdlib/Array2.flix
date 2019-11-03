@@ -31,6 +31,9 @@ namespace Array2 {
         else
             []
 
+    pub def count(f: a -> Bool, a: Array[a]): Int32 = 
+        foldLeft((b,x) -> if (f(x)) b + 1 else b, 0, a)
+
     ///
     /// Alias for `foldLeft`.
     ///
@@ -62,6 +65,8 @@ namespace Array2 {
     pub def drop(n: Int, a: Array[a]) : Array[a] = 
         let last = Array.length(a);
         Array.slice(a, n, last)
+
+
 
     def existsHelper(f: a -> Bool, a: Array[a], ix: Int): Bool = 
         if (ix >= Array.length(a))
@@ -102,6 +107,47 @@ namespace Array2 {
             -1
         else 
             if (a[i] == x) i else indexOfHelper(x, a, i+1)
+
+    pub def findLeft(f: a -> Bool, a: Array[a]): Option[a] = findLeftHelper(f, a, 0)
+
+    def findLeftHelper(f: a -> Bool, a: Array[a], i: Int32): Option[a] = 
+        if (i >= Array.length(a))
+            None
+        else 
+            let x = a[i];
+            if (f(x)) Some(x) else findLeftHelper(f, a, i+1)
+
+    pub def findRight(f: a -> Bool, a: Array[a]): Option[a] = 
+        findRightHelper(f, a, Array.length(a) - 1)
+
+    def findRightHelper(f: a -> Bool, a: Array[a], i: Int32): Option[a] = 
+        if (i < 0 || i >= Array.length(a))
+            None
+        else 
+            let x = a[i];
+            if (f(x)) Some(x) else findLeftHelper(f, a, i-1)
+
+
+    def toArrayHelper (a: Array[b], i: Int, b: b) : Int = 
+        a[i] = b;
+        i + 1
+
+    def toArray(xs: List[a]) : Array[a] = match List.head(xs) {
+        case None => []
+        case Some(x) => 
+            let a = Array.new(x, List.length(xs));
+            List.fold(toArrayHelper(a), 0, xs);
+            a
+        } 
+
+    
+    pub def filter(f: a -> Bool, a: Array[a]): Array[a] = 
+        foldRight((xs,x) -> if (f(x)) x :: xs else xs, Nil, a) |> toArray
+
+    pub def filterMap(f: a -> Option[b], a: Array[a]): Array[b] = 
+        foldRight((xs,x) -> match f(x) { 
+            case None => xs
+            case Some(b) => b :: xs }, Nil, a) |> toArray
 
 
 }    
