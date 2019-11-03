@@ -16,6 +16,29 @@
  
 namespace Array2 {
 
+    pub def append(a: Array[a], b: Array[b]): Array[a] = 
+        let len1 = Array.length(a); 
+        let len2 = Array.length(b);
+        if (len2 == 0)
+            Array.slice(a, 0, len1)
+        else
+            if (len1 == 0)
+            Array.slice(b, 0, len2) 
+            else 
+                let c = Array.new(b[0], len1 + len2);
+                let j = appendHelper(a, c, 0, 0);
+                let _ = appendHelper(b, c, 0, j);
+                c
+    
+    def appendHelper(a: Array[a], c: Array[a], i: Int32, j: Int32): Int32 = 
+        if (i >= Array.length(a))
+            j
+        else
+            let _ = c[j] = a[i];
+            appendHelper(a, c, i+1, j+1)
+
+
+
     def mapHelper(b: Array[b], f: a -> b, i: Int, a: a) : Int = 
         b[i] = f(a);
         i + 1
@@ -65,6 +88,27 @@ namespace Array2 {
 
     pub def count(f: a -> Bool, a: Array[a]): Int32 = 
         foldLeft((b,x) -> if (f(x)) b + 1 else b, 0, a)
+
+
+    ///
+    /// Alias for `new`.
+    ///
+    pub def repeat(x: a, n: Int32): Array[a] = 
+        Array.new(x, n)
+
+
+    pub def reverse(a: Array[a]): Array[a] = 
+        let len = Array.length(a);
+        if (len > 0) 
+            let b = Array.new(a[0], len);
+            foldRight(reverseHelper(b), 0, a);
+            b
+        else
+            []
+
+    def reverseHelper(b: Array[a], i: Int32, a: a): Int32 = 
+        b[i] = a;
+        i + 1
 
     ///
     /// Alias for `foldLeft`.
@@ -119,6 +163,15 @@ namespace Array2 {
             let s1 = f(s, a[i], b[i]);
             foldRight2Helper(f, s1, a, b, i - 1)
 
+    def findIndexOf(f: a -> Bool, a: Array[a]): Int = 
+        findIndexOfHelper(f, a, 0)
+
+    def findIndexOfHelper(f: a -> Bool, a: Array[a], i: Int32): Int32 = 
+        if (i > Array.length(a))
+            -1
+        else
+            if (f(a[i])) i else findIndexOfHelper(f, a, i + 1)
+
 
     pub def take(n: Int, a: Array[a]) : Array[a] = 
         if (n < 1) 
@@ -132,6 +185,18 @@ namespace Array2 {
         else
             let last = Array.length(a);
             Array.slice(a, n, last)
+
+    pub def takeWhile(f: a -> Bool, a: Array[a]): Array[a] = 
+        let end = findIndexOf(x -> !(f(x)), a);
+        take(end, a)
+
+    
+
+    pub def dropWhile(f: a -> Bool, a: Array[a]): Array[a] = 
+        let start = findIndexOf(x -> !(f(x)), a);
+        drop(start, a)
+
+    
 
 
 
