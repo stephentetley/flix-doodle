@@ -23,7 +23,7 @@ namespace Array2 {
             Array.slice(a, 0, len1)
         else
             if (len1 == 0)
-            Array.slice(b, 0, len2) 
+                Array.slice(b, 0, len2) 
             else 
                 let c = Array.new(b[0], len1 + len2);
                 let j = appendHelper(a, c, 0, 0);
@@ -37,11 +37,8 @@ namespace Array2 {
             let _ = c[j] = a[i];
             appendHelper(a, c, i+1, j+1)
 
-
-
-    def mapHelper(b: Array[b], f: a -> b, i: Int, a: a) : Int = 
-        b[i] = f(a);
-        i + 1
+    pub def toString(a: Array[Char]) : Str = 
+        Array2.foldLeft((acc, c) -> String.concat(acc, Char.toString(c)), "", a)
 
 
     pub def map(f: a -> b, a: Array[a]): Array[b] = 
@@ -53,10 +50,11 @@ namespace Array2 {
             b
         else
             []
+    def mapHelper(b: Array[b], f: a -> b, i: Int, a: a) : Int = 
+        b[i] = f(a);
+        i + 1
 
-    def map2Helper(c: Array[c], f: a -> b -> c, i: Int, a: a, b: b) : Int = 
-            c[i] = f(a, b);
-            i + 1
+    
 
 
     pub def map2(f: a -> b -> c, a: Array[a], b: Array[b]): Array[c] =
@@ -69,6 +67,9 @@ namespace Array2 {
         else
             []
 
+    def map2Helper(c: Array[c], f: a -> b -> c, i: Int, a: a, b: b) : Int = 
+        c[i] = f(a, b);
+        i + 1
 
     def mapWithIndexHelper(b: Array[b], f: a -> Int32 -> b, i: Int, a: a) : Int = 
         b[i] = f(a, i);
@@ -281,5 +282,29 @@ namespace Array2 {
             case None => xs
             case Some(b) => b :: xs }, Nil, a) |> toArray
 
+    pub def rotateLeft(n: Int32, a: Array[a]): Array[a] = 
+        let len = Array.length(a);
+        if (len > 0 )
+            let b = Array.new(a[0], len);
+            foldLeft(rotateHelper(b), len - n, a);
+            b
+        else
+            []
 
-}    
+        
+    pub def rotateRight(n: Int32, a: Array[a]): Array[a] = 
+        let len = Array.length(a);
+        if (len > 0 )
+            let b = Array.new(a[0], len);
+            foldLeft(rotateHelper(b), n, a);
+            b
+        else
+            []
+
+    def rotateHelper(b: Array[a], i: Int32, x: a): Int32 = 
+        let ix = if (i >= Array.length(b)) 0 else i;
+        b[ix] = x;
+        ix + 1
+
+}
+

@@ -1,4 +1,11 @@
 
+/////////////////////////////////////////////////////////////////////////////
+// toArray                                                                 //
+/////////////////////////////////////////////////////////////////////////////
+// @test
+// def toArray01() : Bool = 
+//     Array.length(String2.toArray("abcde")) `assertEq!` 5
+
 @test
 def take01() : Bool = 
     String2.take(10, "hello") `assertEq!` "hello"

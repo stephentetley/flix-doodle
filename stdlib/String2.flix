@@ -16,6 +16,18 @@
 
 namespace String2 {
 
+
+    pub def toArray(s: Str): Array[Char] = 
+        let a = Array.new('.', String.length(s));
+        foldLeft(toArrayHelper(a), 0, s);
+        a
+
+    def toArrayHelper(a: Array[Char], i: Int32, c: Char) : Int32 = 
+        a[i] = c;
+        i + 1
+            
+
+
     ///
     /// Returns `true` if the string `s` matches the `regex`.
     ///
@@ -46,6 +58,7 @@ namespace String2 {
     } catch { 
         case _: ##java.lang.IndexOutOfBoundsException => Err("IndexOutOfBounds")
     }
+
 
 
 
@@ -98,7 +111,25 @@ namespace String2 {
             case x == 1 => Some("", String.charAt(0, s))
             case x < 1  => None
         }
-    
+
+
+    pub def foldLeft(f: b -> Char -> b, b: b, s: Str) : b = 
+        match viewl(s) {
+            case None => b
+            case Some(c,s1) => 
+                let acc = f(b, c);
+                foldLeft(f, acc, s1)
+        }
+
+
+    pub def foldRight(f: b -> Char -> b, b: b, s: Str) : b = 
+        match viewr(s) {
+            case None => b
+            case Some(s1,c) => 
+                let acc = f(b, c);
+                foldRight(f, acc, s1)
+        }
+
     ///
     /// Returns the tail of string `s` after dropping all the initial chars 
     /// that satisfy the predicate `f`.

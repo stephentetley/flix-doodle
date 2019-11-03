@@ -157,5 +157,9 @@ def reverse01(): Bool =
 
 
     
-
+@test 
+def rotateLeft01(): Bool = 
+    let a: Array[Int] = [1, 2, 3, 4, 5];
+    let b = Array2.rotateLeft(2, a);
+    b[0] `assertEq!` 3 && b[1] `assertEq!` 4
 
