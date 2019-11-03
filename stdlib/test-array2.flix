@@ -1,10 +1,10 @@
 
-// def sampleArray() : Array[Int] = Array.new(1, 10)
-
 
 
     
-
+/////////////////////////////////////////////////////////////////////////////
+// map                                                                     //
+/////////////////////////////////////////////////////////////////////////////
 @test
 def map01() : Bool = 
     let a = Array.new(1, 10);
@@ -16,6 +16,16 @@ def map02() : Bool =
     let a : Array[Int] = [];
     let fn = _ -> 'a';
     Array2.map(fn, a) |> Array.length `assertEq!` 0
+
+
+/////////////////////////////////////////////////////////////////////////////
+// mapWithIndex                                                            //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def mapWithIndex01() : Bool = 
+    let a = Array.new(1, 10);
+    let fn = (_, ix) -> ix;
+    Array2.foldLeft(Int32.max, 0, Array2.mapWithIndex(fn, a)) `assertEq!` 9
 
 @test 
 def count01() : Bool = 
@@ -35,11 +45,24 @@ def fold01() : Bool =
     Array2.fold(fn, 0, a) `assertEq!` 10
 
 @test
+def foldLeft201() : Bool = 
+    let a = Array.new(1, 10);
+    let b = Array.new(1, 7);
+    let fn = xs -> x -> y -> (x + y) :: xs;
+    List.length(Array2.foldLeft2(fn, Nil, a, b)) `assertEq!` 7
+
+@test
 def foldRight01() : Bool = 
     let a = Array.new(1, 10);
     let fn = x -> y -> x + y;
     Array2.foldRight(fn, 0, a) `assertEq!` 10
 
+@test
+def foldRight201() : Bool = 
+    let a = [1,2,3,4,5,6,7,8,9,0];
+    let b = [1,2,3,4,5,6,7];
+    let fn = xs -> x -> y -> (x + y) :: xs;
+    List.length(Array2.foldRight2(fn, Nil, a, b)) `assertEq!` 7
 
 @test
 def take01() : Bool = 

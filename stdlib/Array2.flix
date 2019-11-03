@@ -16,9 +16,9 @@
  
 namespace Array2 {
 
-    def mapHelper(b: Array[b], f: a-> b, ix: Int, a: a) : Int = 
-        b[ix] = f(a);
-        ix + 1
+    def mapHelper(b: Array[b], f: a -> b, i: Int, a: a) : Int = 
+        b[i] = f(a);
+        i + 1
 
 
     pub def map(f: a -> b, a: Array[a]): Array[b] = 
@@ -31,6 +31,38 @@ namespace Array2 {
         else
             []
 
+    def map2Helper(c: Array[c], f: a -> b -> c, i: Int, a: a, b: b) : Int = 
+            c[i] = f(a, b);
+            i + 1
+
+
+    pub def map2(f: a -> b -> c, a: Array[a], b: Array[b]): Array[c] =
+        let len = Int32.min(Array.length(a), Array.length(b));
+        if (Array.length(a) > 0 && Array.length(b) > 0) 
+            let x : c = f(a[0], b[0]);
+            let c : Array[c] = Array.new(x, len);
+            foldLeft2(map2Helper(c, f), 0, a);
+            c
+        else
+            []
+
+
+    def mapWithIndexHelper(b: Array[b], f: a -> Int32 -> b, i: Int, a: a) : Int = 
+        b[i] = f(a, i);
+        i + 1
+
+
+    pub def mapWithIndex(f: a -> Int32 -> b, a: Array[a]): Array[b] = 
+        let len = Array.length(a);
+        if (len > 0) 
+            let x : b = f(a[0], 0);
+            let b : Array[b] = Array.new(x, len);
+            foldLeft(mapWithIndexHelper(b, f), 0, a);
+            b
+        else
+            []
+
+
     pub def count(f: a -> Bool, a: Array[a]): Int32 = 
         foldLeft((b,x) -> if (f(x)) b + 1 else b, 0, a)
 
@@ -39,56 +71,91 @@ namespace Array2 {
     ///
     pub def fold(f: (b, a) -> b, s: b, a: Array[a]): b = foldLeft(f, s, a)
 
-    def foldLeftHelper(f: (b, a) -> b, s: b, a: Array[a], ix: Int): b = 
-        if (ix >= Array.length(a))
+    def foldLeftHelper(f: (b, a) -> b, s: b, a: Array[a], i: Int): b = 
+        if (i >= Array.length(a))
             s
         else
-            let s1 = f(s, a[ix]);
-            foldLeftHelper(f, s1, a, ix + 1)
+            let s1 = f(s, a[i]);
+            foldLeftHelper(f, s1, a, i + 1)
 
-    pub def foldLeft(f: (b, a) -> b, s: b, a: Array[a]): b = 
+    pub def foldLeft(f: b -> a -> b, s: b, a: Array[a]): b = 
         foldLeftHelper(f, s, a, 0)
 
-    def foldRightHelper(f: (b, a) -> b, s: b, a: Array[a], ix: Int): b = 
-        if (ix < 0)
+    pub def foldLeft2(f: c -> a -> b -> c, s: c, a: Array[a], b: Array[b]): c = 
+        foldLeft2Helper(f, s, a, b, 0)
+
+    def foldLeft2Helper(f: c -> a -> b -> c , s: c, a: Array[a], b: Array[b], i: Int): c = 
+        if (i >= Array.length(a) || i >= Array.length(b))
             s
         else
-            let s1 = f(s, a[ix]);
-            foldRightHelper(f, s1, a, ix - 1)
+            let s1 = f(s, a[i], b[i]);
+            foldLeft2Helper(f, s1, a, b, i + 1)
+
+
+
+    def foldRightHelper(f: (b, a) -> b, s: b, a: Array[a], i: Int): b = 
+        if (i < 0)
+            s
+        else
+            let s1 = f(s, a[i]);
+            foldRightHelper(f, s1, a, i - 1)
 
     pub def foldRight(f: (b, a) -> b, s: b, a: Array[a]): b = 
         foldRightHelper(f, s, a, Array.length(a) - 1)
 
+    pub def foldRight2(f: c -> a -> b -> c, s: c, a: Array[a], b: Array[b]): c = 
+        let len1 = Array.length(a);
+        let len2 = Array.length(b);
+        let i = Int32.min(len1, len2) - 1;
+        foldRight2Helper(f, s, drop(len1-len2, a), drop(len2-len1, b), i)
+        
+        
+
+
+    def foldRight2Helper(f: c -> a -> b -> c , s: c, a: Array[a], b: Array[b], i: Int): c = 
+        if (i < 0)
+            s
+        else
+            let s1 = f(s, a[i], b[i]);
+            foldRight2Helper(f, s1, a, b, i - 1)
+
+
     pub def take(n: Int, a: Array[a]) : Array[a] = 
-        Array.slice(a, 0, n)
+        if (n < 1) 
+            []
+        else
+            Array.slice(a, 0, n)
 
     pub def drop(n: Int, a: Array[a]) : Array[a] = 
-        let last = Array.length(a);
-        Array.slice(a, n, last)
+        if (n < 1)
+            Array.slice(a, 0, Array.length(a))
+        else
+            let last = Array.length(a);
+            Array.slice(a, n, last)
 
 
 
-    def existsHelper(f: a -> Bool, a: Array[a], ix: Int): Bool = 
-        if (ix >= Array.length(a))
+    def existsHelper(f: a -> Bool, a: Array[a], i: Int): Bool = 
+        if (i >= Array.length(a))
             false
         else 
-            if (f(a[ix]) == true) 
+            if (f(a[i]) == true) 
                 true 
             else 
-                existsHelper(f, a, ix+1)
+                existsHelper(f, a, i+1)
 
 
     pub def exists(f: a -> Bool, a: Array[a]): Bool = 
         existsHelper(f, a, 0)
 
-    def forallHelper(f: a -> Bool, a: Array[a], ix: Int): Bool = 
-        if (ix >= Array.length(a))
+    def forallHelper(f: a -> Bool, a: Array[a], i: Int): Bool = 
+        if (i >= Array.length(a))
             true
         else 
-            if (f(a[ix]) == false) 
+            if (f(a[i]) == false) 
                 false 
             else 
-                forallHelper(f, a, ix+1)
+                forallHelper(f, a, i+1)
 
 
     pub def forall(f: a -> Bool, a: Array[a]): Bool = 
