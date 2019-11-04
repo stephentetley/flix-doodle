@@ -2,9 +2,9 @@
 /////////////////////////////////////////////////////////////////////////////
 // toArray                                                                 //
 /////////////////////////////////////////////////////////////////////////////
-// @test
-// def toArray01() : Bool = 
-//     Array.length(String2.toArray("abcde")) `assertEq!` 5
+@test
+def toArray01() : Bool = 
+    Array.length(String2.toArray("abcde")) `assertEq!` 5
 
 @test
 def take01() : Bool = 

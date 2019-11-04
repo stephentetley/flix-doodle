@@ -32,7 +32,9 @@ namespace Array2 {
                 let j = appendHelper(a, c, 0, 0);
                 let _ = appendHelper(b, c, 0, j);
                 c
-    
+    ///
+    /// Helper function for `append`.
+    ///    
     def appendHelper(a: Array[a], c: Array[a], i: Int32, j: Int32): Int32 = 
         if (i >= Array.length(a))
             j
@@ -144,7 +146,11 @@ namespace Array2 {
     pub def fold(f: (b, a) -> b, s: b, a: Array[a]): b = foldLeft(f, s, a)
 
     
-
+    ///
+    /// Applies `f` to a start value `s` and all elements in `a` going from left to right.
+    ///
+    /// That is, the result is of the form: `f(...f(f(s, a[0]), a[1])..., xn)`.
+    ///
     pub def foldLeft(f: b -> a -> b, s: b, a: Array[a]): b = 
         foldLeftHelper(f, s, a, 0)
 
@@ -172,24 +178,29 @@ namespace Array2 {
             let s1 = f(s, a[i], b[i]);
             foldLeft2Helper(f, s1, a, b, i + 1)
 
-    pub def foldRight(f: (b, a) -> b, s: b, a: Array[a]): b = 
+    ///
+    /// Applies `f` to a start value `s` and all elements in `a` going from right to left.
+    ///
+    /// That is, the result is of the form: `f(a[0], ...f(a[n-1], f(a[n], s))...)`.
+    ///
+    pub def foldRight(f: (a, b) -> b, s: b, a: Array[a]): b = 
         foldRightHelper(f, s, a, Array.length(a) - 1)
 
     ///
     /// Helper function for `foldRight`.
     ///
-    def foldRightHelper(f: (b, a) -> b, s: b, a: Array[a], i: Int): b = 
+    def foldRightHelper(f: (a, b) -> b, s: b, a: Array[a], i: Int): b = 
         if (i < 0)
             s
         else
-            let s1 = f(s, a[i]);
+            let s1 = f(a[i], s);
             foldRightHelper(f, s1, a, i - 1)
     
     ///
     /// Accumulates the result of applying `f` pairwise to the elements of `a` and `b`
     /// starting with the initial value `c` and going from right to left.
     ///
-    pub def foldRight2(f: c -> a -> b -> c, c: c, a: Array[a], b: Array[b]): c = 
+    pub def foldRight2(f: (a, b, c) -> c, c: c, a: Array[a], b: Array[b]): c = 
         let len1 = Array.length(a);
         let len2 = Array.length(b);
         let i = Int32.min(len1, len2) - 1;
@@ -198,11 +209,11 @@ namespace Array2 {
     ///
     /// Helper function for `foldRight2`.
     ///
-    def foldRight2Helper(f: c -> a -> b -> c , s: c, a: Array[a], b: Array[b], i: Int): c = 
+    def foldRight2Helper(f: (a, b, c) -> c , s: c, a: Array[a], b: Array[b], i: Int): c = 
         if (i < 0)
             s
         else
-            let s1 = f(s, a[i], b[i]);
+            let s1 = f(a[i], b[i], s);
             foldRight2Helper(f, s1, a, b, i - 1)
 
     def findIndexOf(f: a -> Bool, a: Array[a]): Int = 
@@ -241,6 +252,11 @@ namespace Array2 {
         let start = findIndexOf(x -> !(f(x)), a);
         drop(start, a)
 
+    ///
+    /// Returns `true` if and only if at least one element in `a` satisfies the predicate `f`.
+    ///
+    /// Returns `false` if `a` is empty.
+    ///
     pub def exists(f: a -> Bool, a: Array[a]): Bool = 
         existsHelper(f, a, 0)
 
@@ -256,7 +272,11 @@ namespace Array2 {
             else 
                 existsHelper(f, a, i+1)
 
-
+    ///
+    /// Returns `true` if and only if all elements in `a` satisfy the predicate `f`.
+    ///
+    /// Returns `true` if `a` is empty.
+    ///
     pub def forall(f: a -> Bool, a: Array[a]): Bool = 
         forallHelper(f, a, 0)
     
@@ -332,10 +352,10 @@ namespace Array2 {
 
     
     pub def filter(f: a -> Bool, a: Array[a]): Array[a] = 
-        foldRight((xs,x) -> if (f(x)) x :: xs else xs, Nil, a) |> toArray
+        foldRight((x,xs) -> if (f(x)) x :: xs else xs, Nil, a) |> toArray
 
     pub def filterMap(f: a -> Option[b], a: Array[a]): Array[b] = 
-        foldRight((xs,x) -> match f(x) { 
+        foldRight((x,xs) -> match f(x) { 
             case None => xs
             case Some(b) => b :: xs }, Nil, a) |> toArray
 

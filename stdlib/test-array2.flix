@@ -75,7 +75,7 @@ def foldRight01(): Bool =
 def foldRight201(): Bool = 
     let a = [1,2,3,4,5,6,7,8,9,0];
     let b = [1,2,3,4,5,6,7];
-    let fn = xs -> x -> y -> (x + y) :: xs;
+    let fn = (x, y, xs) -> (x + y) :: xs;
     List.length(Array2.foldRight2(fn, Nil, a, b)) `assertEq!` 7
 
 /////////////////////////////////////////////////////////////////////////////

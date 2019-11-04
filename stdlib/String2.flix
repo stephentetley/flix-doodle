@@ -22,6 +22,9 @@ namespace String2 {
         foldLeft(toArrayHelper(a), 0, s);
         a
 
+    ///
+    /// Helper function for `toArray`.
+    ///
     def toArrayHelper(a: Array[Char], i: Int32, c: Char) : Int32 = 
         a[i] = c;
         i + 1
@@ -82,7 +85,30 @@ namespace String2 {
         case Ok(ans) => ans
         case Err(_) => ""
     }
-        
+
+    ///
+    /// Returns the initial prefix of string `s` where all the chars satisfy
+    /// the predicate `f`.
+    ///
+    pub def takeWhile(f: Char -> Bool, s: Str): Str = 
+        takeWhileHelper(f, s) |> List.toString
+
+    ///
+    /// Helper function for `takeWhile` because we seem to need an intermediate list...
+    ///   
+    def takeWhileHelper(f: Char -> Bool, s: Str): List[Char] = match viewl(s) {
+        case None => Nil
+        case Some(c, s1) => if (f(c)) (c :: takeWhileHelper(f, s1)) else Nil
+    }
+
+    ///
+    /// Returns the tail of string `s` after dropping all the initial chars 
+    /// that satisfy the predicate `f`.
+    ///
+    pub def dropWhile(f: Char -> Bool, s: Str): Str = match viewl(s) {
+        case None => ""
+        case Some(c, s1) => if (f(c)) dropWhile(f, s1) else s
+    }
 
 
     ///
@@ -113,7 +139,7 @@ namespace String2 {
         }
 
 
-    pub def foldLeft(f: b -> Char -> b, b: b, s: Str) : b = 
+    pub def foldLeft(f: (b, Char) -> b, b: b, s: Str) : b = 
         match viewl(s) {
             case None => b
             case Some(c,s1) => 
@@ -122,50 +148,47 @@ namespace String2 {
         }
 
 
-    pub def foldRight(f: b -> Char -> b, b: b, s: Str) : b = 
+    pub def foldRight(f: (Char, b) -> b, b: b, s: Str) : b = 
         match viewr(s) {
             case None => b
             case Some(s1,c) => 
-                let acc = f(b, c);
+                let acc = f(c, b);
                 foldRight(f, acc, s1)
         }
 
     ///
-    /// Returns the tail of string `s` after dropping all the initial chars 
-    /// that satisfy the predicate `f`.
+    /// Returns `true` if and only if at least one char in `s` satisfies the predicate `f`.
     ///
-    pub def dropWhile(f: Char -> Bool, s: Str): Str = match viewl(s) {
-        case None => ""
-        case Some(c, s1) => if (f(c)) dropWhile(f, s1) else s
-    }
-
-
-    def takeWhileHelper(f: Char -> Bool, s: Str): List[Char] = match viewl(s) {
-        case None => Nil
-        case Some(c, s1) => if (f(c)) (c :: takeWhileHelper(f, s1)) else Nil
-    }
-
+    /// Returns `false` if `a` is empty.
     ///
-    /// Returns the initial prefix of string `s` where all the chars satisfy
-    /// the predicate `f`.
-    ///
-    pub def takeWhile(f: Char -> Bool, s: Str): Str = 
-        takeWhileHelper(f, s) |> List.toString
-
-
     pub def exists(f: Char -> Bool, s: Str): Bool = match viewl(s) {
         case None => false
         case Some(c, s1) => if (f(c)) true else exists(f, s1)
     }
 
+    ///
+    /// Returns `true` if and only if all chars in `s` satisfy the predicate `f`.
+    ///
+    /// Returns `true` if `s` is empty.
+    ///
     pub def forall(f: Char -> Bool, s: Str): Bool = match viewl(s) {
         case None => true
         case Some(c, s1) => if (!f(c)) false else forall(f, s1)
     }
 
+    ///
+    /// Returns `true` if and only if all chars in `s` are ascii characters.
+    ///
+    /// Returns `true` if `s` is empty.
+    ///
     pub def isAscii(s: Str): Bool = 
         forall(Char.isAscii, s)
 
+    ///
+    /// Returns `true` if and only if all chars in `s` are white space characters.
+    ///
+    /// Returns `true` if `s` is empty.
+    ///
     pub def isBlank(s: Str): Bool = 
         forall(Char.isWhiteSpace, s)
 
@@ -193,27 +216,23 @@ namespace String2 {
             native method java.lang.String.repeat(s, n) as Str
     
     ///
-    /// Pad the string `s` at the left with the supplied char `c` to fit 
-    /// width `w`.
+    /// Pad the string `s` at the left with the supplied char `c` to fit the width `w`.
     ///
     pub def padStart(w: Int, c: Char, s: Str): Str = {
         let x = String.length(s);
         if (x < w) 
             repeat(w - x, Char.toString(c)) + s
-        else 
-            s
+        else s
     }
 
     ///
-    /// Pad the string `s` at the right with the supplied char `c` to fit 
-    /// width `w`.
+    /// Pad the string `s` at the right with the supplied char `c` to fit the width `w`.
     ///
     pub def padEnd(w: Int, c: Char, s: Str): Str = {
         let x = String.length(s);
         if (x < w) 
             s + repeat(w- x, Char.toString(c))
-        else 
-            s
+        else s
     }
 
     // pub def replace(oldChar: Char, newChar: Char, s: Str): Str =
@@ -232,14 +251,10 @@ namespace String2 {
         native method java.lang.System.lineSeparator() as Str
 
     ///
-    /// Split the string `s` into an array array of lines on the system 
-    /// dependent line separator.
+    /// Split the string `s` into an array of lines on the system dependent line separator.
     ///
     pub def lines(s: Str): Array[Str] = 
         String.split(s, lineSeparator())
-
-    def unlinesHelper(ac: Str, s: Str) : Str = 
-        ac + lineSeparator() + s
 
     ///
     /// Join the array of strings `a` with the system dependent line 
@@ -248,14 +263,14 @@ namespace String2 {
     pub def unlines(a: Array[Str]) : Str = 
         if (Array.length(a) > 0)
             let a1 = Array2.drop(1,a);
-            Array2.foldLeft(unlinesHelper, a[0], a1)
+            Array2.foldLeft((ac,s) -> ac + lineSeparator() + s, a[0], a1)
         else ""
 
+    ///
+    /// Split the string `s` into an array of words, dividing on one or more white space characters.
+    ///
     pub def words(s: Str): Array[Str] = 
         String.split(s, "\s+")
-
-    def unwordsHelper(ac: Str, s: Str) : Str = 
-        ac + " " + s
 
     ///
     /// Join the array of strings `a` with a single space character.
@@ -263,7 +278,7 @@ namespace String2 {
     pub def unwords(a: Array[Str]) : Str = 
         if (Array.length(a) > 0)
             let a1 = Array2.drop(1,a);
-            Array2.foldLeft(unwordsHelper, a[0], a1)
+            Array2.foldLeft((ac,s) -> ac + " " + s, a[0], a1)
         else ""
 
 
