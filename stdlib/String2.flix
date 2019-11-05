@@ -28,8 +28,24 @@ namespace String2 {
     def toArrayHelper(a: Array[Char], i: Int32, c: Char) : Int32 = 
         a[i] = c;
         i + 1
-            
 
+    ///
+    /// Returns the result of applying `f` to every character in `s`.
+    ///
+    pub def map(f: Char -> Char, s: Str): Str =
+        let len = String.length(s);
+        if (len > 0)
+            let a = Array.new(' ', len);
+            foldLeft(mapHelper(f,a), 0, s);
+            Array2.toString(a)
+        else ""
+
+    ///
+    /// Helper function for `map`.
+    ///
+    def mapHelper(f: Char -> Char, a : Array[Char], i: Int32, c: Char) : Int32 = 
+        a[i] = f(c);
+        i +1
 
     ///
     /// Returns `true` if the string `s` matches the `regex`.
@@ -48,6 +64,7 @@ namespace String2 {
     ///
     /// It would be quite nice to export this, but what do we do about 
     /// representing failure - Result, Option, empty-string?
+    ///
     def substring(i: Int, j: Int, s: Str) : Result[Str,Str] = try {
         let a = native method java.lang.String.substring(s, i, j) as Str;
         Ok(a)
@@ -260,7 +277,7 @@ namespace String2 {
     /// Join the array of strings `a` with the system dependent line 
     /// separator.
     ///
-    pub def unlines(a: Array[Str]) : Str = 
+    pub def unlines(a: Array[Str]): Str = 
         if (Array.length(a) > 0)
             let a1 = Array2.drop(1,a);
             Array2.foldLeft((ac,s) -> ac + lineSeparator() + s, a[0], a1)
@@ -275,12 +292,25 @@ namespace String2 {
     ///
     /// Join the array of strings `a` with a single space character.
     ///
-    pub def unwords(a: Array[Str]) : Str = 
+    pub def unwords(a: Array[Str]): Str = 
         if (Array.length(a) > 0)
             let a1 = Array2.drop(1,a);
             Array2.foldLeft((ac,s) -> ac + " " + s, a[0], a1)
         else ""
 
+    /// 
+    /// Return the index of the first occurence of `substring` in `s`.
+    ///
+    /// If `substring` is not present in `s` return -1.
+    /// TODO should it return Option[Int]?
+    ///
+    pub def indexOf(s: Str, substring: Str): Int =
+        native method java.lang.String.indexOf(s: Str, substring: Str) as Int
 
+    /// 
+    /// Test if the string `s` contains `substring`.
+    ///
+    pub def contains(s: Str, substring: Str): Bool = 
+        indexOf(s, substring) >= 0
 
 }
