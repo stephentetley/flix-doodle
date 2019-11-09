@@ -297,16 +297,39 @@ namespace Array2 {
     pub def memberOf(x: a, a: Array[a]): Bool = 
         exists(y -> y == x, a)
     
-    pub def indexOf(x: a, a: Array[a]): Int32 = indexOfHelper(x, a, 0)
+    ///
+    /// Alias for `indexOfLeft`.
+    ///
+    pub def indexOf(x: a, a: Array[a]): Int32 = indexOfLeftHelper(x, a, 0)
+
+
+    pub def indexOfLeft(x: a, a: Array[a]): Option[Int32]= 
+        let i = indexOfLeftHelper(x, a, 0);
+        if (i < 0) None else Some(i)
 
     ///
-    /// Helper function for `indexOf`.
+    /// Helper function for `indexOfLeft`.
     ///
-    def indexOfHelper(x: a, a: Array[a], i: Int32): Int32 = 
+    def indexOfLeftHelper(x: a, a: Array[a], i: Int32): Int32 = 
         if (i >= Array.length(a))
             -1
         else 
-            if (a[i] == x) i else indexOfHelper(x, a, i+1)
+            if (a[i] == x) i else indexOfLeftHelper(x, a, i+1)
+
+    pub def indexOfRight(x: a, a: Array[a]): Option[Int32] = 
+        let i = indexOfRightHelper(x, a, Array.length(a) - 1);
+        if (i < 0) None else Some(i)
+
+    ///
+    /// Helper function for `indexOfRight`.
+    ///
+    def indexOfRightHelper(x: a, a: Array[a], i: Int32): Int32 = 
+        if (i >= 0)
+            -1
+        else 
+            if (a[i] == x) i else indexOfRightHelper(x, a, i-1)
+
+
 
     pub def findLeft(f: a -> Bool, a: Array[a]): Option[a] = findLeftHelper(f, a, 0)
 

@@ -83,7 +83,7 @@ namespace String2 {
 
 
     ///
-    /// Take the first `n` characters of string `s`.
+    /// Take the first `n` characters of string `s` from the left.
     ///
     /// If `n` extends past the end of string `s`, return all the characters 
     /// of `s`.
@@ -94,7 +94,7 @@ namespace String2 {
     }
 
     ///
-    /// Drop the first `n` characters of string `s`.
+    /// Drop the first `n` characters of string `s` from the left.
     ///
     /// If `n` extends past the end of string s, return the empty string.
     ///
@@ -139,13 +139,17 @@ namespace String2 {
         (take(n,s), drop(n,s))
 
     ///
-    /// Deconstruct the string `s` from the left.
+    /// Deconstruct the string `s` from the left returning the first char and the rest of the string.
+    ///
+    /// Return None if `s` is empty.
     ///
     pub def viewl(s: Str): Option[(Char, Str)] = 
         if (String.length(s) == 0) None else Some(String.charAt(0, s), drop(1,s))
 
     ///
-    /// Deconstruct the string `s` from the right.
+    /// Deconstruct the string `s` from the right returning the first char and the rest of the string.
+    ///
+    /// Return None if `s` is empty.
     ///
     pub def viewr(s: Str): Option[(Str, Char)] = 
         let x = String.length(s);
@@ -172,6 +176,26 @@ namespace String2 {
                 let acc = f(c, b);
                 foldRight(f, acc, s1)
         }
+
+    pub def unfold(f: b -> Option[(Char, b)], st: b) : Str = 
+        unfoldHelper(f, st) |> List.toString
+
+    
+    def unfoldHelper(f: b -> Option[(Char, b)], st: b) : List[Char] = 
+        match f(st) {
+            case None => Nil
+            case Some(c, st1) => c :: unfoldHelper(f, st1)
+        }
+
+    pub def commonPrefix(s: Str, t: Str): Str = 
+        let len = Int32.min(String.length(s), String.length(t));
+        let fn = i -> 
+            if (i < len && String.charAt(i, s) == String.charAt(i, t))
+                Some(String.charAt(i, s), i+1)
+            else None;
+        unfold(fn, 0)
+            
+
 
     ///
     /// Returns `true` if and only if at least one char in `s` satisfies the predicate `f`.
@@ -210,15 +234,15 @@ namespace String2 {
         forall(Char.isWhiteSpace, s)
 
     /// Better (hopefully) implementation with viewl
-    pub def trimStart(s: Str): Str = match viewl(s) {
+    pub def trimLeft(s: Str): Str = match viewl(s) {
         case None => ""
-        case Some(c, s1) => if (!(Char.isWhiteSpace(c))) s else trimStart(s1)
+        case Some(c, s1) => if (!(Char.isWhiteSpace(c))) s else trimLeft(s1)
     } 
         
     /// Better (hopefully) implementation with viewr
-    pub def trimEnd(s: Str): Str = match viewr(s) {
+    pub def trimRight(s: Str): Str = match viewr(s) {
         case None => ""
-        case Some(s1, c) => if (!(Char.isWhiteSpace(c))) s else trimEnd(s1)
+        case Some(s1, c) => if (!(Char.isWhiteSpace(c))) s else trimRight(s1)
     } 
       
     ///
@@ -235,7 +259,7 @@ namespace String2 {
     ///
     /// Pad the string `s` at the left with the supplied char `c` to fit the width `w`.
     ///
-    pub def padStart(w: Int, c: Char, s: Str): Str = {
+    pub def padLeft(w: Int, c: Char, s: Str): Str = {
         let x = String.length(s);
         if (x < w) 
             repeat(w - x, Char.toString(c)) + s
@@ -245,7 +269,7 @@ namespace String2 {
     ///
     /// Pad the string `s` at the right with the supplied char `c` to fit the width `w`.
     ///
-    pub def padEnd(w: Int, c: Char, s: Str): Str = {
+    pub def padRight(w: Int, c: Char, s: Str): Str = {
         let x = String.length(s);
         if (x < w) 
             s + repeat(w- x, Char.toString(c))
@@ -298,19 +322,34 @@ namespace String2 {
             Array2.foldLeft((ac,s) -> ac + " " + s, a[0], a1)
         else ""
 
+    ///
+    /// Alias for `indexOfLeft`.
+    ///
+    pub def indexOf(s: Str, sub: Str): Option[Int] = indexOfLeft(s, sub)
+
     /// 
-    /// Return the index of the first occurence of `substring` in `s`.
+    /// Return the index of the first occurence of `sub` in `s` from the left.
     ///
-    /// If `substring` is not present in `s` return -1.
-    /// TODO should it return Option[Int]?
+    /// If `substring` is not present in `s` return None.
     ///
-    pub def indexOf(s: Str, substring: Str): Int =
-        native method java.lang.String.indexOf(s: Str, substring: Str) as Int
+    pub def indexOfLeft(s: Str, sub: Str): Option[Int] =
+        let i = native method java.lang.String.indexOf(s: Str, sub: Str) as Int;
+        if (i < 0) None else Some(i)
+
+    /// 
+    /// Return the index of the first occurence of `sub` in `s` from the right.
+    ///
+    /// If `substring` is not present in `s` return None.
+    ///
+    pub def indexOfRight(s: Str, sub: Str): Option[Int] =
+        let i = native method java.lang.String.lastIndexOf(s: Str, sub: Str) as Int;
+        if (i < 0) None else Some(i)
+
 
     /// 
     /// Test if the string `s` contains `substring`.
     ///
     pub def contains(s: Str, substring: Str): Bool = 
-        indexOf(s, substring) >= 0
+        indexOf(s, substring) |> Option.isSome
 
 }
