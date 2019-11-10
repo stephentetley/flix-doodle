@@ -1,19 +1,20 @@
 
 /////////////////////////////////////////////////////////////////////////////
-// map                                                                     //
+// append                                                                  //
 /////////////////////////////////////////////////////////////////////////////
 @test
 def append01(): Bool = 
     let a = [1,2,3,4,5];
     let b = [6,7,8];
-    Array.length(Array2.append(a,b)) `assertEq!` 8
+    let c = Array2.append(a,b);
+    Array.toList(c) `assertEq!` 1 :: 2 :: 3 :: 4 :: 5 :: 6 :: 7 :: 8 :: Nil
 
 @test
 def append02(): Bool = 
-    let a = [0,1,2,3,4,5];
-    let b = [6,7,8];
+    let a = [1,2,3,4,5];
+    let b: Array[Int32] = [];
     let c = Array2.append(a,b);
-    c[0] `assertEq!` 0 && c[5] `assertEq!` 5 && c[6] `assertEq!` 6 && c[8] `assertEq!` 8
+    Array.toList(c) `assertEq!` 1 :: 2 :: 3 :: 4 :: 5 :: Nil
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -159,31 +160,54 @@ def filterMap01(): Bool =
     let a: Array[Int] = [0, 1, 2, 3, 4, 5];    
     Array.length(Array2.filterMap(x -> if (x % 2 == 0) Some(x) else None, a)) `assertEq!` 3
 
+
+/////////////////////////////////////////////////////////////////////////////
+// reverse                                                                 //
+/////////////////////////////////////////////////////////////////////////////
 @test 
 def reverse01(): Bool = 
-    let a: Array[Int] = [0, 1, 2, 3, 4, 5];
+    let a: Array[Int] = [1, 2, 3, 4, 5];
     let b = Array2.reverse(a);
-    b[0] `assertEq!` 5 && b[1] `assertEq!` 4
+    Array.toList(b) `assertEq!` 5 :: 4 :: 3 :: 2 :: 1 :: Nil
 
 
 /////////////////////////////////////////////////////////////////////////////
-// rotateLeft                                                                    //
+// rotateLeft                                                              //
 /////////////////////////////////////////////////////////////////////////////
 @test 
 def rotateLeft01(): Bool = 
     let a: Array[Int] = [1, 2, 3, 4, 5];
     let b = Array2.rotateLeft(2, a);
-    b[0] `assertEq!` 3 && b[1] `assertEq!` 4
+    Array.toList(b) `assertEq!` 3 :: 4 :: 5 :: 1 :: 2 :: Nil
 
 
 /////////////////////////////////////////////////////////////////////////////
-// rotateRight                                                                   //
+// rotateRight                                                             //
 /////////////////////////////////////////////////////////////////////////////
 @test 
 def rotateRight01(): Bool = 
     let a: Array[Int] = [1, 2, 3, 4, 5];
     let b = Array2.rotateRight(2, a);
-    b[0] `assertEq!` 4 && b[1] `assertEq!` 5
+    Array.toList(b) `assertEq!` 4 :: 5 :: 1 :: 2 :: 3 :: Nil
 
 
 
+/////////////////////////////////////////////////////////////////////////////
+// zip                                                                     //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def zip01(): Bool = 
+    let a = Array2.init(identity, 10);
+    let b = Array2.init(identity, 5);
+    let c = Array2.zip(a, b);
+    Array.toList(c) `assertEq!` (0,0) :: (1,1) :: (2,2) :: (3,3) :: (4,4) :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// zipWith                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def zipWith01(): Bool = 
+    let a = Array2.init(identity, 10);
+    let b = Array2.init(identity, 5);
+    let c = Array2.zipWith((x,y) -> x + y, a, b);
+    Array.toList(c) `assertEq!` 0 :: 2 :: 4 :: 6 :: 8 :: Nil

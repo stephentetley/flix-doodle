@@ -25,7 +25,9 @@ namespace Array2 {
             buildHelper(a, f, b1, 1);
             a
 
-    
+    ///
+    /// Helper function for `builds`.
+    /// 
     def buildHelper(a: Array[a], f: b -> (a, b), st: b, i: Int): Unit = 
         if (i >= Array.length(a))
             ()
@@ -33,6 +35,10 @@ namespace Array2 {
             let (x, st1) = f(st);
             a[i] = x;
             buildHelper(a, f, st1, i+1)
+
+    pub def init(f: Int32 -> a, len: Int32): Array[a] = 
+        build(i -> (f(i), i+1), 0, len)
+
 
 
     ///
@@ -71,7 +77,7 @@ namespace Array2 {
     ///
     pub def map(f: a -> b, a: Array[a]): Array[b] = 
         let len = Array.length(a);
-        build(i -> (f(a[i]), i+1), 0, len)
+        init(i -> f(a[i]), len)
 
 
     ///
@@ -81,8 +87,7 @@ namespace Array2 {
     ///
     pub def map2(f: a -> b -> c, a: Array[a], b: Array[b]): Array[c] =
         let len = Int32.min(Array.length(a), Array.length(b));
-        let fn = i -> (f(a[i], b[i]), i+1);
-        build(fn, 0, len)
+        init(i -> f(a[i], b[i]), len)
 
 
 
@@ -93,7 +98,7 @@ namespace Array2 {
     ///
     pub def mapWithIndex(f: a -> Int32 -> b, a: Array[a]): Array[b] = 
         let len = Array.length(a);
-        build(i -> (f(a[i], i), i+1), 0, len)
+        init(i -> f(a[i], i), len)
 
 
 
@@ -373,13 +378,13 @@ namespace Array2 {
         let f = i -> if (i >= len) (a[0], 1) else (a[i], i+1);
         build(f, len - n, len)
 
-    // ///
-    // /// Helper function for `rotateLeft` and `rotateRight`.
-    // ///
-    // def rotateHelper(b: Array[a], i: Int32, x: a): Int32 = 
-    //     let ix = if (i >= Array.length(b)) 0 else i;
-    //     b[ix] = x;
-    //     ix + 1
+    pub def zip(a: Array[a], b: Array[b]): Array[(a,b)] = 
+        let len = Int32.min(Array.length(a), Array.length(b));
+        init(i -> (a[i], b[i]), len)
+
+    pub def zipWith(f: (a, b) -> c, a: Array[a], b: Array[b]): Array[c] = 
+        let len = Int32.min(Array.length(a), Array.length(b));
+        init(i -> f(a[i], b[i]), len)
 
 }
 

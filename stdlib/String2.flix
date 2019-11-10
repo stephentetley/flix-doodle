@@ -22,6 +22,29 @@ namespace String2 {
         foldLeft(toArrayHelper(a), 0, s);
         a
 
+    pub def build(f: b -> (Char, b), st: b, len: Int32): Str = 
+        if (len <= 0) 
+            ""
+        else
+            let (x, b1) = f(st);
+            let a = Array.new(x, len);
+            buildHelper(a, f, b1, 1);
+            Array2.toString(a)
+
+    ///
+    /// Helper function for `builds`.
+    /// 
+    def buildHelper(a: Array[a], f: b -> (a, b), st: b, i: Int): Unit = 
+        if (i >= Array.length(a))
+            ()
+        else
+            let (x, st1) = f(st);
+            a[i] = x;
+            buildHelper(a, f, st1, i+1)
+
+    pub def init(f: Int32 -> Char, len: Int32): Str = 
+        build(i -> (f(i), i+1), 0, len)
+
     ///
     /// Helper function for `toArray`.
     ///
@@ -34,18 +57,9 @@ namespace String2 {
     ///
     pub def map(f: Char -> Char, s: Str): Str =
         let len = String.length(s);
-        if (len > 0)
-            let a = Array.new(' ', len);
-            foldLeft(mapHelper(f,a), 0, s);
-            Array2.toString(a)
-        else ""
+        init(i -> f(String.charAt(i, s)), len)
+        
 
-    ///
-    /// Helper function for `map`.
-    ///
-    def mapHelper(f: Char -> Char, a : Array[Char], i: Int32, c: Char) : Int32 = 
-        a[i] = f(c);
-        i +1
 
     ///
     /// Returns `true` if the string `s` matches the `regex`.
@@ -351,5 +365,10 @@ namespace String2 {
     ///
     pub def contains(s: Str, substring: Str): Bool = 
         indexOf(s, substring) |> Option.isSome
+
+
+    pub def reverse(s: Str) : Str = 
+        let start = String.length(s) - 1;
+        init(i -> String.charAt(start - i, s), start+1)
 
 }
