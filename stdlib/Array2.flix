@@ -16,6 +16,25 @@
  
 namespace Array2 {
 
+    pub def build(f: b -> (a, b), st: b, len: Int32): Array[a] = 
+        if (len <= 0) 
+            []
+        else
+            let (x, b1) = f(st);
+            let a = Array.new(x, len);
+            buildHelper(a, f, b1, 1);
+            a
+
+    
+    def buildHelper(a: Array[a], f: b -> (a, b), st: b, i: Int): Unit = 
+        if (i >= Array.length(a))
+            ()
+        else
+            let (x, st1) = f(st);
+            a[i] = x;
+            buildHelper(a, f, st1, i+1)
+
+
     ///
     /// Return a new array, appending the elements `b` to elements of `a`.
     ///
@@ -52,19 +71,8 @@ namespace Array2 {
     ///
     pub def map(f: a -> b, a: Array[a]): Array[b] = 
         let len = Array.length(a);
-        if (len > 0) 
-            let x : b = f(a[0]);
-            let b : Array[b] = Array.new(x, len);
-            foldLeft(mapHelper(b, f), 0, a);
-            b
-        else []
+        build(i -> (f(a[i]), i+1), 0, len)
 
-    ///
-    /// Helper function for `map`.
-    ///
-    def mapHelper(b: Array[b], f: a -> b, i: Int, a: a) : Int = 
-        b[i] = f(a);
-        i + 1
 
     ///
     /// Returns an array where the element at index `i` is `f(a[i], b[i])`.
@@ -73,19 +81,10 @@ namespace Array2 {
     ///
     pub def map2(f: a -> b -> c, a: Array[a], b: Array[b]): Array[c] =
         let len = Int32.min(Array.length(a), Array.length(b));
-        if (Array.length(a) > 0 && Array.length(b) > 0) 
-            let x : c = f(a[0], b[0]);
-            let c : Array[c] = Array.new(x, len);
-            foldLeft2(map2Helper(c, f), 0, a);
-            c
-        else []
+        let fn = i -> (f(a[i], b[i]), i+1);
+        build(fn, 0, len)
 
-    ///
-    /// Helper function for `map2`.
-    ///
-    def map2Helper(c: Array[c], f: a -> b -> c, i: Int, a: a, b: b) : Int = 
-        c[i] = f(a, b);
-        i + 1
+
 
     ///
     /// Returns the result of applying `f` to every element in `a` along with that element's index.
@@ -94,19 +93,9 @@ namespace Array2 {
     ///
     pub def mapWithIndex(f: a -> Int32 -> b, a: Array[a]): Array[b] = 
         let len = Array.length(a);
-        if (len > 0) 
-            let x : b = f(a[0], 0);
-            let b : Array[b] = Array.new(x, len);
-            foldLeft(mapWithIndexHelper(b, f), 0, a);
-            b
-        else []
+        build(i -> (f(a[i], i), i+1), 0, len)
 
-    ///
-    /// Helper function for `mapWithIndex`.
-    ///
-    def mapWithIndexHelper(b: Array[b], f: a -> Int32 -> b, i: Int, a: a) : Int = 
-        b[i] = f(a, i);
-        i + 1
+
 
     ///
     /// Returns the number of elements in `a` that satisfy the predicate `f`.
@@ -127,18 +116,9 @@ namespace Array2 {
     ///
     pub def reverse(a: Array[a]): Array[a] = 
         let len = Array.length(a);
-        if (len > 0) 
-            let b = Array.new(a[0], len);
-            foldRight(reverseHelper(b), 0, a);
-            b
-        else []
-    
-    ///
-    /// Helper function for `reverse`.
-    ///
-    def reverseHelper(b: Array[a], i: Int32, a: a): Int32 = 
-        b[i] = a;
-        i + 1
+        let f = i -> (a[i], i-1);
+        build(f, len - 1, len)
+
 
     ///
     /// Alias for `foldLeft`.
@@ -384,28 +364,22 @@ namespace Array2 {
 
     pub def rotateLeft(n: Int32, a: Array[a]): Array[a] = 
         let len = Array.length(a);
-        if (len > 0 )
-            let b = Array.new(a[0], len);
-            foldLeft(rotateHelper(b), len - n, a);
-            b
-        else []
+        let f = i -> if (i >= len) (a[0], 1) else (a[i], i+1);
+        build(f, n, len)
 
         
     pub def rotateRight(n: Int32, a: Array[a]): Array[a] = 
         let len = Array.length(a);
-        if (len > 0 )
-            let b = Array.new(a[0], len);
-            foldLeft(rotateHelper(b), n, a);
-            b
-        else []
+        let f = i -> if (i >= len) (a[0], 1) else (a[i], i+1);
+        build(f, len - n, len)
 
-    ///
-    /// Helper function for `rotateLeft` and `rotateRight`.
-    ///
-    def rotateHelper(b: Array[a], i: Int32, x: a): Int32 = 
-        let ix = if (i >= Array.length(b)) 0 else i;
-        b[ix] = x;
-        ix + 1
+    // ///
+    // /// Helper function for `rotateLeft` and `rotateRight`.
+    // ///
+    // def rotateHelper(b: Array[a], i: Int32, x: a): Int32 = 
+    //     let ix = if (i >= Array.length(b)) 0 else i;
+    //     b[ix] = x;
+    //     ix + 1
 
 }
 

@@ -83,20 +83,20 @@ def isBlank02() : Bool =
     assertNot!(String2.isBlank("     o  "))
 
 @test
-def trimStart01() : Bool = 
-    String2.trimStart("    body ") `assertEq!` "body "
+def trimLeft01() : Bool = 
+    String2.trimLeft("    body ") `assertEq!` "body "
 
 @test
-def trimEnd01() : Bool = 
-    String2.trimEnd(" body      ") `assertEq!` " body"
+def trimRighr01() : Bool = 
+    String2.trimRight(" body      ") `assertEq!` " body"
 
 @test
-def padStart01() : Bool = 
-    String2.padStart(10, '.', "body") `assertEq!` "......body"
+def padLeft01() : Bool = 
+    String2.padLeft(10, '.', "body") `assertEq!` "......body"
 
 @test
-def padEnd01() : Bool = 
-    String2.padEnd(10, '.', "body") `assertEq!` "body......"
+def padRight01() : Bool = 
+    String2.padRight(10, '.', "body") `assertEq!` "body......"
 
 @test 
 def replaceAll01() : Bool =     
