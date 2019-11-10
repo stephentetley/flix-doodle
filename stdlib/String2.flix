@@ -21,6 +21,13 @@ namespace String2 {
         let a = Array.new('.', String.length(s));
         foldLeft(toArrayHelper(a), 0, s);
         a
+    
+    ///
+    /// Helper function for `toArray`.
+    ///
+    def toArrayHelper(a: Array[Char], i: Int32, c: Char) : Int32 = 
+        a[i] = c;
+        i + 1
 
     pub def build(f: b -> (Char, b), st: b, len: Int32): Str = 
         if (len <= 0) 
@@ -32,7 +39,7 @@ namespace String2 {
             Array2.toString(a)
 
     ///
-    /// Helper function for `builds`.
+    /// Helper function for `build`.
     /// 
     def buildHelper(a: Array[a], f: b -> (a, b), st: b, i: Int): Unit = 
         if (i >= Array.length(a))
@@ -45,12 +52,7 @@ namespace String2 {
     pub def init(f: Int32 -> Char, len: Int32): Str = 
         build(i -> (f(i), i+1), 0, len)
 
-    ///
-    /// Helper function for `toArray`.
-    ///
-    def toArrayHelper(a: Array[Char], i: Int32, c: Char) : Int32 = 
-        a[i] = c;
-        i + 1
+   
 
     ///
     /// Returns the result of applying `f` to every character in `s`.
@@ -59,6 +61,13 @@ namespace String2 {
         let len = String.length(s);
         init(i -> f(String.charAt(i, s)), len)
         
+    pub def mapWithIndex(f: (Char, Int32) -> Char, s: Str): Str =
+        let len = String.length(s);
+        init(i -> f(String.charAt(i, s), i), len)
+      
+    pub def map2(f: (Char, Char) -> Char, s: Str, t: Str): Str =
+        let len = String.length(s);
+        init(i -> f(String.charAt(i, s), String.charAt(i, t)), len)
 
 
     ///
@@ -74,27 +83,20 @@ namespace String2 {
     
     
     ///
-    /// Returns the substring of string `s` between `i` and `j`.
+    /// Returns the substring of `s` from index `b` (inclusive) to index `e` (exclusive).
     ///
-    /// It would be quite nice to export this, but what do we do about 
-    /// representing failure - Result, Option, empty-string?
+    /// If `b` or `e` are out-of-bounds, return the empty string.
     ///
-    def substring(i: Int, j: Int, s: Str) : Result[Str,Str] = try {
-        let a = native method java.lang.String.substring(s, i, j) as Str;
-        Ok(a)
+    pub def slice(b: Int, e: Int, s: Str) : Str = try {
+        native method java.lang.String.substring(s, b, e) as Str
     } catch { 
-        case _: ##java.lang.IndexOutOfBoundsException => Err("IndexOutOfBounds")
+        case _: ##java.lang.IndexOutOfBoundsException => ""
     }
     
-    def substring1(i: Int, s: Str) : Result[Str,Str] = try {
-        let a = native method java.lang.String.substring(s, i) as Str;
-        Ok(a)
-    } catch { 
-        case _: ##java.lang.IndexOutOfBoundsException => Err("IndexOutOfBounds")
-    }
-
-
-
+    ///
+    /// Alias for `takeLeft`.
+    ///
+    pub def take(n: Int, s: Str) : Str = takeLeft(n, s)
 
     ///
     /// Take the first `n` characters of string `s` from the left.
@@ -102,20 +104,30 @@ namespace String2 {
     /// If `n` extends past the end of string `s`, return all the characters 
     /// of `s`.
     ///
-    pub def take(n: Int, s: Str) : Str = match substring(0, n, s) {
-        case Ok(ans) => ans
-        case Err(_) => s
-    }
+    pub def takeLeft(n: Int, s: Str) : Str = slice(0, n, s) 
+
+    pub def takeRight(n: Int, s: Str) : Str =
+        let len = String.length(s);
+        slice(len - n, len, s)
+
+    ///
+    /// Alias for `dropLeft`.
+    ///
+    pub def drop(n: Int, s: Str) : Str = dropLeft(n, s)
 
     ///
     /// Drop the first `n` characters of string `s` from the left.
     ///
     /// If `n` extends past the end of string s, return the empty string.
     ///
-    pub def drop(n: Int, s: Str) : Str = match substring1(n, s) {
-        case Ok(ans) => ans
-        case Err(_) => ""
-    }
+    pub def dropLeft(n: Int, s: Str) : Str =
+        let len = String.length(s);
+        slice(n, len, s)
+
+
+    pub def dropRight(n: Int, s: Str) : Str =
+        let len = String.length(s);
+        slice(0, len - n, s)
 
     ///
     /// Returns the initial prefix of string `s` where all the chars satisfy
@@ -182,6 +194,15 @@ namespace String2 {
                 foldLeft(f, acc, s1)
         }
 
+    pub def foldLeft2(f: (b, Char, Char) -> b, b: b, s: Str, t: Str) : b = 
+        match (viewl(s), viewl(t)) {
+            case (Some(x,s1), Some(y,t1)) => 
+                let acc = f(b, x, y);
+                foldLeft2(f, acc, s1, t1)
+            case (_, _) => b            
+        }
+
+
 
     pub def foldRight(f: (Char, b) -> b, b: b, s: Str) : b = 
         match viewr(s) {
@@ -189,6 +210,14 @@ namespace String2 {
             case Some(s1,c) => 
                 let acc = f(c, b);
                 foldRight(f, acc, s1)
+        }
+
+    pub def foldRight2(f: (Char, Char, b) -> b, b: b, s: Str, t: Str) : b = 
+        match (viewr(s), viewr(t)) {
+            case (Some(s1, x), Some(t1, y)) => 
+                let acc = f(x, y, b);
+                foldRight2(f, acc, s1, t1)
+            case (_, _) => b
         }
 
     pub def unfold(f: b -> Option[(Char, b)], st: b) : Str = 
@@ -203,13 +232,27 @@ namespace String2 {
 
     pub def commonPrefix(s: Str, t: Str): Str = 
         let len = Int32.min(String.length(s), String.length(t));
-        let fn = i -> 
+        let f = i -> 
             if (i < len && String.charAt(i, s) == String.charAt(i, t))
                 Some(String.charAt(i, s), i+1)
             else None;
-        unfold(fn, 0)
-            
+        unfold(f, 0)
 
+    // pub def commonSuffix(s: Str, t: Str): Str = 
+    //     let sstart: Int32 = String.length(s) - 1;
+    //     let tstart: Int32 = String.length(t) - 1;
+    //     unfold(commonSuffixHelper(s, t), {i=sstart, j=tstart})
+            
+    // def commonSuffixHelper(s: Str, t: Str, r: {i: Int32, j: Int32}) : Option[(Char, {i: Int32, j: Int32})] = 
+    //     let i1 = r.i;
+    //     let j1 = r.j;
+    //     if (i1 < 0 || j1 < 0 || (String.charAt(i1, s) != String.charAt(j1, t)))
+    //         None 
+    //     else
+    //         let r1 = { i = i1 - 1, j = j1 - 1};
+    //         Some(String.charAt(i1, s), r1)
+
+        
 
     ///
     /// Returns `true` if and only if at least one char in `s` satisfies the predicate `f`.

@@ -67,6 +67,9 @@ namespace Array2 {
             let _ = c[j] = a[i];
             appendHelper(a, c, i+1, j+1)
 
+    pub def concat(a: Array[Array[a]]) : Array[a] = 
+        foldLeft((acc,b) -> append(acc,b), [], a)
+
     pub def toString(a: Array[Char]) : Str = 
         Array2.foldLeft((acc, c) -> String.concat(acc, Char.toString(c)), "", a)
 
@@ -100,6 +103,13 @@ namespace Array2 {
         let len = Array.length(a);
         init(i -> f(a[i], i), len)
 
+    pub def flatMap(f: a -> Array[b], a: Array[a]): Array[b] = 
+        let len = Array.length(a);
+        init(i -> f(a[i]), len) |> concat
+
+    pub def flatMap2(f: (a, b) -> Array[c], a: Array[a], b: Array[b]): Array[c] = 
+        let len = Int32.min(Array.length(a), Array.length(b));
+        init(i -> f(a[i], b[i]), len) |> concat
 
 
     ///
@@ -278,7 +288,7 @@ namespace Array2 {
                 forallHelper(f, a, i+1)
 
 
-
+    
     pub def memberOf(x: a, a: Array[a]): Bool = 
         exists(y -> y == x, a)
     
@@ -367,12 +377,17 @@ namespace Array2 {
             case None => xs
             case Some(b) => b :: xs }, Nil, a) |> toArray
 
+    ///
+    /// Rotate the contents of array `a` by `n` steps to the left.
+    ///
     pub def rotateLeft(n: Int32, a: Array[a]): Array[a] = 
         let len = Array.length(a);
         let f = i -> if (i >= len) (a[0], 1) else (a[i], i+1);
         build(f, n, len)
 
-        
+    ///
+    /// Rotate the contents of array `a` by `n` steps to the right.
+    /// 
     pub def rotateRight(n: Int32, a: Array[a]): Array[a] = 
         let len = Array.length(a);
         let f = i -> if (i >= len) (a[0], 1) else (a[i], i+1);
