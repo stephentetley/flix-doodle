@@ -238,21 +238,16 @@ namespace String2 {
             else None;
         unfold(f, 0)
 
-    // pub def commonSuffix(s: Str, t: Str): Str = 
-    //     let sstart: Int32 = String.length(s) - 1;
-    //     let tstart: Int32 = String.length(t) - 1;
-    //     unfold(commonSuffixHelper(s, t), {i=sstart, j=tstart})
-            
-    // def commonSuffixHelper(s: Str, t: Str, r: {i: Int32, j: Int32}) : Option[(Char, {i: Int32, j: Int32})] = 
-    //     let i1 = r.i;
-    //     let j1 = r.j;
-    //     if (i1 < 0 || j1 < 0 || (String.charAt(i1, s) != String.charAt(j1, t)))
-    //         None 
-    //     else
-    //         let r1 = { i = i1 - 1, j = j1 - 1};
-    //         Some(String.charAt(i1, s), r1)
+    pub def commonSuffix(s: Str, t: Str): Str = 
+        commonSuffixHelper(s, t, Nil) |> List.toString
 
-        
+    def commonSuffixHelper(s: Str, t: Str, acc: List[Char]): List[Char] = 
+        match (viewr(s), viewr(t)) {
+            case (None, _) => acc 
+            case (_, None) => acc
+            case (Some(s1, x), Some(t1,y)) => 
+                if (x == y) (commonSuffixHelper(s1, t1, x :: acc)) else acc
+        }
 
     ///
     /// Returns `true` if and only if at least one char in `s` satisfies the predicate `f`.
@@ -407,7 +402,8 @@ namespace String2 {
     /// Test if the string `s` contains `substring`.
     ///
     pub def contains(s: Str, substring: Str): Bool = 
-        indexOf(s, substring) |> Option.isSome
+        let a = indexOfLeft(s, substring);
+        !Option.isEmpty(a)
 
 
     pub def reverse(s: Str) : Str = 
