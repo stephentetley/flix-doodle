@@ -175,6 +175,11 @@ def unwords01(): Bool =
 def reverse01(): Bool = 
     String2.reverse("hello") `assertEq!` "olleh"
 
+@test
+def reverse02(): Bool = 
+    String2.reverse("hello world!→") `assertEq!` "→!dlrow olleh"
+
+
 /////////////////////////////////////////////////////////////////////////////
 // commonSuffix                                                                 //
 /////////////////////////////////////////////////////////////////////////////

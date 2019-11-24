@@ -16,7 +16,9 @@
 
 namespace String2 {
 
-
+    ///
+    /// Returns the given string `s` as an array of characters.
+    ///
     pub def toArray(s: Str): Array[Char] = 
         let a = Array.new('.', String.length(s));
         foldLeft(toArrayHelper(a), 0, s);
@@ -106,6 +108,12 @@ namespace String2 {
     ///
     pub def takeLeft(n: Int, s: Str) : Str = slice(0, n, s) 
 
+    ///
+    /// Take the last `n` characters of string `s` from the right.
+    ///
+    /// If `n` is greater than the length of string `s`, return all the characters 
+    /// of `s`.
+    ///
     pub def takeRight(n: Int, s: Str) : Str =
         let len = String.length(s);
         slice(len - n, len, s)
@@ -124,7 +132,11 @@ namespace String2 {
         let len = String.length(s);
         slice(n, len, s)
 
-
+    ///
+    /// Drop the last `n` characters of string `s` from the right.
+    ///
+    /// If `n` is greater than the length of string `s`, return the empty string.
+    ///
     pub def dropRight(n: Int, s: Str) : Str =
         let len = String.length(s);
         slice(0, len - n, s)
@@ -285,13 +297,17 @@ namespace String2 {
     pub def isBlank(s: Str): Bool = 
         forall(Char.isWhiteSpace, s)
 
-    /// Better (hopefully) implementation with viewl
+    /// 
+    /// Returns string `s` with all leading space characters removed.
+    ///
     pub def trimLeft(s: Str): Str = match viewl(s) {
         case None => ""
         case Some(c, s1) => if (!(Char.isWhiteSpace(c))) s else trimLeft(s1)
     } 
         
-    /// Better (hopefully) implementation with viewr
+    /// 
+    /// Returns string `s` with all trailing space characters removed.
+    ///
     pub def trimRight(s: Str): Str = match viewr(s) {
         case None => ""
         case Some(s1, c) => if (!(Char.isWhiteSpace(c))) s else trimRight(s1)
@@ -311,35 +327,49 @@ namespace String2 {
     ///
     /// Pad the string `s` at the left with the supplied char `c` to fit the width `w`.
     ///
-    pub def padLeft(w: Int, c: Char, s: Str): Str = {
+    pub def padLeft(w: Int, c: Char, s: Str): Str =
         let x = String.length(s);
         if (x < w) 
             repeat(w - x, Char.toString(c)) + s
         else s
-    }
+    
 
     ///
     /// Pad the string `s` at the right with the supplied char `c` to fit the width `w`.
     ///
-    pub def padRight(w: Int, c: Char, s: Str): Str = {
+    pub def padRight(w: Int, c: Char, s: Str): Str =
         let x = String.length(s);
         if (x < w) 
             s + repeat(w- x, Char.toString(c))
         else s
-    }
+    
 
     // pub def replace(oldChar: Char, newChar: Char, s: Str): Str =
     //     native method java.lang.String.replace(s: Str, oldChar: Char, newChar: Char) as Str
 
-    pub def replaceAll(regex: Str, replacement: Str, s: Str): Str =
-        native method java.lang.String.replaceAll(s, regex, replacement) as Str
+    ///
+    /// Returns `s` with every match of the regular expression `patt` replaced by the string `rep`.
+    ///
+    pub def replaceAll(patt: Str, rep: Str, s: Str): Str =
+        native method java.lang.String.replaceAll(s, patt, rep) as Str
 
-    pub def replaceFirst(regex: Str, replacement: Str, s: Str): Str =
-        native method java.lang.String.replaceFirst(s, regex, replacement) as Str
+    ///
+    /// Returns `s` with the first match of the regular expression `patt` replaced by the string `rep`.
+    ///
+    pub def replaceFirst(patt: Str, rep: Str, s: Str): Str =
+        native method java.lang.String.replaceFirst(s, patt, rep) as Str
 
+    ///
+    /// Indent every line in string `s` by `n` spaces.
+    ///
+    /// The returned string normalizes line termination characters.
+    ///
     pub def indent(n: Int, s: Str): Str = 
         native method java.lang.String.indent(s, n) as Str
 
+    ///
+    /// Get the system line separator.
+    ///
     pub def lineSeparator() : Str = 
         native method java.lang.System.lineSeparator() as Str
 
@@ -405,7 +435,9 @@ namespace String2 {
         let a = indexOfLeft(s, substring);
         !Option.isEmpty(a)
 
-
+    ///
+    /// Returns the reverse of `xs`.
+    ///
     pub def reverse(s: Str) : Str = 
         let start = String.length(s) - 1;
         init(i -> String.charAt(start - i, s), start+1)

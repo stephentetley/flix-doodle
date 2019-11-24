@@ -16,28 +16,43 @@
  
 namespace Array2 {
 
-    pub def build(f: b -> (a, b), st: b, len: Int32): Array[a] = 
+    // pub def build(f: b -> (a, b), st: b, len: Int32): Array[a] = 
+    //     if (len <= 0) 
+    //         []
+    //     else
+    //         let (x, b1) = f(st);
+    //         let a = Array.new(x, len);
+    //         buildHelper(a, f, b1, 1);
+    //         a
+
+    // ///
+    // /// Helper function for `build`.
+    // /// 
+    // def buildHelper(a: Array[a], f: b -> (a, b), st: b, i: Int): Unit = 
+    //     if (i >= Array.length(a))
+    //         ()
+    //     else
+    //         let (x, st1) = f(st);
+    //         a[i] = x;
+    //         buildHelper(a, f, st1, i+1)
+
+    pub def init(f: Int32 -> a, len: Int32): Array[a] = 
         if (len <= 0) 
             []
         else
-            let (x, b1) = f(st);
+            let x = f(0);
             let a = Array.new(x, len);
-            buildHelper(a, f, b1, 1);
+            initHelper(a, f, 1);
             a
 
     ///
-    /// Helper function for `builds`.
+    /// Helper function for `init`.
     /// 
-    def buildHelper(a: Array[a], f: b -> (a, b), st: b, i: Int): Unit = 
-        if (i >= Array.length(a))
+    def initHelper(a: Array[a], f: i -> a, i: Int): Unit = 
+        if (i >= Array.length(a) || i > 10)
             ()
         else
-            let (x, st1) = f(st);
-            a[i] = x;
-            buildHelper(a, f, st1, i+1)
-
-    pub def init(f: Int32 -> a, len: Int32): Array[a] = 
-        build(i -> (f(i), i+1), 0, len)
+            { a[i] = f(i); initHelper(a, f, i+1) }
 
 
 
@@ -131,8 +146,8 @@ namespace Array2 {
     ///
     pub def reverse(a: Array[a]): Array[a] = 
         let len = Array.length(a);
-        let f = i -> (a[i], i-1);
-        build(f, len - 1, len)
+        let end = len - 1;
+        init(i -> a[end - i], len)
 
 
     ///
@@ -224,28 +239,47 @@ namespace Array2 {
             if (f(a[i])) i else findIndexOfHelper(f, a, i + 1)
 
 
-    pub def take(n: Int, a: Array[a]) : Array[a] = 
-        if (n < 1) 
-            []
-        else
-            Array.slice(a, 0, n)
-
+    ///
+    /// Returns `a` without the first `n` elements.
+    ///
+    /// Returns `[]]` if `n > length(xs)`.
+    /// Returns `a` if `n < 0`.
+    ///
     pub def drop(n: Int, a: Array[a]) : Array[a] = 
         if (n < 1)
             Array.slice(a, 0, Array.length(a))
         else
             let last = Array.length(a);
             Array.slice(a, n, last)
+    
+    ///
+    /// Returns `a` without the longest prefix that satisfies the predicate `f`.
+    ///
+    pub def dropWhile(f: a -> Bool, a: Array[a]): Array[a] = 
+        let start = findIndexOf(x -> !(f(x)), a);
+        drop(start, a)
 
+    ///
+    /// Returns the first `n` elements of `a`.
+    ///
+    /// Returns `a` if `n > length(xs)`.
+    /// Returns `[]]` if `n < 0`.
+    ///
+    pub def take(n: Int, a: Array[a]) : Array[a] = 
+        if (n < 1) 
+            []
+        else
+            Array.slice(a, 0, n)
+
+    ///
+    /// Returns the longest prefix of `a` that satisfies the predicate `f`.
+    ///
     pub def takeWhile(f: a -> Bool, a: Array[a]): Array[a] = 
         let end = findIndexOf(x -> !(f(x)), a);
         take(end, a)
 
     
 
-    pub def dropWhile(f: a -> Bool, a: Array[a]): Array[a] = 
-        let start = findIndexOf(x -> !(f(x)), a);
-        drop(start, a)
 
     ///
     /// Returns `true` if and only if at least one element in `a` satisfies the predicate `f`.
@@ -376,22 +410,25 @@ namespace Array2 {
         foldRight((x,xs) -> match f(x) { 
             case None => xs
             case Some(b) => b :: xs }, Nil, a) |> toArray
+        
 
     ///
     /// Rotate the contents of array `a` by `n` steps to the left.
     ///
     pub def rotateLeft(n: Int32, a: Array[a]): Array[a] = 
         let len = Array.length(a);
-        let f = i -> if (i >= len) (a[0], 1) else (a[i], i+1);
-        build(f, n, len)
+        let f = i -> { let i1 = i + n; a[i1 % len] };
+        init(f, len)
 
     ///
     /// Rotate the contents of array `a` by `n` steps to the right.
     /// 
     pub def rotateRight(n: Int32, a: Array[a]): Array[a] = 
         let len = Array.length(a);
-        let f = i -> if (i >= len) (a[0], 1) else (a[i], i+1);
-        build(f, len - n, len)
+        let start = len - n;
+        let f = i -> { let i1 = start + i; a[i1 % len] };
+        init(f, len)
+
 
     pub def zip(a: Array[a], b: Array[b]): Array[(a,b)] = 
         let len = Int32.min(Array.length(a), Array.length(b));
