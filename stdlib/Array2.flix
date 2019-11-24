@@ -65,9 +65,15 @@ namespace Array2 {
             let _ = c[j] = a[i];
             appendHelper(a, c, i+1, j+1)
 
-    pub def concat(a: Array[Array[a]]) : Array[a] = 
+    ///
+    /// Returns the concatenation of the elements in `a`.
+    ///
+    pub def flatten(a: Array[Array[a]]) : Array[a] = 
         foldLeft((acc,b) -> append(acc,b), [], a)
 
+    ///
+    /// Returns the array of characters `a` as a string.
+    ///
     pub def toString(a: Array[Char]) : Str = 
         Array2.foldLeft((acc, c) -> String.concat(acc, Char.toString(c)), "", a)
 
@@ -101,13 +107,19 @@ namespace Array2 {
         let len = Array.length(a);
         init(i -> f(a[i], i), len)
 
+    ///
+    /// Returns the result of applying `f` to every element in `a` and concatenating the results.
+    ///
     pub def flatMap(f: a -> Array[b], a: Array[a]): Array[b] = 
         let len = Array.length(a);
-        init(i -> f(a[i]), len) |> concat
+        init(i -> f(a[i]), len) |> flatten
 
+    ///
+    /// Concatenates the results of applying `f` pairwise to the elements of `a` and `b`.
+    ///
     pub def flatMap2(f: (a, b) -> Array[c], a: Array[a], b: Array[b]): Array[c] = 
         let len = Int32.min(Array.length(a), Array.length(b));
-        init(i -> f(a[i], b[i]), len) |> concat
+        init(i -> f(a[i], b[i]), len) |> flatten
 
 
     ///
@@ -157,9 +169,12 @@ namespace Array2 {
             let s1 = f(s, a[i]);
             foldLeftHelper(f, s1, a, i + 1)
 
-
-    pub def foldLeft2(f: c -> a -> b -> c, s: c, a: Array[a], b: Array[b]): c = 
-        foldLeft2Helper(f, s, a, b, 0)
+    ///
+    /// Accumulates the result of applying `f` pairwise to the elements of `a` and `b`
+    /// starting with the initial value `c` and going from left to right.
+    ///
+    pub def foldLeft2(f: (c, a, b) -> c, c: c, a: Array[a], b: Array[b]): c = 
+        foldLeft2Helper(f, c, a, b, 0)
 
     ///
     /// Helper function for `foldLeft2`.
@@ -209,17 +224,7 @@ namespace Array2 {
             let s1 = f(a[i], b[i], s);
             foldRight2Helper(f, s1, a, b, i - 1)
 
-    def findIndexOf(f: a -> Bool, a: Array[a]): Int = 
-        findIndexOfHelper(f, a, 0)
-
-    ///
-    /// Helper function for `findIndexOf`.
-    ///
-    def findIndexOfHelper(f: a -> Bool, a: Array[a], i: Int32): Int32 = 
-        if (i > Array.length(a))
-            -1
-        else
-            if (f(a[i])) i else findIndexOfHelper(f, a, i + 1)
+    
 
 
     ///
@@ -239,8 +244,11 @@ namespace Array2 {
     /// Returns `a` without the longest prefix that satisfies the predicate `f`.
     ///
     pub def dropWhile(f: a -> Bool, a: Array[a]): Array[a] = 
-        let start = findIndexOf(x -> !(f(x)), a);
-        drop(start, a)
+        match findIndexOf(x -> !(f(x)), a) { 
+            case None => a
+            case Some(i) => drop(i, a)
+        }
+        
 
     ///
     /// Returns the first `n` elements of `a`.
@@ -257,9 +265,12 @@ namespace Array2 {
     ///
     /// Returns the longest prefix of `a` that satisfies the predicate `f`.
     ///
-    pub def takeWhile(f: a -> Bool, a: Array[a]): Array[a] = 
-        let end = findIndexOf(x -> !(f(x)), a);
-        take(end, a)
+    pub def takeWhile(f: a -> Bool, a: Array[a]): Array[a] =  
+        match findIndexOf(x -> !(f(x)), a) {
+            case None => []
+            case Some(i) => take(i, a)
+        }
+        
 
     
 
@@ -305,44 +316,53 @@ namespace Array2 {
                 forallHelper(f, a, i+1)
 
 
-    
+    ///
+    /// Returns `true` if and only if `a` contains the element `x`.
+    ///
     pub def memberOf(x: a, a: Array[a]): Bool = 
         exists(y -> y == x, a)
     
     ///
-    /// Alias for `indexOfLeft`.
+    /// Optionally returns the position of `x` in `a`.
     ///
-    pub def indexOf(x: a, a: Array[a]): Int32 = indexOfLeftHelper(x, a, 0)
-
-
-    pub def indexOfLeft(x: a, a: Array[a]): Option[Int32]= 
-        let i = indexOfLeftHelper(x, a, 0);
+    pub def indexOf(x: a, a: Array[a]): Option[Int32] = 
+        let i = indexOfHelper(x, a, 0);
         if (i < 0) None else Some(i)
 
+        
+
     ///
-    /// Helper function for `indexOfLeft`.
+    /// Helper function for `indexOf`.
     ///
-    def indexOfLeftHelper(x: a, a: Array[a], i: Int32): Int32 = 
+    def indexOfHelper(x: a, a: Array[a], i: Int32): Int32 = 
         if (i >= Array.length(a))
             -1
         else 
-            if (a[i] == x) i else indexOfLeftHelper(x, a, i+1)
+            if (a[i] == x) i else indexOfHelper(x, a, i+1)
 
-    pub def indexOfRight(x: a, a: Array[a]): Option[Int32] = 
-        let i = indexOfRightHelper(x, a, Array.length(a) - 1);
+    ///
+    /// Optionally returns the position of the first element in `x` satisfying `f`.
+    ///
+    /// TODO - ideally this would be public but there is no corresponding function in List.
+    ///
+    def findIndexOf(f: a -> Bool, a: Array[a]): Option[Int] = 
+        let i = findIndexOfHelper(f, a, 0);
         if (i < 0) None else Some(i)
 
     ///
-    /// Helper function for `indexOfRight`.
+    /// Helper function for `findIndexOf`.
     ///
-    def indexOfRightHelper(x: a, a: Array[a], i: Int32): Int32 = 
-        if (i >= 0)
+    def findIndexOfHelper(f: a -> Bool, a: Array[a], i: Int32): Int32 = 
+        if (i > Array.length(a))
             -1
-        else 
-            if (a[i] == x) i else indexOfRightHelper(x, a, i-1)
+        else
+            if (f(a[i])) i else findIndexOfHelper(f, a, i + 1)
 
 
 
+    ///
+    /// Optionally returns the first element of `a` that satisfies the predicate `f` when searching from left to right.
+    ///
     pub def findLeft(f: a -> Bool, a: Array[a]): Option[a] = findLeftHelper(f, a, 0)
 
     ///
@@ -355,6 +375,9 @@ namespace Array2 {
             let x = a[i];
             if (f(x)) Some(x) else findLeftHelper(f, a, i+1)
 
+    ///
+    /// Optionally returns the first element of `xs` that satisfies the predicate `f` when searching from right to left.
+    ///
     pub def findRight(f: a -> Bool, a: Array[a]): Option[a] = 
         findRightHelper(f, a, Array.length(a) - 1)
 
@@ -368,31 +391,55 @@ namespace Array2 {
             let x = a[i];
             if (f(x)) Some(x) else findLeftHelper(f, a, i-1)
 
-    def toArray(xs: List[a]) : Array[a] = match List.head(xs) {
+    
+
+    ///
+    /// Returns the list of characters `xs` as an array.
+    ///
+    /// TODO - List would be a better location for this.
+    ///
+    pub def toArray(xs: List[a]) : Array[a] = match List.head(xs) {
         case None => []
         case Some(x) => 
             let a = Array.new(x, List.length(xs));
-            List.fold(toArrayHelper(a), 0, xs);
+            let f = (i,b) -> { a[i] = b; i + 1 };
+            List.fold(f, 0, xs);
             a
-        } 
-    
-    ///
-    /// Helper function for `toArray`.
-    ///
-    def toArrayHelper (a: Array[b], i: Int, b: b) : Int = 
-        a[i] = b;
-        i + 1
+        }   
 
-    
-
-    
+    ///
+    /// Returns an array of every element in `a` that satisfies the predicate `f`.
+    ///
     pub def filter(f: a -> Bool, a: Array[a]): Array[a] = 
         foldRight((x,xs) -> if (f(x)) x :: xs else xs, Nil, a) |> toArray
 
+    ///
+    /// Collects the results of applying the partial function `f` to every element in `a`.
+    ///
     pub def filterMap(f: a -> Option[b], a: Array[a]): Array[b] = 
         foldRight((x,xs) -> match f(x) { 
             case None => xs
             case Some(b) => b :: xs }, Nil, a) |> toArray
+        
+    ///
+    /// Returns the first non-None result of applying the partial function `f` to each element of `xs`.
+    ///
+    /// Returns `None` if every element of `xs` is `None`.
+    ///
+    pub def findMap(f: a -> Option[b], a: Array[a]): Option[b] = 
+        findMapHelper(f, a, 0)
+
+    ///
+    /// Helper function for `findMap`.
+    ///         
+    def findMapHelper(f: a -> Option[b], a: Array[a], i: Int32): Option[b] = 
+        if (i >= Array.length(a)) 
+            None
+        else 
+            match (f(a[i])) {
+                case Some(v) => Some(v)
+                case None => findMapHelper(f, a, i+1)
+            }
         
 
     ///
@@ -412,11 +459,22 @@ namespace Array2 {
         let f = i -> { let i1 = start + i; a[i1 % len] };
         init(f, len)
 
-
+    ///
+    /// Returns an array where the element at index `i` is `(x, y)` where
+    /// `x` is the element at index `i` in `a` and `y` is the element at index `i` in `b`.
+    ///
+    /// If either `a` or `b` becomes depleted, then no further elements are added to the resulting array.
+    ///
     pub def zip(a: Array[a], b: Array[b]): Array[(a,b)] = 
         let len = Int32.min(Array.length(a), Array.length(b));
         init(i -> (a[i], b[i]), len)
 
+    ///
+    /// Returns an array where the element at index `i` is `f(x, y)` where
+    /// `x` is the element at index `i` in `a` and `y` is the element at index `i` in `b`.
+    ///
+    /// If either `a` or `b` becomes depleted, then no further elements are added to the resulting array.
+    ///
     pub def zipWith(f: (a, b) -> c, a: Array[a], b: Array[b]): Array[c] = 
         let len = Int32.min(Array.length(a), Array.length(b));
         init(i -> f(a[i], b[i]), len)

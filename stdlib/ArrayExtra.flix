@@ -36,5 +36,20 @@ namespace ArrayExtra {
             a[i] = x;
             buildHelper(a, f, st1, i+1)
 
+    pub def indexOfRight(x: a, a: Array[a]): Option[Int32] = 
+        let i = indexOfRightHelper(x, a, Array.length(a) - 1);
+        if (i < 0) None else Some(i)
+
+    ///
+    /// Helper function for `indexOfRight`.
+    ///
+    def indexOfRightHelper(x: a, a: Array[a], i: Int32): Int32 = 
+        if (i >= 0)
+            -1
+        else 
+            if (a[i] == x) i else indexOfRightHelper(x, a, i-1)
+    
+
+
 }
 
