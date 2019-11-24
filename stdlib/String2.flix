@@ -51,11 +51,21 @@ namespace String2 {
     pub def map(f: Char -> Char, s: Str): Str =
         let len = String.length(s);
         init(i -> f(String.charAt(i, s)), len)
-        
+    
+    ///
+    /// Returns the result of applying `f` to every character in `s` along with that character's index.
+    ///
     pub def mapWithIndex(f: (Char, Int32) -> Char, s: Str): Str =
         let len = String.length(s);
         init(i -> f(String.charAt(i, s), i), len)
-      
+    
+    ///
+    /// Returns a string where the element at index `i` is `f(a, b)` where
+    /// `a` is the element at index `i` in `s` and `b` is the element at index `i` in `t`.
+    ///
+    /// If either `s` or `t` becomes depleted, then no further elements are added to the resulting string.
+    /// Functionally equivalent to zipWith.
+    ///
     pub def map2(f: (Char, Char) -> Char, s: Str, t: Str): Str =
         let len = String.length(s);
         init(i -> f(String.charAt(i, s), String.charAt(i, t)), len)
@@ -186,15 +196,20 @@ namespace String2 {
             case x < 1  => None
         }
 
-
-    pub def foldLeft(f: (b, Char) -> b, b: b, s: Str) : b = 
+    ///
+    /// Applies `f` to a start value `x` and all elements in `s` going from left to right.
+    ///
+    pub def foldLeft(f: (b, Char) -> b, x: b, s: Str) : b = 
         match viewl(s) {
-            case None => b
+            case None => x
             case Some(c,s1) => 
-                let acc = f(b, c);
+                let acc = f(x, c);
                 foldLeft(f, acc, s1)
         }
 
+    ///
+    /// Applies `f` to a start value `x` and all elements in `s` going from right to left.
+    ///
     pub def foldLeft2(f: (b, Char, Char) -> b, b: b, s: Str, t: Str) : b = 
         match (viewl(s), viewl(t)) {
             case (Some(x,s1), Some(y,t1)) => 
@@ -425,7 +440,7 @@ namespace String2 {
         !Option.isEmpty(a)
 
     ///
-    /// Returns the reverse of `xs`.
+    /// Returns the reverse of `s`.
     ///
     pub def reverse(s: Str) : Str = 
         let start = String.length(s) - 1;

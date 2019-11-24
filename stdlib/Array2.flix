@@ -224,7 +224,51 @@ namespace Array2 {
             let s1 = f(a[i], b[i], s);
             foldRight2Helper(f, s1, a, b, i - 1)
 
+    ///
+    /// Alias for `reduceLeft`.
+    ///
+    pub def reduce(f: (a, a) -> a, a: Array[a]): Option[a] = reduceLeft(f, a)
+
+    ///
+    /// Applies `f` to all elements in `a` going from left to right until a single value `v` is obtained.  Returns `Some(v)`.
+    ///
+    /// Returns `None` if `a` is empty.
+    ///
+    pub def reduceLeft(f: (a, a) -> a, a: Array[a]): Option[a] = 
+        if (Array.length(a) > 0) 
+            Some(reduceLeftHelper(f, a, a[0], 1))
+        else 
+            None
     
+    ///
+    /// Helper function for `reduceLeft`.
+    ///
+    def reduceLeftHelper(f: (a, a) -> a, a: Array[a], x: a, i:Int32): a = 
+        if (i >= Array.length(a))
+            x
+        else 
+            reduceLeftHelper(f, a, f(x, a[i]), i+1)
+    
+    ///
+    /// Applies `f` to all elements in `a` going from right to left until a single value `v` is obtained.  Returns `Some(v)`.
+    ///
+    /// Returns `None` if `a` is empty.
+    ///
+    pub def reduceRight(f: (a, a) -> a, a: Array[a]): Option[a] = 
+        if (Array.length(a) > 0) 
+            let end = Array.length(a) - 1;
+            Some(reduceRightHelper(f, a, a[end], end-1))
+        else 
+            None
+
+    ///
+    /// Helper function for `reduceRight`.
+    ///
+    def reduceRightHelper(f: (a, a) -> a, a: Array[a], x: a, i:Int32): a = 
+        if (i < 0)
+            x
+        else 
+            reduceRightHelper(f, a, f(x, a[i]), i-1)
 
 
     ///
