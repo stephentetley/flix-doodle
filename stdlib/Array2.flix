@@ -16,26 +16,9 @@
  
 namespace Array2 {
 
-    // pub def build(f: b -> (a, b), st: b, len: Int32): Array[a] = 
-    //     if (len <= 0) 
-    //         []
-    //     else
-    //         let (x, b1) = f(st);
-    //         let a = Array.new(x, len);
-    //         buildHelper(a, f, b1, 1);
-    //         a
-
-    // ///
-    // /// Helper function for `build`.
-    // /// 
-    // def buildHelper(a: Array[a], f: b -> (a, b), st: b, i: Int): Unit = 
-    //     if (i >= Array.length(a))
-    //         ()
-    //     else
-    //         let (x, st1) = f(st);
-    //         a[i] = x;
-    //         buildHelper(a, f, st1, i+1)
-
+    ///
+    /// Build an array of length `len` by applying `f` to the successive indices.
+    ///
     pub def init(f: Int32 -> a, len: Int32): Array[a] = 
         if (len <= 0) 
             []
