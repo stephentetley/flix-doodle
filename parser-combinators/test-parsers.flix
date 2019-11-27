@@ -2,13 +2,19 @@
 
 
 @test
-def return01() : Result[Int, Str] = 
-    Parser.run("", Parser.return(10))
+def fail01() : Result[Unit, Str] = 
+    ParserCombinators.run(ParserCombinators.fail(), "")
+
+ @test
+def throwError01() : Result[Unit, Str] = 
+    ParserCombinators.run(ParserCombinators.throwError("** parser error**"), "")
+
+ @test
+def return01() : Result[Int32, Str] =
+    ParserCombinators.run(ParserCombinators.return(1), "")
 
 @test
-def merror01() : Result[Int, Str] = 
-    Parser.run("", Parser.merror("Fail"))
+def anyChar01() : Result[Char, Str] = 
+    ParserCombinators.run(ParserCombinators.anyChar(), "abc")
 
-@test
-def bind01(): Result[Int, Str] = 
-    Parser.run("", Parser.bind(Parser.return(1), x -> Parser.return(x+1)))
+

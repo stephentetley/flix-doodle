@@ -41,8 +41,10 @@ namespace String2 {
     def initHelper(a: Array[Char], f: Int32 -> Char, i: Int32): Unit = 
         if (i >= Array.length(a) || i > 10)
             ()
-        else
-            { a[i] = f(i); initHelper(a, f, i+1) }
+        else { 
+            a[i] = f(i); 
+            initHelper(a, f, i+1) 
+        }
 
 
     ///
@@ -181,31 +183,31 @@ namespace String2 {
     /// Return None if `s` is empty.
     ///
     pub def viewl(s: Str): Option[(Char, Str)] = 
-        if (String.length(s) == 0) None else Some(String.charAt(0, s), drop(1,s))
+        if (String.length(s) == 0) 
+            None 
+        else 
+            Some(String.charAt(0, s), drop(1,s))
 
     ///
     /// Deconstruct the string `s` from the right returning the first char and the rest of the string.
     ///
     /// Return None if `s` is empty.
     ///
-    pub def viewr(s: Str): Option[(Str, Char)] = 
-        let x = String.length(s);
-        switch {
-            case x > 1  => Some(take(x-1, s), String.charAt(x-1, s))
-            case x == 1 => Some("", String.charAt(0, s))
-            case x < 1  => None
-        }
+    pub def viewr(s: Str): Option[(Str, Char)] = match String.length(s) {
+        case x if x > 1  => Some(take(x-1, s), String.charAt(x-1, s))
+        case x if x == 1 => Some("", String.charAt(0, s))
+        case x if x < 1  => None
+    }
 
     ///
     /// Applies `f` to a start value `x` and all elements in `s` going from left to right.
     ///
-    pub def foldLeft(f: (b, Char) -> b, x: b, s: Str) : b = 
-        match viewl(s) {
-            case None => x
-            case Some(c,s1) => 
-                let acc = f(x, c);
-                foldLeft(f, acc, s1)
-        }
+    pub def foldLeft(f: (b, Char) -> b, x: b, s: Str) : b = match viewl(s) {
+        case None => x
+        case Some(c,s1) => 
+            let acc = f(x, c);
+            foldLeft(f, acc, s1)
+    }
 
     ///
     /// Applies `f` to a start value `x` and all elements in `s` going from right to left.
@@ -220,13 +222,12 @@ namespace String2 {
 
 
 
-    pub def foldRight(f: (Char, b) -> b, b: b, s: Str) : b = 
-        match viewr(s) {
-            case None => b
-            case Some(s1,c) => 
-                let acc = f(c, b);
-                foldRight(f, acc, s1)
-        }
+    pub def foldRight(f: (Char, b) -> b, b: b, s: Str) : b = match viewr(s) {
+        case None => b
+        case Some(s1,c) => 
+            let acc = f(c, b);
+            foldRight(f, acc, s1)
+    }
 
     pub def foldRight2(f: (Char, Char, b) -> b, b: b, s: Str, t: Str) : b = 
         match (viewr(s), viewr(t)) {
@@ -240,11 +241,10 @@ namespace String2 {
         unfoldHelper(f, st) |> List.toString
 
     
-    def unfoldHelper(f: b -> Option[(Char, b)], st: b) : List[Char] = 
-        match f(st) {
-            case None => Nil
-            case Some(c, st1) => c :: unfoldHelper(f, st1)
-        }
+    def unfoldHelper(f: b -> Option[(Char, b)], st: b) : List[Char] = match f(st) {
+        case None => Nil
+        case Some(c, st1) => c :: unfoldHelper(f, st1)
+    }
 
     pub def commonPrefix(s: Str, t: Str): Str = 
         let len = Int32.min(String.length(s), String.length(t));
