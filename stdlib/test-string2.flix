@@ -193,11 +193,3 @@ def reverse01(): Bool =
 @test
 def reverse02(): Bool = 
     String2.reverse("hello world!→") `assertEq!` "→!dlrow olleh"
-
-
-/////////////////////////////////////////////////////////////////////////////
-// commonSuffix                                                                 //
-/////////////////////////////////////////////////////////////////////////////
-@test
-def commonSuffix01(): Bool = 
-    String2.commonSuffix("snail", "tail") `assertEq!` "ail"

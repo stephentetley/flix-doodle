@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+/// Useful functions that probably aren't "fundamental" enough for the stdlib
+
 namespace StringExtra {
 
 
@@ -36,6 +38,25 @@ namespace StringExtra {
             let (x, st1) = f(st);
             a[i] = x;
             buildHelper(a, f, st1, i+1)
+
+    pub def commonPrefix(s: Str, t: Str): Str = 
+        let len = Int32.min(String.length(s), String.length(t));
+        let f = i -> 
+            if (i < len && String.charAt(i, s) == String.charAt(i, t))
+                Some(String.charAt(i, s), i+1)
+            else None;
+        unfold(f, 0)
+
+    pub def commonSuffix(s: Str, t: Str): Str = 
+        commonSuffixHelper(s, t, Nil) |> List.toString
+
+    def commonSuffixHelper(s: Str, t: Str, acc: List[Char]): List[Char] = 
+        match (viewr(s), viewr(t)) {
+            case (None, _) => acc 
+            case (_, None) => acc
+            case (Some(s1, x), Some(t1,y)) => 
+                if (x == y) (commonSuffixHelper(s1, t1, x :: acc)) else acc
+        }
 
     
 }

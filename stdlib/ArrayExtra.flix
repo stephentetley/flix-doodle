@@ -14,6 +14,8 @@
  * limitations under the License.
  */
  
+/// Useful functions that probably aren't "fundamental" enough for the stdlib
+
 namespace ArrayExtra {
 
     pub def build(f: b -> (a, b), st: b, len: Int32): Array[a] = 

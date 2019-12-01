@@ -210,60 +210,55 @@ namespace String2 {
     }
 
     ///
-    /// Applies `f` to a start value `x` and all elements in `s` going from right to left.
+    /// Accumulates the result of applying `f` pairwise to the elements of `s` and `t`
+    /// starting with the initial value `x` and going from left to right.
     ///
-    pub def foldLeft2(f: (b, Char, Char) -> b, b: b, s: Str, t: Str) : b = 
+    pub def foldLeft2(f: (b, Char, Char) -> b, x: b, s: Str, t: Str) : b = 
         match (viewl(s), viewl(t)) {
-            case (Some(x,s1), Some(y,t1)) => 
-                let acc = f(b, x, y);
+            case (Some(a,s1), Some(b,t1)) => 
+                let acc = f(x, a, b);
                 foldLeft2(f, acc, s1, t1)
-            case (_, _) => b            
+            case (_, _) => x            
         }
 
 
-
-    pub def foldRight(f: (Char, b) -> b, b: b, s: Str) : b = match viewr(s) {
-        case None => b
+    ///
+    /// Applies `f` to a start value `x and all elements in `s` going from right to left.
+    ///
+    pub def foldRight(f: (Char, b) -> b, x: b, s: Str) : b = match viewr(s) {
+        case None => x
         case Some(s1,c) => 
-            let acc = f(c, b);
+            let acc = f(c, x);
             foldRight(f, acc, s1)
     }
 
-    pub def foldRight2(f: (Char, Char, b) -> b, b: b, s: Str, t: Str) : b = 
+    ///
+    /// Accumulates the result of applying `f` pairwise to the elements of `s` and `t`
+    /// starting with the initial value `x` and going from right to left.
+    ///
+    pub def foldRight2(f: (Char, Char, b) -> b, x: b, s: Str, t: Str) : b = 
         match (viewr(s), viewr(t)) {
-            case (Some(s1, x), Some(t1, y)) => 
-                let acc = f(x, y, b);
+            case (Some(s1, a), Some(t1, b)) => 
+                let acc = f(a, b, x);
                 foldRight2(f, acc, s1, t1)
-            case (_, _) => b
+            case (_, _) => x
         }
 
-    pub def unfold(f: b -> Option[(Char, b)], st: b) : Str = 
-        unfoldHelper(f, st) |> List.toString
+    ///
+    /// Build a string from the seed value `x` applying the function `f` until `f` returns `None`.
+    ///
+    pub def unfold(f: b -> Option[(Char, b)], x: b) : Str = 
+        unfoldHelper(f, x) |> List.toString
 
-    
-    def unfoldHelper(f: b -> Option[(Char, b)], st: b) : List[Char] = match f(st) {
+    ///
+    /// Helper function for `unfold`.
+    ///
+    def unfoldHelper(f: b -> Option[(Char, b)], x: b) : List[Char] = match f(x) {
         case None => Nil
         case Some(c, st1) => c :: unfoldHelper(f, st1)
     }
 
-    pub def commonPrefix(s: Str, t: Str): Str = 
-        let len = Int32.min(String.length(s), String.length(t));
-        let f = i -> 
-            if (i < len && String.charAt(i, s) == String.charAt(i, t))
-                Some(String.charAt(i, s), i+1)
-            else None;
-        unfold(f, 0)
 
-    pub def commonSuffix(s: Str, t: Str): Str = 
-        commonSuffixHelper(s, t, Nil) |> List.toString
-
-    def commonSuffixHelper(s: Str, t: Str, acc: List[Char]): List[Char] = 
-        match (viewr(s), viewr(t)) {
-            case (None, _) => acc 
-            case (_, None) => acc
-            case (Some(s1, x), Some(t1,y)) => 
-                if (x == y) (commonSuffixHelper(s1, t1, x :: acc)) else acc
-        }
 
     ///
     /// Returns `true` if and only if at least one char in `s` satisfies the predicate `f`.
