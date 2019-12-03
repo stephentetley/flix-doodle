@@ -73,6 +73,34 @@ def foldRight01() : Bool =
 
 
 /////////////////////////////////////////////////////////////////////////////
+// foldLeft2                                                                //
+/////////////////////////////////////////////////////////////////////////////
+@test 
+def foldLeft201() : Bool = 
+    String2.foldLeft2((ac,b,c) -> b :: c :: ac, Nil, "eca", "fdb") 
+        `assertEq!` 'a' :: 'b' :: 'c' :: 'd' :: 'e' :: 'f' :: Nil
+
+@test 
+def foldLeft202() : Bool = 
+    String2.foldLeft2((ac,b,c) -> (b, c) :: ac, Nil, "a", "fdb") 
+        `assertEq!` ('a', 'f') :: Nil
+
+@test 
+def foldLeft203() : Bool = 
+    String2.foldLeft2((ac,b,c) -> (b, c) :: ac, Nil, "", "fdb") 
+        `assertEq!` Nil
+
+@test 
+def foldLeft204() : Bool = 
+    String2.foldLeft2((ac,b,c) -> (b, c) :: ac, Nil, "", "") 
+        `assertEq!` Nil
+
+@test 
+def foldLeft205() : Bool = 
+    String2.foldLeft2((ac,b,c) -> (b, c) :: ac, Nil, "", "fdb") 
+        `assertEq!` Nil
+
+/////////////////////////////////////////////////////////////////////////////
 // takeWhileLeft                                                           //
 /////////////////////////////////////////////////////////////////////////////
 @test
@@ -139,12 +167,30 @@ def dropWhileRight05() : Bool =
 /////////////////////////////////////////////////////////////////////////////
 @test
 def exists01() : Bool = 
-    assert!(String2.exists(Char.isDigit, "number 5"))
+    assert!(String2.exists(Char.isDigit, "number 5 middle"))
 
-// @test
-// def isAsciiChar01() : Bool = 
-//     assertNot!(Char.isAscii('∀'))
+@test
+def exists02() : Bool = 
+    assertNot!(String2.exists(Char.isDigit, ""))
 
+@test
+def exists03() : Bool = 
+    assertNot!(String2.exists(Char.isDigit, "number"))
+
+/////////////////////////////////////////////////////////////////////////////
+// forall                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def forall01() : Bool = 
+    assert!(String2.forall(Char.isDigit, ""))
+
+@test
+def forall02() : Bool = 
+    assert!(String2.forall(Char.isDigit, "12345"))
+
+@test
+def forall03() : Bool = 
+    assertNot!(String2.forall(Char.isDigit, "12b45"))
 
 /////////////////////////////////////////////////////////////////////////////
 // isAscii                                                                 //

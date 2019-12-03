@@ -258,46 +258,78 @@ namespace String2 {
     ///
     /// Applies `f` to a start value `x` and all elements in `s` going from left to right.
     ///
-    pub def foldLeft(f: (b, Char) -> b, x: b, s: Str) : b = match viewl(s) {
-        case None => x
-        case Some(c,s1) => 
-            let acc = f(x, c);
-            foldLeft(f, acc, s1)
-    }
+    pub def foldLeft(f: (b, Char) -> b, x: b, s: Str) : b = 
+        let len = String.length(s);
+        foldLeftHelper(f, x, len, s, 0)
+
+    ///
+    /// Helper function for `foldLeft`.
+    ///
+    def foldLeftHelper(f: (b, Char) -> b, x: b, len: Int32, s: Str, i: Int32) : b = 
+        if (i >= len)
+            x
+        else {
+            let x1 = f(x, String.charAt(i, s));
+            foldLeftHelper(f, x1, len, s, i+1)
+        }
+
 
     ///
     /// Accumulates the result of applying `f` pairwise to the elements of `s` and `t`
     /// starting with the initial value `x` and going from left to right.
     ///
     pub def foldLeft2(f: (b, Char, Char) -> b, x: b, s: Str, t: Str) : b = 
-        match (viewl(s), viewl(t)) {
-            case (Some(a,s1), Some(b,t1)) => 
-                let acc = f(x, a, b);
-                foldLeft2(f, acc, s1, t1)
-            case (_, _) => x            
-        }
+        let len = Int32.min(String.length(s), String.length(t));
+        foldLeft2Helper(f, x, len, s, t, 0)
 
+
+    ///
+    /// Helper function for `foldLeft2`.
+    ///
+    def foldLeft2Helper(f: (b, Char, Char) -> b, x: b, len: Int32, s: Str, t: Str, i: Int32) : b = 
+        if (i >= len)
+            x
+        else {
+            let x1 = f(x, String.charAt(i, s), String.charAt(i, t));
+            foldLeft2Helper(f, x1, len, s, t, i+1)
+        }
 
     ///
     /// Applies `f` to a start value `x and all elements in `s` going from right to left.
     ///
-    pub def foldRight(f: (Char, b) -> b, x: b, s: Str) : b = match viewr(s) {
-        case None => x
-        case Some(s1,c) => 
-            let acc = f(c, x);
-            foldRight(f, acc, s1)
-    }
+    pub def foldRight(f: (Char, b) -> b, x: b, s: Str) : b = 
+        let end = String.length(s) - 1;
+        foldRightHelper(f, x, s, end)
+
+    ///
+    /// Helper function for `foldRight`.
+    ///
+    def foldRightHelper(f: (Char, b) -> b, x: b, s: Str, i: Int32) : b = 
+        if (i < 0)
+            x
+        else {
+            let x1 = f(String.charAt(i, s), x);
+            foldRightHelper(f, x1, s, i-1)
+        }
 
     ///
     /// Accumulates the result of applying `f` pairwise to the elements of `s` and `t`
     /// starting with the initial value `x` and going from right to left.
     ///
     pub def foldRight2(f: (Char, Char, b) -> b, x: b, s: Str, t: Str) : b = 
-        match (viewr(s), viewr(t)) {
-            case (Some(s1, a), Some(t1, b)) => 
-                let acc = f(a, b, x);
-                foldRight2(f, acc, s1, t1)
-            case (_, _) => x
+        let sn = String.length(s) - 1;
+        let tn = String.length(t) - 1;
+        foldRight2Helper(f, x, s, t, sn, tn)
+
+    ///
+    /// Helper function for `foldRight2`.
+    ///
+    def foldRight2Helper(f: (Char, Char, b) -> b, x: b, s: Str, t: Str, i: Int32, j: Int32) : b = 
+        if (i < 0 || j < 0 )
+            x
+        else {
+            let x1 = f(String.charAt(i, s), String.charAt(j, t), x);
+            foldRight2Helper(f, x1, s, t, i-1, j-1)
         }
 
     ///
@@ -321,9 +353,9 @@ namespace String2 {
     ///
     /// Returns `false` if `a` is empty.
     ///
-    pub def exists(f: Char -> Bool, s: Str): Bool = match viewl(s) {
+    pub def exists(f: Char -> Bool, s: Str): Bool = match findIndexOfLeft(f, s) {
         case None => false
-        case Some(c, s1) => if (f(c)) true else exists(f, s1)
+        case Some(_) => true
     }
 
     ///
@@ -331,9 +363,9 @@ namespace String2 {
     ///
     /// Returns `true` if `s` is empty.
     ///
-    pub def forall(f: Char -> Bool, s: Str): Bool = match viewl(s) {
+    pub def forall(f: Char -> Bool, s: Str): Bool = match findIndexOfLeft(x -> !(f(x)), s) {
         case None => true
-        case Some(c, s1) => if (!f(c)) false else forall(f, s1)
+        case Some(_) => false
     }
 
     ///
