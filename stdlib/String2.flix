@@ -100,9 +100,9 @@ namespace String2 {
     ///
     /// Optionally returns the position of the first element in `x` satisfying `f`.
     ///
-    /// TODO - ideally this would be public but there is no corresponding function in List.
+    /// If nothing satisfies `f` return None.
     ///
-    def findIndexOfLeft(f: a -> Bool, s: Str): Option[Int] = 
+    pub def findIndexOfLeft(f: a -> Bool, s: Str): Option[Int] = 
         let i = findIndexOfLeftHelper(f, s, String.length(s), 0);
         if (i < 0) None else Some(i)
 
@@ -114,6 +114,27 @@ namespace String2 {
             -1
         else
             if (f(String.charAt(i, s))) i else findIndexOfLeftHelper(f, s, len, i+1)
+
+    
+    ///
+    /// Optionally return the position of the first character in `s` satisfying `f`, reading right to left.
+    ///
+    /// If nothing satisfies `f` return None.
+    ///
+    pub def findIndexOfRight(f: a -> Bool, s: Str): Option[Int] = 
+        let end = String.length(s) - 1;
+        let i = findIndexOfRightHelper(f, s, end);
+        if (i < 0) None else Some(i)
+
+    ///
+    /// Helper function for `findIndexOf`.
+    ///
+    def findIndexOfRightHelper(f: a -> Bool, s:Str, i: Int32): Int32 = 
+        if (i < 0)
+            -1
+        else
+            if (f(String.charAt(i, s))) i else findIndexOfRightHelper(f, s, i-1)
+
 
     ///
     /// Alias for `takeLeft`.
@@ -165,34 +186,42 @@ namespace String2 {
     /// Returns the initial prefix of string `s` where all the chars satisfy
     /// the predicate `f`.
     ///
-    pub def takeWhile(f: Char -> Bool, s: Str): Str = 
-        let notf = x -> !f(x);
-        match findIndexOfLeft(notf, s) {
-            case None => ""
-            case Some(i) => slice(0, i, s)
+    pub def takeWhileLeft(f: Char -> Bool, s: Str): Str = 
+        match findIndexOfLeft(x ->!(f(x)), s) {
+            case None => s
+            case Some(i) => take(i, s)
         }
-        
 
     ///
-    /// Helper function for `takeWhile` because we seem to need an intermediate list...
-    ///   
-    def takeWhileHelper(f: Char -> Bool, s: Str, len:Int32, i: Int32): Int32 = 
-        if ((i >= len) || !f(String.charAt(i, s)))
-            i 
-        else 
-            takeWhileHelper(f,s,len,i+1)
+    /// Returns the suffix of string `s` where all the characters satisfy
+    /// the predicate `f`.
+    ///
+    pub def takeWhileRight(f: Char -> Bool, s: Str): Str = 
+        match findIndexOfRight(x ->!(f(x)), s) {
+            case None => s
+            case Some(i) => takeRight(i, s)
+        }
 
-
-
+        
     ///
     /// Returns the tail of string `s` after dropping all the initial chars 
     /// that satisfy the predicate `f`.
     ///
-    pub def dropWhile(f: Char -> Bool, s: Str): Str = match viewl(s) {
-        case None => ""
-        case Some(c, s1) => if (f(c)) dropWhile(f, s1) else s
-    }
+    pub def dropWhileLeft(f: Char -> Bool, s: Str): Str = 
+        match findIndexOfLeft(x -> !(f(x)), s) {
+            case None => ""
+            case Some(i) => drop(i, s)
+        }
 
+    ///
+    /// Returns the front of string `s` after dropping all the characters 
+    /// from the right end that satisfy the predicate `f`.
+    ///
+    pub def dropWhileRight(f: Char -> Bool, s: Str): Str = 
+        match findIndexOfRight(x -> !(f(x)), s) {
+            case None => ""
+            case Some(i) => slice(0, i+1, s)
+        }
 
     ///
     /// Split the string `s` at the position `n` returning the left and 
@@ -326,18 +355,12 @@ namespace String2 {
     /// 
     /// Returns string `s` with all leading space characters removed.
     ///
-    pub def trimLeft(s: Str): Str = match viewl(s) {
-        case None => ""
-        case Some(c, s1) => if (!(Char.isWhiteSpace(c))) s else trimLeft(s1)
-    } 
+    pub def trimLeft(s: Str): Str = dropWhileLeft(Char.isWhiteSpace, s)
         
     /// 
     /// Returns string `s` with all trailing space characters removed.
     ///
-    pub def trimRight(s: Str): Str = match viewr(s) {
-        case None => ""
-        case Some(s1, c) => if (!(Char.isWhiteSpace(c))) s else trimRight(s1)
-    } 
+    pub def trimRight(s: Str): Str = dropWhileRight(Char.isWhiteSpace, s)
       
     ///
     /// Returns a string with the string `s` repeated `n` times.

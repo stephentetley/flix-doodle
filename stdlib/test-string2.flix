@@ -73,18 +73,66 @@ def foldRight01() : Bool =
 
 
 /////////////////////////////////////////////////////////////////////////////
-// dropWhile                                                               //
+// takeWhileLeft                                                           //
 /////////////////////////////////////////////////////////////////////////////
 @test
-def dropWhile01() : Bool = 
-    String2.dropWhile(Char.isDigit, "1234~hello") `assertEq!` "~hello"
+def takeWhileLeft01() : Bool = 
+    String2.takeWhileLeft(Char.isDigit, "") `assertEq!` ""
+
+@test
+def takeWhileLeft02() : Bool = 
+    String2.takeWhileLeft(Char.isDigit, "1234~hello") `assertEq!` "1234"
+
+@test
+def takeWhileLeft03() : Bool = 
+    String2.takeWhileLeft(Char.isDigit, "1234567890") `assertEq!` "1234567890"
+
+@test
+def takeWhileLeft04() : Bool = 
+    String2.takeWhileLeft(x -> !(Char.isDigit(x)), "1234567890") `assertEq!` ""
 
 /////////////////////////////////////////////////////////////////////////////
-// takeWhile                                                               //
+// dropWhileLeft                                                           //
 /////////////////////////////////////////////////////////////////////////////
 @test
-def takeWhile01() : Bool = 
-    String2.takeWhile(Char.isDigit, "12345 hello") `assertEq!` "12345"
+def dropWhileLeft01() : Bool = 
+    String2.dropWhileLeft(Char.isDigit, "") `assertEq!` ""
+
+@test
+def dropWhileLeft02() : Bool = 
+    String2.dropWhileLeft(Char.isDigit, "1234~hello") `assertEq!` "~hello"
+
+@test
+def dropWhileLeft03() : Bool = 
+    String2.dropWhileLeft(Char.isDigit, "1234567890") `assertEq!` ""
+
+@test
+def dropWhileLeft04() : Bool = 
+    String2.dropWhileLeft(Char.isDigit, "A1234567890") `assertEq!` "A1234567890"
+
+/////////////////////////////////////////////////////////////////////////////
+// dropWhileRight                                                          //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def dropWhileRight01() : Bool = 
+    String2.dropWhileRight(Char.isDigit, "") `assertEq!` ""
+
+@test
+def dropWhileRight02() : Bool = 
+    String2.dropWhileRight(Char.isDigit, "hello~1234") `assertEq!` "hello~"
+
+@test
+def dropWhileRight03() : Bool = 
+    String2.dropWhileRight(Char.isDigit, "1234567890") `assertEq!` ""
+
+@test
+def dropWhileRight04() : Bool = 
+    String2.dropWhileRight(Char.isDigit, "1234567890A") `assertEq!` "1234567890A"
+
+
+@test
+def dropWhileRight05() : Bool = 
+    String2.dropWhileRight(Char.isDigit, "A1234567890") `assertEq!` "A"
 
 /////////////////////////////////////////////////////////////////////////////
 // exists                                                                  //
