@@ -22,11 +22,12 @@ namespace Array2 {
     pub def init(f: Int32 -> a, len: Int32): Array[a] = 
         if (len <= 0) 
             []
-        else
+        else {
             let x = f(0);
             let a = Array.new(x, len);
             initHelper(a, f, 1);
             a
+        }
 
     ///
     /// Helper function for `init`.

@@ -88,5 +88,48 @@ def length01(): Bool = assertEq!(String.length(""), 0)
 @test
 def length02(): Bool = assertEq!(String.length("0123456789"), 10)
 
+/////////////////////////////////////////////////////////////////////////////
+// split                                                                   //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def split01(): Bool = assertEq!(Array.toList(String.split("", "\s+")), "" :: Nil)
 
+@test
+def split02(): Bool = assertEq!(Array.length(String.split("1 3", "\s+")), 2)
+
+/////////////////////////////////////////////////////////////////////////////
+// toLowerCase                                                             //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def toLowerCase01(): Bool = assertEq!(String.toLowerCase(""), "")
+
+@test
+def toLowerCase02(): Bool = assertEq!(String.toLowerCase("Hello World!"), "hello world!")
+
+@test
+def toLowerCase03(): Bool = assertEq!(String.toLowerCase("→Hello World∀!"), "→hello world∀!")
+
+/////////////////////////////////////////////////////////////////////////////
+// toUpperCase                                                             //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def toUpperCase01(): Bool = assertEq!(String.toUpperCase(""), "")
+
+@test
+def toUpperCase02(): Bool = assertEq!(String.toUpperCase("Hello World!"), "HELLO WORLD!")
+
+@test
+def toUpperCase03(): Bool = assertEq!(String.toUpperCase("→Hello World∀!"), "→HELLO WORLD∀!")
+
+/////////////////////////////////////////////////////////////////////////////
+// toList                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def toList01(): Bool = assertEq!(String.toList(""), Nil)
+
+@test
+def toList02(): Bool = assertEq!(String.toList("ABC"), 'A' :: 'B' :: 'C' :: Nil)
+
+@test
+def toList03(): Bool = assertEq!(String.toList("1 2 3"), '1' :: ' ' :: '2' :: ' ' :: '3' :: Nil)
 

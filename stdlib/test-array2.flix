@@ -52,6 +52,20 @@ def mapWithIndex01(): Bool =
     let fn = (_, ix) -> ix;
     Array2.foldLeft(Int32.max, 0, Array2.mapWithIndex(fn, a)) `assertEq!` 9
 
+
+@test
+def mapWithIndex02(): Bool =
+    let a:Array[Int32] = Array2.mapWithIndex((e, i) -> Int32.max(e,i), []);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def mapWithIndex03(): Bool =
+    let a = Array.new(3, 6);
+    let b:Array[Int32] = Array2.mapWithIndex((e, i) -> Int32.max(e,i), a);
+    Array.toList(b) `assertEq!` 3 :: 3 :: 3 :: 3 :: 4 :: 5 :: Nil
+
+
+
 @test 
 def count01(): Bool = 
     let a = [1,2,3,4,5];
@@ -135,7 +149,7 @@ def memberOf01(): Bool =
 @test
 def indexOf01(): Bool = 
     let a: Array[Int] = [0, 1, 2, 3];
-    Array2.indexOf(2, a) `assertEq!` 2
+    Array2.indexOf(2, a) `assertEq!` Some(2)
 
 @test
 def findLeft01(): Bool = 

@@ -96,6 +96,25 @@ namespace String2 {
         case _: ##java.lang.IndexOutOfBoundsException => ""
     }
     
+
+    ///
+    /// Optionally returns the position of the first element in `x` satisfying `f`.
+    ///
+    /// TODO - ideally this would be public but there is no corresponding function in List.
+    ///
+    def findIndexOfLeft(f: a -> Bool, s: Str): Option[Int] = 
+        let i = findIndexOfLeftHelper(f, s, String.length(s), 0);
+        if (i < 0) None else Some(i)
+
+    ///
+    /// Helper function for `findIndexOf`.
+    ///
+    def findIndexOfLeftHelper(f: a -> Bool, s:Str, len: Int32, i: Int32): Int32 = 
+        if (i >= len)
+            -1
+        else
+            if (f(String.charAt(i, s))) i else findIndexOfLeftHelper(f, s, len, i+1)
+
     ///
     /// Alias for `takeLeft`.
     ///
@@ -147,15 +166,23 @@ namespace String2 {
     /// the predicate `f`.
     ///
     pub def takeWhile(f: Char -> Bool, s: Str): Str = 
-        takeWhileHelper(f, s) |> List.toString
+        let notf = x -> !f(x);
+        match findIndexOfLeft(notf, s) {
+            case None => ""
+            case Some(i) => slice(0, i, s)
+        }
+        
 
     ///
     /// Helper function for `takeWhile` because we seem to need an intermediate list...
     ///   
-    def takeWhileHelper(f: Char -> Bool, s: Str): List[Char] = match viewl(s) {
-        case None => Nil
-        case Some(c, s1) => if (f(c)) (c :: takeWhileHelper(f, s1)) else Nil
-    }
+    def takeWhileHelper(f: Char -> Bool, s: Str, len:Int32, i: Int32): Int32 = 
+        if ((i >= len) || !f(String.charAt(i, s)))
+            i 
+        else 
+            takeWhileHelper(f,s,len,i+1)
+
+
 
     ///
     /// Returns the tail of string `s` after dropping all the initial chars 

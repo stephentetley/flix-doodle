@@ -77,7 +77,7 @@ def foldRight01() : Bool =
 /////////////////////////////////////////////////////////////////////////////
 @test
 def dropWhile01() : Bool = 
-    String2.dropWhile(Char.isDigit, "12345 hello") `assertEq!` " hello"
+    String2.dropWhile(Char.isDigit, "1234~hello") `assertEq!` "~hello"
 
 /////////////////////////////////////////////////////////////////////////////
 // takeWhile                                                               //
