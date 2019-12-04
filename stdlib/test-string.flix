@@ -27,6 +27,16 @@ pub def assertFailure!(f: Unit -> a): Bool =
         case _: ##java.lang.Exception => true
     }
 
+/////////////////////////////////////////////////////////////////////////////
+// literals                                                                //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def tabLiteral01() : Bool = 
+    String.charAt(0, "\t") `assertEq!` '\t'
+
+@test
+def tabLiteral02() : Bool = 
+    String.length("\t") `assertEq!` 1
 
 /////////////////////////////////////////////////////////////////////////////
 // charAt                                                                  //

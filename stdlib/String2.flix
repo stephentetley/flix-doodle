@@ -381,7 +381,7 @@ namespace String2 {
     ///
     /// Returns `true` if `s` is empty.
     ///
-    pub def isBlank(s: Str): Bool = 
+    pub def isWhiteSpace(s: Str): Bool = 
         forall(Char.isWhiteSpace, s)
 
     /// 

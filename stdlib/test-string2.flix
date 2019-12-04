@@ -197,11 +197,38 @@ def forall03() : Bool =
 /////////////////////////////////////////////////////////////////////////////
 @test
 def isAscii01() : Bool = 
-    assert!(String2.isAscii("The Flix Programming Language"))
+    assert!(String2.isAscii(""))
+
 
 @test
 def isAscii02() : Bool = 
+    assert!(String2.isAscii("The Flix Programming Language"))
+
+@test
+def isAscii03() : Bool = 
     assertNot!(String2.isAscii("∀(x: e, y: e, z: e). ((z ⊑ x) ∧ (z ⊑ y)) → (z ⊑ (x ⊓ y))"))
+
+/////////////////////////////////////////////////////////////////////////////
+// isWhiteSpace                                                            //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def isWhiteSpace01() : Bool = 
+    assert!(String2.isWhiteSpace(""))
+
+@test
+def isWhiteSpace02() : Bool = 
+    assert!(String2.isWhiteSpace("       "))
+
+@test
+def isWhiteSpace03() : Bool = 
+    assertNot!(String2.isWhiteSpace("     o  "))
+
+
+// @test
+// def isWhiteSpace04() : Bool = 
+//     assert!(String2.isWhiteSpace("\t"))
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 // splitAt                                                                 //
@@ -210,13 +237,6 @@ def isAscii02() : Bool =
 def splitAt01() : Bool = 
     String2.splitAt(1,"hello") `assertEq!` ("h", "ello")
 
-@test
-def isBlank01() : Bool = 
-    assert!(String2.isBlank("       "))
-
-@test
-def isBlank02() : Bool = 
-    assertNot!(String2.isBlank("     o  "))
 
 @test
 def trimLeft01() : Bool = 
