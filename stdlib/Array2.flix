@@ -25,19 +25,19 @@ namespace Array2 {
         else {
             let x = f(0);
             let a = Array.new(x, len);
-            initHelper(a, f, 1);
+            initHelper(a, f, len, 1);
             a
         }
 
     ///
     /// Helper function for `init`.
     /// 
-    def initHelper(a: Array[a], f: i -> a, i: Int): Unit = 
-        if (i >= Array.length(a) || i > 10)
+    def initHelper(a: Array[a], f: i -> a, len: Int32, i: Int32): Unit = 
+        if (i >= len)
             ()
         else { 
             a[i] = f(i); 
-            initHelper(a, f, i+1) 
+            initHelper(a, f, len, i+1) 
         }
 
     ///
@@ -106,7 +106,7 @@ namespace Array2 {
     ///
     /// If either `a` or `b` becomes depleted, then no further elements are added to the resulting array.
     ///
-    pub def map2(f: a -> b -> c, a: Array[a], b: Array[b]): Array[c] =
+    pub def map2(f: (a, b) -> c, a: Array[a], b: Array[b]): Array[c] =
         let len = Int32.min(Array.length(a), Array.length(b));
         init(i -> f(a[i], b[i]), len)
 

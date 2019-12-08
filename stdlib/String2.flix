@@ -31,19 +31,19 @@ namespace String2 {
         else {
             let c = f(0);
             let a = Array.new(c, len);
-            initHelper(a, f, 1);
+            initHelper(a, f, len, 1);
             Array2.toString(a)
         }
         
     ///
     /// Helper function for `init`.
     /// 
-    def initHelper(a: Array[Char], f: Int32 -> Char, i: Int32): Unit = 
-        if (i >= Array.length(a) || i > 10)
+    def initHelper(a: Array[Char], f: Int32 -> Char, len: Int32, i: Int32): Unit = 
+        if (i >= len)
             ()
         else { 
             a[i] = f(i); 
-            initHelper(a, f, i+1) 
+            initHelper(a, f, len, i+1) 
         }
 
 
@@ -147,7 +147,8 @@ namespace String2 {
     /// If `n` extends past the end of string `s`, return all the characters 
     /// of `s`.
     ///
-    pub def takeLeft(n: Int, s: Str) : Str = slice(0, n, s) 
+    pub def takeLeft(n: Int, s: Str) : Str = 
+        if (n >= String.length(s)) s else slice(0, n, s) 
 
     ///
     /// Take the last `n` characters of string `s` from the right.
@@ -157,7 +158,7 @@ namespace String2 {
     ///
     pub def takeRight(n: Int, s: Str) : Str =
         let len = String.length(s);
-        slice(len - n, len, s)
+        if (n >= len) s else slice(len - n, len, s)
 
     ///
     /// Alias for `dropLeft`.

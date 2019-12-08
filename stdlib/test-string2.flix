@@ -1,3 +1,22 @@
+/////////////////////////////////////////////////////////////////////////////
+// init                                                                    //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def init01(): Bool =
+    String2.init(_ -> 'A', 0) `assertEq!` ""
+
+@test
+def init02(): Bool =
+    String2.init(_ -> 'A', 1) `assertEq!` "AA"
+
+@test
+def init03(): Bool =
+    String2.init(_ -> 'A', 2) `assertEq!` "AA"
+
+@test
+def init04(): Bool =
+    String.length(String2.init(_ -> '*', 50)) `assertEq!` 50
+
 
 /////////////////////////////////////////////////////////////////////////////
 // toArray                                                                 //
@@ -11,18 +30,58 @@ def toArray01() : Bool =
 /////////////////////////////////////////////////////////////////////////////
 @test
 def map01() : Bool =
-    String2.map(_ -> '*', "hello") `assertEq!` "*****"
+    String2.map(_ -> 'A', "") `assertEq!` ""
+
+@test
+def map02() : Bool =
+    String2.map(_ -> 'A', "1") `assertEq!` "A"
+
+@test
+def map03() : Bool =
+    String2.map(_ -> 'A', "12") `assertEq!` "AA"
 
 /////////////////////////////////////////////////////////////////////////////
 // take                                                                    //
 /////////////////////////////////////////////////////////////////////////////
 @test
-def take01() : Bool = 
-    String2.take(10, "hello") `assertEq!` "hello"
+def take01(): Bool = String2.take(-1, "") `assertEq!` ""
 
 @test
-def take02() : Bool = 
-    String2.take(1, "hello") `assertEq!` "h"
+def take02(): Bool = String2.take(0, "") `assertEq!` ""
+
+@test
+def take03(): Bool = String2.take(1, "") `assertEq!` ""
+
+@test
+def take04(): Bool = String2.take(-1, "1") `assertEq!` ""
+
+@test
+def take05(): Bool = String2.take(0, "1") `assertEq!` ""
+
+@test
+def take06(): Bool = String2.take(1, "1") `assertEq!` "1"
+
+@test
+def take07(): Bool = String2.take(2, "1") `assertEq!` "1"
+
+@test
+def take08(): Bool = String2.take(0, "12") `assertEq!` ""
+
+@test
+def take09(): Bool = String2.take(1, "12") `assertEq!` "1"
+
+@test
+def take10(): Bool = String2.take(2, "12") `assertEq!` "12"
+
+@test
+def take11(): Bool = String2.take(2, "123456") `assertEq!` "12"
+
+@test
+def take12(): Bool = String2.take(4, "123456") `assertEq!` "1234"
+
+@test
+def take13(): Bool = String2.take(10, "123456") `assertEq!` "123456"
+
 
 /////////////////////////////////////////////////////////////////////////////
 // drop                                                                    //

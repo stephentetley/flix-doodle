@@ -1,4 +1,27 @@
 /////////////////////////////////////////////////////////////////////////////
+// init                                                                    //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def init01(): Bool =
+    let a = Array2.init(x -> x + 1, 0);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def init02(): Bool =
+    let a = Array2.init(x -> x + 1, 1);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def init03(): Bool =
+    let a = Array2.init(x -> x + 1, 2);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def init04(): Bool =
+    let a = Array2.init(x -> x + 1, 50);
+    Array.length(a) `assertEq!` 50
+
+/////////////////////////////////////////////////////////////////////////////
 // range                                                                   //
 /////////////////////////////////////////////////////////////////////////////
 @test
@@ -387,19 +410,19 @@ def transpose01(): Bool =
 
 @test
 def transpose02(): Bool = 
-    let a: Array[Array[Int32]] = Array2.transpose([ [] ]);
+    let a: Array[Array[Int32]] = Array2.transpose([[]]);
     let b = Array.toList(a) |> List.map(Array.toList);
     b `assertEq!` Nil :: Nil
 
 @test
 def transpose03(): Bool = 
-    let a: Array[Array[Int32]] = Array2.transpose([ [], [] ]);
+    let a: Array[Array[Int32]] = Array2.transpose([[], []]);
     let b = Array.toList(a) |> List.map(Array.toList);
     b `assertEq!` Nil :: Nil :: Nil
 
 @test
 def transpose04(): Bool = 
-    let a: Array[Array[Int32]] = Array2.transpose([ [], [], [] ]);
+    let a: Array[Array[Int32]] = Array2.transpose([[], [], []]);
     let b = Array.toList(a) |> List.map(Array.toList);   
     b `assertEq!` Nil :: Nil :: Nil :: Nil
 
