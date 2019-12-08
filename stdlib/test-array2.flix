@@ -262,6 +262,33 @@ def reverse01(): Bool =
     let b = Array2.reverse(a);
     Array.toList(b) `assertEq!` 5 :: 4 :: 3 :: 2 :: 1 :: Nil
 
+/////////////////////////////////////////////////////////////////////////////
+// scan                                                                    //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def scan01(): Bool = 
+    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, []);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def scan02(): Bool = 
+    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, [false]);
+    Array.toList(a) `assertEq!` 1 :: 3 :: Nil
+
+
+/////////////////////////////////////////////////////////////////////////////
+// scanRight                                                               //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def scanRight01(): Bool = 
+    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, []);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def scanRight02(): Bool = 
+    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, [false]);
+    Array.toList(a) `assertEq!` 3 :: 1 :: Nil
+
 
 /////////////////////////////////////////////////////////////////////////////
 // rotateLeft                                                              //
@@ -283,6 +310,49 @@ def rotateRight01(): Bool =
     Array.toList(b) `assertEq!` 4 :: 5 :: 1 :: 2 :: 3 :: Nil
 
 
+/////////////////////////////////////////////////////////////////////////////
+// replace                                                                 //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def replace01(): Bool = 
+    let a = Array2.replace(3, 4, []);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def replace02(): Bool = 
+    let a = Array2.replace(3, 4, [1]); 
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def replace03(): Bool = 
+    let a = Array2.replace(3, 4, [3]); 
+    Array.toList(a) `assertEq!` 4 :: Nil
+
+@test
+def replace04(): Bool = 
+    let a = Array2.replace(3, 4, [4]); 
+    Array.toList(a) `assertEq!` 4 :: Nil
+
+@test
+def replace05(): Bool = 
+    let a = Array2.replace(3, 4, [1, 2]); 
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def replace06(): Bool = 
+    let a = Array2.replace(3, 4, [1, 3]); 
+    Array.toList(a) `assertEq!` 1 :: 4 :: Nil
+
+@test
+def replace07(): Bool = 
+    let a = Array2.replace(3, 4, [3, 4]); 
+    Array.toList(a) `assertEq!` 4 :: 4 :: Nil
+
+@test
+def replace08(): Bool = 
+    let a = Array2.replace(3, 4, [3, 3]); 
+    Array.toList(a) `assertEq!` 4 :: 4 :: Nil
+
 
 /////////////////////////////////////////////////////////////////////////////
 // zip                                                                     //
@@ -303,3 +373,96 @@ def zipWith01(): Bool =
     let b = Array2.init(identity, 5);
     let c = Array2.zipWith((x,y) -> x + y, a, b);
     Array.toList(c) `assertEq!` 0 :: 2 :: 4 :: 6 :: 8 :: Nil
+
+
+/////////////////////////////////////////////////////////////////////////////
+// transpose                                                               //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def transpose01(): Bool = 
+    let a = Array2.transpose([]);
+    let b = Array.toList(a) |> List.map(Array.toList);
+    b `assertEq!` Nil
+
+
+@test
+def transpose02(): Bool = 
+    let a:Array[Array[Int32]] = Array2.transpose([ [] ]);
+    let b = Array.toList(a) |> List.map(Array.toList);
+    b `assertEq!` Nil :: Nil
+
+// @test
+// def transpose03(): Bool = List.transpose(Nil :: Nil :: Nil) `assertEq!` Nil :: Nil :: Nil
+
+// @test
+// def transpose04(): Bool = List.transpose(Nil :: Nil :: Nil :: Nil) `assertEq!` Nil :: Nil :: Nil :: Nil
+
+// @test
+// def transpose05(): Bool = List.transpose((1 :: Nil) :: Nil) `assertEq!` (1 :: Nil) :: Nil
+
+// @test
+// def transpose06(): Bool = List.transpose((1 :: 2 :: Nil) :: Nil) `assertEq!` (1 :: Nil) :: (2 :: Nil) :: Nil
+
+// @test
+// def transpose07(): Bool = List.transpose((1 :: 2 :: 3 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: Nil) :: (2 :: Nil) :: (3 :: Nil) :: Nil
+
+// @test
+// def transpose08(): Bool = List.transpose((1 :: 2 :: 3 :: 4 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: Nil) :: (2 :: Nil) :: (3 :: Nil) :: (4 :: Nil) :: Nil
+
+// @test
+// def transpose09(): Bool = List.transpose((1 :: Nil) :: (2 :: Nil) :: Nil) `assertEq!` (1 :: 2 :: Nil) :: Nil
+
+// @test
+// def transpose10(): Bool = List.transpose((1 :: Nil) :: (2 :: Nil) :: (3 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 2 :: 3 :: Nil) :: Nil
+
+// @test
+// def transpose11(): Bool = List.transpose((1 :: Nil) :: (2 :: Nil) :: (3 :: Nil) :: (4 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 2 :: 3 :: 4 :: Nil) :: Nil
+
+// @test
+// def transpose12(): Bool = List.transpose((1 :: 2 :: Nil) :: (3 :: 4 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 3 :: Nil) :: (2 :: 4 :: Nil) :: Nil
+
+// @test
+// def transpose13(): Bool = List.transpose((1 :: 2 :: 3 :: Nil) :: (4 :: 5 :: 6 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 4 :: Nil) :: (2 :: 5 :: Nil) :: (3 :: 6 :: Nil) :: Nil
+
+// @test
+// def transpose14(): Bool = List.transpose((1 :: 2 :: 3 :: 4 :: Nil) :: (5 :: 6 :: 7 :: 8 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 5 :: Nil) :: (2 :: 6 :: Nil) :: (3 :: 7 :: Nil) :: (4 :: 8 :: Nil) :: Nil
+
+// @test
+// def transpose15(): Bool = List.transpose((1 :: 2 :: 3 :: 4 :: 5 :: Nil) :: (6 :: 7 :: 8 :: 9 :: 10 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 6 :: Nil) :: (2 :: 7 :: Nil) :: (3 :: 8 :: Nil) :: (4 :: 9 :: Nil) :: (5 :: 10 :: Nil) :: Nil
+
+// @test
+// def transpose16(): Bool = List.transpose((1 :: 2 :: Nil) :: (3 :: 4 :: Nil) :: (5 :: 6 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 3 :: 5 :: Nil) :: (2 :: 4 :: 6 :: Nil) :: Nil
+
+// @test
+// def transpose17(): Bool = List.transpose((1 :: 2 :: Nil) :: (3 :: 4 :: Nil) :: (5 :: 6 :: Nil) :: (7 :: 8 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 3 :: 5 :: 7 :: Nil) :: (2 :: 4 :: 6 :: 8 :: Nil) :: Nil
+
+// @test
+// def transpose18(): Bool = List.transpose((1 :: 2 :: Nil) :: (3 :: 4 :: Nil) :: (5 :: 6 :: Nil) :: (7 :: 8 :: Nil) :: (9 :: 10 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 3 :: 5 :: 7 :: 9 :: Nil) :: (2 :: 4 :: 6 :: 8 :: 10 :: Nil) :: Nil
+
+// @test
+// def transpose19(): Bool = List.transpose((1 :: 2 :: 3 :: Nil) :: (4 :: 5 :: 6 :: Nil) :: (7 :: 8 :: 9 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 4 :: 7 :: Nil) :: (2 :: 5 :: 8 :: Nil) :: (3 :: 6 :: 9 :: Nil) :: Nil
+
+// @test
+// def transpose20(): Bool = List.transpose((1 :: 2 :: 3 :: Nil) :: (4 :: 5 :: Nil) :: (7 :: 8 :: 9 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 2 :: 3 :: Nil) :: (4 :: 5 :: Nil) :: (7 :: 8 :: 9 :: Nil) :: Nil
+
+// @test
+// def transpose21(): Bool = List.transpose((1 :: 2 :: 3 :: Nil) :: Nil :: (7 :: 8 :: 9 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 2 :: 3 :: Nil) :: Nil :: (7 :: 8 :: 9 :: Nil) :: Nil
+
+// @test
+// def transpose22(): Bool = List.transpose((1 :: 2 :: 3 :: Nil) :: (4 :: 5 :: 6 :: Nil) :: (7 :: 8 :: 9 :: 10 :: Nil) :: Nil) `assertEq!`
+//                         (1 :: 2 :: 3 :: Nil) :: (4 :: 5 :: 6 :: Nil) :: (7 :: 8 :: 9 :: 10 :: Nil) :: Nil
+

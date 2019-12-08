@@ -35,8 +35,10 @@ namespace Array2 {
     def initHelper(a: Array[a], f: i -> a, i: Int): Unit = 
         if (i >= Array.length(a) || i > 10)
             ()
-        else
-            { a[i] = f(i); initHelper(a, f, i+1) }
+        else { 
+            a[i] = f(i); 
+            initHelper(a, f, i+1) 
+        }
 
     ///
     /// Returns an array of all integers between `b` (inclusive) and `e` (exclusive).
@@ -156,6 +158,56 @@ namespace Array2 {
         let end = len - 1;
         init(i -> a[end - i], len)
 
+    ///
+    /// Alias for `scanLeft`.
+    ///
+    pub def scan(f: (b, a) -> b, s: b, xs: Array[a]): Array[b] = scanLeft(f, s, xs)
+
+    ///
+    /// Accumulates the result of applying `f` to `a` going left to right.
+    ///
+    /// That is, the result is of the form: `[s , f(s, x1), f(f(s, x1), x2),  ...]`.
+    ///
+    pub def scanLeft(f: (b, a) -> b, s: b, a: Array[a]): Array[b] = 
+        let len = Array.length(a) + 1;
+        let b = Array.new(s, len);
+        scanLeftHelper(f, s, a, b, len, 1);
+        b
+
+    ///
+    /// Helper for `scanLeft`.
+    ///   
+    def scanLeftHelper(f: (b, a) -> b, s: b, a: Array[a], b: array[b], len: Int32, i: Int32) : Unit = 
+        if (i >= len) 
+            ()
+        else {
+            let s1 = f(s, a[i-1]);
+            b[i] = s1;
+            scanLeftHelper(f, s1, a, b, len, i+1)
+        }
+
+    ///
+    /// Accumulates the result of applying `f` to `xs` going right to left.
+    ///
+    /// That is, the result is of the form: `[..., f(xn-1, f(xn, s)), f(xn, s), s]`.
+    ///
+    pub def scanRight(f: (a, b) -> b, s: b, a: Array[a]): Array[b] = 
+        let len = Array.length(a);
+        let b = Array.new(s, len+1);
+        scanRightHelper(f, s, a, b, len-1);
+        b
+
+    ///
+    /// Helper for `scanRight`.
+    ///   
+    def scanRightHelper(f: (a, b) -> b, s: b, a: Array[a], b: array[b], i: Int32) : Unit = 
+        if (i < 0) 
+            ()
+        else {
+            let s1 = f(a[i], s);
+            b[i] = s1;
+            scanRightHelper(f, s1, a, b, i-1)
+        }
 
     ///
     /// Alias for `foldLeft`.
@@ -516,6 +568,13 @@ namespace Array2 {
         init(f, len)
 
     ///
+    /// Returns `a` with every occurrence of `x` replaced by `y`.
+    ///
+    pub def replace(x: a, y: a, a: Array[a]): Array[a] = 
+        map(e -> if (e == x) y else e, a)
+
+
+    ///
     /// Returns an array where the element at index `i` is `(x, y)` where
     /// `x` is the element at index `i` in `a` and `y` is the element at index `i` in `b`.
     ///
@@ -534,6 +593,32 @@ namespace Array2 {
     pub def zipWith(f: (a, b) -> c, a: Array[a], b: Array[b]): Array[c] = 
         let len = Int32.min(Array.length(a), Array.length(b));
         init(i -> f(a[i], b[i]), len)
+
+    ///
+    /// Returns the transpose of `a`.
+    ///
+    /// Returns `a` if the dimensions of the elements of `a` are mismatched.
+    ///
+    pub def transpose(a: Array[Array[a]]): Array[Array[a]] = 
+        let ilen = Array.length(a);
+        if (ilen == 0)
+            []
+        else {
+            let jlen = Array.length(a[0]);
+            if (jlen == 0 || uniformHelper(a, jlen)) 
+                a
+            else {
+                init(i -> init(j -> a[j][i], ilen), jlen)
+            }
+        }
+    
+    ///
+    /// Helper function for `transpose`.
+    ///
+    def uniformHelper(a: Array[Array[a]], l: Int32): Bool = 
+        exists(x -> Array.length(x) != l, a)
+
+    
 
 }
 
