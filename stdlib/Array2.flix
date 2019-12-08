@@ -38,7 +38,18 @@ namespace Array2 {
         else
             { a[i] = f(i); initHelper(a, f, i+1) }
 
-
+    ///
+    /// Returns an array of all integers between `b` (inclusive) and `e` (exclusive).
+    ///
+    /// Returns `Nil` if `b >= e`.
+    ///
+    pub def range(b: Int32, e: Int32): Array[Int32] = 
+        if (b >= e) 
+            [] 
+        else { 
+            let f = x -> x + b;
+            init(f, e-b) 
+        }
 
     ///
     /// Return a new array, appending the elements `b` to elements of `a`.

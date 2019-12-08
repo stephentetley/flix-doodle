@@ -1,36 +1,114 @@
+/////////////////////////////////////////////////////////////////////////////
+// range                                                                   //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def range01(): Bool = 
+    let a = Array2.range(1, 0);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def range02(): Bool = 
+    let a = Array2.range(1, 1);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def range03(): Bool = 
+    let a = Array2.range(1, 2);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def range04(): Bool = 
+    let a = Array2.range(1, 3);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def range05(): Bool = 
+    let a = Array2.range(1, 4);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 3 :: Nil
+
+@test
+def range06(): Bool = 
+    let a = Array2.range(-1, 3);
+    Array.toList(a) `assertEq!` (-1) :: 0 :: 1 :: 2 :: Nil
 
 /////////////////////////////////////////////////////////////////////////////
 // append                                                                  //
 /////////////////////////////////////////////////////////////////////////////
 @test
 def append01(): Bool = 
+    let a: Array[Int32] = [];
+    let b: Array[Int32] = [];
+    let c = Array2.append(a,b);
+    Array.toList(c) `assertEq!` Nil
+
+@test
+def append02(): Bool = 
     let a = [1,2,3,4,5];
     let b = [6,7,8];
     let c = Array2.append(a,b);
     Array.toList(c) `assertEq!` 1 :: 2 :: 3 :: 4 :: 5 :: 6 :: 7 :: 8 :: Nil
 
 @test
-def append02(): Bool = 
+def append03(): Bool = 
     let a = [1,2,3,4,5];
     let b: Array[Int32] = [];
     let c = Array2.append(a,b);
     Array.toList(c) `assertEq!` 1 :: 2 :: 3 :: 4 :: 5 :: Nil
 
+/////////////////////////////////////////////////////////////////////////////
+// flatten                                                                 //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def flatten01(): Bool = 
+    let a: Array[Array[Int32]] = [];
+    let b = Array2.flatten(a);
+    Array.toList(b) `assertEq!` Nil
+
+@test
+def flatten02(): Bool = 
+    let a: Array[Array[Int32]] = [[1,2],[3],[4,5],[]];
+    let b = Array2.flatten(a);
+    Array.toList(b) `assertEq!` 1 :: 2 :: 3 :: 4 :: 5 :: Nil
+
+
+@test
+def flatten03(): Bool = 
+    let a: Array[Array[Int32]] = [[],[],[],[]];
+    let b = Array2.flatten(a);
+    Array.toList(b) `assertEq!` Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// toString                                                                //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def toString01(): Bool = 
+    let a: Array[Char] = [];
+    Array2.toString(a) `assertEq!` ""
+
+@test
+def toString02(): Bool = 
+    let a = ['a', 'b', 'c'];
+    Array2.toString(a) `assertEq!` "abc"
+
 
 /////////////////////////////////////////////////////////////////////////////
 // map                                                                     //
 /////////////////////////////////////////////////////////////////////////////
-@test
-def map01(): Bool = 
-    let a = Array.new(1, 10);
-    let fn = _ -> 'a';
-    assert!(Array2.forall(x -> x=='a', Array2.map(fn, a)))
 
 @test
-def map02(): Bool = 
-    let a : Array[Int] = [];
+def map01(): Bool = 
+    let a: Array[Int] = [];
     let fn = _ -> 'a';
-    Array2.map(fn, a) |> Array.length `assertEq!` 0
+    let b = Array2.map(fn, a);
+    Array.toList(b) `assertEq!` Nil
+    
+@test
+def map02(): Bool = 
+    let a = Array.new(1, 3);
+    let fn = _ -> 'a';
+    let b = Array2.map(fn, a);
+    Array.toList(b) `assertEq!` 'a' :: 'a' :: 'a' :: Nil
+
 
 /////////////////////////////////////////////////////////////////////////////
 // map2                                                                     //
