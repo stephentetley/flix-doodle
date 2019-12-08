@@ -466,9 +466,10 @@ namespace String2 {
     /// separator.
     ///
     pub def unlines(a: Array[Str]): Str = 
-        if (Array.length(a) > 0)
+        if (Array.length(a) > 0) {
             let a1 = Array2.drop(1,a);
             Array2.foldLeft((ac,s) -> ac + lineSeparator() + s, a[0], a1)
+        }
         else ""
 
     ///
@@ -481,10 +482,10 @@ namespace String2 {
     /// Join the array of strings `a` with a single space character.
     ///
     pub def unwords(a: Array[Str]): Str = 
-        if (Array.length(a) > 0)
+        if (Array.length(a) > 0) {
             let a1 = Array2.drop(1,a);
             Array2.foldLeft((ac,s) -> ac + " " + s, a[0], a1)
-        else ""
+        } else ""
 
     ///
     /// Alias for `indexOfLeft`.

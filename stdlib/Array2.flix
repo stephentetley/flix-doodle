@@ -61,24 +61,27 @@ namespace Array2 {
         let len2 = Array.length(b);
         if (len2 == 0)
             Array.slice(a, 0, len1)
-        else
+        else {
             if (len1 == 0)
                 Array.slice(b, 0, len2) 
-            else 
+            else {
                 let c = Array.new(b[0], len1 + len2);
                 let j = appendHelper(a, c, 0, 0);
                 let _ = appendHelper(b, c, 0, j);
                 c
+            }
+        }
     ///
     /// Helper function for `append`.
     ///    
     def appendHelper(a: Array[a], c: Array[a], i: Int32, j: Int32): Int32 = 
         if (i >= Array.length(a))
             j
-        else
+        else {
             let _ = c[j] = a[i];
             appendHelper(a, c, i+1, j+1)
-
+        }
+        
     ///
     /// Returns the concatenation of the elements in `a`.
     ///
@@ -229,9 +232,10 @@ namespace Array2 {
     def foldLeftHelper(f: (b, a) -> b, s: b, a: Array[a], i: Int): b = 
         if (i >= Array.length(a))
             s
-        else
+        else {
             let s1 = f(s, a[i]);
             foldLeftHelper(f, s1, a, i + 1)
+        }
 
     ///
     /// Accumulates the result of applying `f` pairwise to the elements of `a` and `b`
@@ -246,9 +250,10 @@ namespace Array2 {
     def foldLeft2Helper(f: c -> a -> b -> c , s: c, a: Array[a], b: Array[b], i: Int): c = 
         if (i >= Array.length(a) || i >= Array.length(b))
             s
-        else
+        else {
             let s1 = f(s, a[i], b[i]);
             foldLeft2Helper(f, s1, a, b, i + 1)
+        }
 
     ///
     /// Applies `f` to a start value `s` and all elements in `a` going from right to left.
@@ -264,10 +269,11 @@ namespace Array2 {
     def foldRightHelper(f: (a, b) -> b, s: b, a: Array[a], i: Int): b = 
         if (i < 0)
             s
-        else
+        else {
             let s1 = f(a[i], s);
             foldRightHelper(f, s1, a, i - 1)
-    
+        }
+
     ///
     /// Accumulates the result of applying `f` pairwise to the elements of `a` and `b`
     /// starting with the initial value `c` and going from right to left.
@@ -284,9 +290,10 @@ namespace Array2 {
     def foldRight2Helper(f: (a, b, c) -> c , s: c, a: Array[a], b: Array[b], i: Int): c = 
         if (i < 0)
             s
-        else
+        else {
             let s1 = f(a[i], b[i], s);
             foldRight2Helper(f, s1, a, b, i - 1)
+        }
 
     ///
     /// Alias for `reduceLeft`.
@@ -344,10 +351,11 @@ namespace Array2 {
     pub def drop(n: Int, a: Array[a]) : Array[a] = 
         if (n < 1)
             Array.slice(a, 0, Array.length(a))
-        else
+        else {
             let last = Array.length(a);
             Array.slice(a, n, last)
-    
+        }
+
     ///
     /// Returns `a` without the longest prefix that satisfies the predicate `f`.
     ///
@@ -397,12 +405,12 @@ namespace Array2 {
     def existsHelper(f: a -> Bool, a: Array[a], i: Int): Bool = 
         if (i >= Array.length(a))
             false
-        else 
+        else { 
             if (f(a[i]) == true) 
                 true 
             else 
                 existsHelper(f, a, i+1)
-
+        }
     ///
     /// Returns `true` if and only if all elements in `a` satisfy the predicate `f`.
     ///
@@ -417,12 +425,12 @@ namespace Array2 {
     def forallHelper(f: a -> Bool, a: Array[a], i: Int): Bool = 
         if (i >= Array.length(a))
             true
-        else 
+        else { 
             if (f(a[i]) == false) 
                 false 
             else 
                 forallHelper(f, a, i+1)
-
+        }
 
     ///
     /// Returns `true` if and only if `a` contains the element `x`.
@@ -479,9 +487,10 @@ namespace Array2 {
     def findLeftHelper(f: a -> Bool, a: Array[a], i: Int32): Option[a] = 
         if (i >= Array.length(a))
             None
-        else 
+        else { 
             let x = a[i];
             if (f(x)) Some(x) else findLeftHelper(f, a, i+1)
+        }
 
     ///
     /// Optionally returns the first element of `xs` that satisfies the predicate `f` when searching from right to left.
@@ -495,10 +504,10 @@ namespace Array2 {
     def findRightHelper(f: a -> Bool, a: Array[a], i: Int32): Option[a] = 
         if (i < 0 || i >= Array.length(a))
             None
-        else 
+        else { 
             let x = a[i];
             if (f(x)) Some(x) else findLeftHelper(f, a, i-1)
-
+        }
     
 
     ///
@@ -543,11 +552,10 @@ namespace Array2 {
     def findMapHelper(f: a -> Option[b], a: Array[a], i: Int32): Option[b] = 
         if (i >= Array.length(a)) 
             None
-        else 
-            match (f(a[i])) {
-                case Some(v) => Some(v)
-                case None => findMapHelper(f, a, i+1)
-            }
+        else match (f(a[i])) {
+            case Some(v) => Some(v)
+            case None => findMapHelper(f, a, i+1)
+        }
         
 
     ///
