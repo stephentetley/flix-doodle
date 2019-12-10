@@ -87,12 +87,44 @@ def take13(): Bool = String2.take(10, "123456") `assertEq!` "123456"
 // drop                                                                    //
 /////////////////////////////////////////////////////////////////////////////
 @test
-def drop01() : Bool = 
-    String2.drop(10, "hello") `assertEq!` ""
+def drop01(): Bool = String2.drop(-1, "") `assertEq!` ""
 
 @test
-def drop02() : Bool = 
-    String2.drop(1, "hello") `assertEq!` "ello"
+def drop02(): Bool = String2.drop(0, "") `assertEq!` ""
+
+@test
+def drop03(): Bool = String2.drop(1, "") `assertEq!` ""
+
+@test
+def drop04(): Bool = String2.drop(-1, "1") `assertEq!` "1"
+
+@test
+def drop05(): Bool = String2.drop(0, "1") `assertEq!` "1"
+
+@test
+def drop06(): Bool = String2.drop(1, "1") `assertEq!` ""
+
+@test
+def drop07(): Bool = String2.drop(2, "1") `assertEq!` ""
+
+@test
+def drop08(): Bool = String2.drop(0, "12") `assertEq!` "12"
+
+@test
+def drop09(): Bool = String2.drop(1, "12") `assertEq!` "2"
+
+@test
+def drop10(): Bool = String2.drop(2, "12") `assertEq!` ""
+
+@test
+def drop11(): Bool = String2.drop(2, "123456") `assertEq!` "3456"
+
+@test
+def drop12(): Bool = String2.drop(4, "123456") `assertEq!` "56"
+
+@test
+def drop13(): Bool = String2.drop(10, "123456") `assertEq!` ""
+
 
 /////////////////////////////////////////////////////////////////////////////
 // viewl                                                                   //

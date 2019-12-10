@@ -171,17 +171,21 @@ namespace String2 {
     /// If `n` extends past the end of string s, return the empty string.
     ///
     pub def dropLeft(n: Int, s: Str) : Str =
-        let len = String.length(s);
-        slice(n, len, s)
+        if (n < 0) 
+            s
+        else {
+            let end = String.length(s);
+            slice(n, end, s) 
+        }
 
     ///
     /// Drop the last `n` characters of string `s` from the right.
     ///
     /// If `n` is greater than the length of string `s`, return the empty string.
     ///
-    pub def dropRight(n: Int, s: Str) : Str =
-        let len = String.length(s);
-        slice(0, len - n, s)
+    pub def dropRight(n: Int, s: Str) : Str =        
+        let end = String.length(s) - n;
+        if (end > 0) slice(0, end, s) else s
 
     ///
     /// Returns the initial prefix of string `s` where all the chars satisfy
