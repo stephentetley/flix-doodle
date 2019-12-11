@@ -125,28 +125,101 @@ def drop12(): Bool = String2.drop(4, "123456") `assertEq!` "56"
 @test
 def drop13(): Bool = String2.drop(10, "123456") `assertEq!` ""
 
-
 /////////////////////////////////////////////////////////////////////////////
-// viewl                                                                   //
-/////////////////////////////////////////////////////////////////////////////
-@test
-def viewl01() : Bool = 
-    String2.viewl("") `assertEq!` None
-
-@test
-def viewl02() : Bool = 
-    String2.viewl("hello") `assertEq!` Some('h', "ello")
-
-/////////////////////////////////////////////////////////////////////////////
-// viewr                                                                   //
+// dropRight                                                               //
 /////////////////////////////////////////////////////////////////////////////
 @test
-def viewr01() : Bool = 
-    String2.viewr("") `assertEq!` None
+def dropRight01(): Bool = String2.dropRight(-1, "") `assertEq!` ""
 
 @test
-def viewr02() : Bool = 
-    String2.viewr("hello") `assertEq!` Some("hell", 'o')
+def dropRight02(): Bool = String2.dropRight(0, "") `assertEq!` ""
+
+@test
+def dropRight03(): Bool = String2.dropRight(1, "") `assertEq!` ""
+
+@test
+def dropRight04(): Bool = String2.dropRight(-1, "1") `assertEq!` "1"
+
+@test
+def dropRight05(): Bool = String2.dropRight(0, "1") `assertEq!` "1"
+
+@test
+def dropRight06(): Bool = String2.dropRight(1, "1") `assertEq!` ""
+
+@test
+def dropRight07(): Bool = String2.dropRight(2, "1") `assertEq!` ""
+
+@test
+def dropRight08(): Bool = String2.dropRight(0, "12") `assertEq!` "12"
+
+@test
+def dropRight09(): Bool = String2.dropRight(1, "12") `assertEq!` "1"
+
+@test
+def dropRight10(): Bool = String2.dropRight(2, "12") `assertEq!` ""
+
+@test
+def dropRight11(): Bool = String2.dropRight(2, "123456") `assertEq!` "1234"
+
+@test
+def dropRight12(): Bool = String2.dropRight(4, "123456") `assertEq!` "12"
+
+@test
+def dropRight13(): Bool = String2.dropRight(10, "123456") `assertEq!` ""
+
+/////////////////////////////////////////////////////////////////////////////
+// takeWhileLeft                                                           //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def takeWhileLeft01(): Bool = String2.takeWhileLeft(Char.isDigit, "") `assertEq!` ""
+
+@test
+def takeWhileLeft02(): Bool = String2.takeWhileLeft(Char.isDigit, "A") `assertEq!` ""
+
+@test
+def takeWhileLeft03(): Bool = String2.takeWhileLeft(Char.isDigit, "4") `assertEq!` "4"
+
+@test
+def takeWhileLeft04(): Bool = String2.takeWhileLeft(Char.isDigit, "AB") `assertEq!` ""
+
+@test
+def takeWhileLeft05(): Bool = String2.takeWhileLeft(Char.isDigit, "A1")  `assertEq!` ""
+
+@test
+def takeWhileLeft06(): Bool = String2.takeWhileLeft(Char.isDigit, "1A") `assertEq!` "1"
+
+@test
+def takeWhileLeft07(): Bool = String2.takeWhileLeft(Char.isDigit, "12") `assertEq!` "12"
+
+@test
+def takeWhileLeft08(): Bool = String2.takeWhileLeft(Char.isDigit, "46A8B128717") `assertEq!` "46"
+
+/////////////////////////////////////////////////////////////////////////////
+// takeWhileRight                                                          //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def takeWhileRight01(): Bool = String2.takeWhileRight(Char.isDigit, "") `assertEq!` ""
+
+@test
+def takeWhileRight02(): Bool = String2.takeWhileRight(Char.isDigit, "A") `assertEq!` ""
+
+@test
+def takeWhileRight03(): Bool = String2.takeWhileRight(Char.isDigit, "4") `assertEq!` "4"
+
+@test
+def takeWhileRight04(): Bool = String2.takeWhileRight(Char.isDigit, "AB") `assertEq!` ""
+
+@test
+def takeWhileRight05(): Bool = String2.takeWhileRight(Char.isDigit, "1A")  `assertEq!` ""
+
+@test
+def takeWhileRight06(): Bool = String2.takeWhileRight(Char.isDigit, "A1") `assertEq!` "1"
+
+@test
+def takeWhileRight07(): Bool = String2.takeWhileRight(Char.isDigit, "12") `assertEq!` "12"
+
+@test
+def takeWhileRight08(): Bool = String2.takeWhileRight(Char.isDigit, "46A8B128717") `assertEq!` "128717"
 
 /////////////////////////////////////////////////////////////////////////////
 // foldLeft                                                                //
@@ -190,25 +263,6 @@ def foldLeft204() : Bool =
 def foldLeft205() : Bool = 
     String2.foldLeft2((ac,b,c) -> (b, c) :: ac, Nil, "", "fdb") 
         `assertEq!` Nil
-
-/////////////////////////////////////////////////////////////////////////////
-// takeWhileLeft                                                           //
-/////////////////////////////////////////////////////////////////////////////
-@test
-def takeWhileLeft01() : Bool = 
-    String2.takeWhileLeft(Char.isDigit, "") `assertEq!` ""
-
-@test
-def takeWhileLeft02() : Bool = 
-    String2.takeWhileLeft(Char.isDigit, "1234~hello") `assertEq!` "1234"
-
-@test
-def takeWhileLeft03() : Bool = 
-    String2.takeWhileLeft(Char.isDigit, "1234567890") `assertEq!` "1234567890"
-
-@test
-def takeWhileLeft04() : Bool = 
-    String2.takeWhileLeft(x -> !(Char.isDigit(x)), "1234567890") `assertEq!` ""
 
 /////////////////////////////////////////////////////////////////////////////
 // dropWhileLeft                                                           //

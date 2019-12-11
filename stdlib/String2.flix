@@ -204,7 +204,7 @@ namespace String2 {
     pub def takeWhileRight(f: Char -> Bool, s: Str): Str = 
         match findIndexOfRight(x ->!(f(x)), s) {
             case None => s
-            case Some(i) => takeRight(i, s)
+            case Some(i) => slice(i+1, String.length(s), s)                
         }
 
         
