@@ -302,41 +302,124 @@ def foldLeft05() : Bool =
 def foldLeft06() : Bool =
     String2.foldLeft((ac,b) -> if (Char.isDigit(b)) ac+1 else ac, 0, "1!2!3!4!5!") `assertEq!` 5
 
+@test
+def foldLeft07() : Bool =
+    String2.foldLeft((ac,b) -> Char.toString(b) + ac, "", "hello") `assertEq!` "olleh"
+
 /////////////////////////////////////////////////////////////////////////////
-// foldRight                                                                //
+// foldRight                                                               //
 /////////////////////////////////////////////////////////////////////////////
 @test 
 def foldRight01() : Bool = 
-    String2.foldRight((b,ac) -> b :: ac, Nil, "hello") `assertEq!` 'h' :: 'e' :: 'l' :: 'l' :: 'o' :: Nil
+    String2.foldRight((b,ac) -> if (Char.isDigit(b)) ac+1 else ac, 0, "") `assertEq!` 0
 
+@test 
+def foldRight02() : Bool = 
+    String2.foldRight((b,ac) -> if (Char.isDigit(b)) ac+1 else ac, 0, "1") `assertEq!` 1
+
+@test 
+def foldRight03() : Bool = 
+    String2.foldRight((b,ac) -> if (Char.isDigit(b)) ac+1 else ac, 0, "A") `assertEq!` 0
+
+@test 
+def foldRight04() : Bool = 
+    String2.foldRight((b,ac) -> if (Char.isDigit(b)) ac+1 else ac, 0, "12") `assertEq!` 2
+
+@test 
+def foldRight05() : Bool = 
+    String2.foldRight((b,ac) -> if (Char.isDigit(b)) ac+1 else ac, 0, "1234567890") `assertEq!` 10
+
+@test
+def foldRight06() : Bool =
+    String2.foldRight((b,ac) -> if (Char.isDigit(b)) ac+1 else ac, 0, "1!2!3!4!5!") `assertEq!` 5
+
+
+@test
+def foldRight07() : Bool =
+    String2.foldRight((b,ac) -> Char.toString(b) + ac, "", "hello") `assertEq!` "hello"
 
 /////////////////////////////////////////////////////////////////////////////
-// foldLeft2                                                                //
+// foldLeft2                                                               //
 /////////////////////////////////////////////////////////////////////////////
-@test 
-def foldLeft201() : Bool = 
-    String2.foldLeft2((ac,b,c) -> b :: c :: ac, Nil, "eca", "fdb") 
-        `assertEq!` 'a' :: 'b' :: 'c' :: 'd' :: 'e' :: 'f' :: Nil
 
-@test 
-def foldLeft202() : Bool = 
-    String2.foldLeft2((ac,b,c) -> (b, c) :: ac, Nil, "a", "fdb") 
-        `assertEq!` ('a', 'f') :: Nil
+@test
+def foldLeft201(): Bool =
+    String2.foldLeft2((c, a, b) -> c + Char.toString(b) + Char.toString(a), "3", "", "") `assertEq!` "3"
 
-@test 
-def foldLeft203() : Bool = 
-    String2.foldLeft2((ac,b,c) -> (b, c) :: ac, Nil, "", "fdb") 
-        `assertEq!` Nil
+@test
+def foldLeft202(): Bool =
+    String2.foldLeft2((c, a, b) -> c + Char.toString(b) + Char.toString(a), "3", "1", "") `assertEq!` "3"
 
-@test 
-def foldLeft204() : Bool = 
-    String2.foldLeft2((ac,b,c) -> (b, c) :: ac, Nil, "", "") 
-        `assertEq!` Nil
+@test
+def foldLeft203(): Bool =
+    String2.foldLeft2((c, a, b) -> c + Char.toString(b) + Char.toString(a), "3", "", "1") `assertEq!` "3"
 
-@test 
-def foldLeft205() : Bool = 
-    String2.foldLeft2((ac,b,c) -> (b, c) :: ac, Nil, "", "fdb") 
-        `assertEq!` Nil
+@test
+def foldLeft204(): Bool =
+    String2.foldLeft2((c, a, b) -> c + Char.toString(b) + Char.toString(a), "3", "1", "2") `assertEq!` "321"
+
+@test
+def foldLeft205(): Bool =
+    String2.foldLeft2((c, a, b) -> c + Char.toString(b) + Char.toString(a), "3", "2", "1") `assertEq!` "312"
+
+@test
+def foldLeft206(): Bool =
+    String2.foldLeft2((c, a, b) -> c + Char.toString(b) + Char.toString(a), "5", "31", "42") `assertEq!` "54321"
+
+@test
+def foldLeft207(): Bool =
+    String2.foldLeft2((c, a, b) -> c + Char.toString(b) + Char.toString(a), "5", "13", "24") `assertEq!` "52143"
+    
+/////////////////////////////////////////////////////////////////////////////
+// foldRight2                                                              //
+/////////////////////////////////////////////////////////////////////////////
+
+@test
+def foldRight201(): Bool =
+    String2.foldRight2((a, b, c) -> Char.toString(a) + Char.toString(b) + c, "3", "", "") `assertEq!` "3"
+
+@test
+def foldRight202(): Bool =
+    String2.foldRight2((a, b, c) -> Char.toString(a) + Char.toString(b) + c, "3", "1", "") `assertEq!` "3"
+
+@test
+def foldRight203(): Bool =
+    String2.foldRight2((a, b, c) -> Char.toString(a) + Char.toString(b) + c, "3", "", "1") `assertEq!` "3"
+
+@test
+def foldRight204(): Bool =
+    String2.foldRight2((a, b, c) -> Char.toString(a) + Char.toString(b) + c, "3", "1", "2") `assertEq!` "123"
+
+@test
+def foldRight205(): Bool =
+    String2.foldRight2((a, b, c) -> Char.toString(a) + Char.toString(b) + c, "3", "2", "1") `assertEq!` "213"
+
+@test
+def foldRight206(): Bool =
+    String2.foldRight2((a, b, c) -> Char.toString(a) + Char.toString(b) + c, "5", "13", "24") `assertEq!` "12345"
+
+@test
+def foldRight207(): Bool =
+    String2.foldRight2((a, b, c) -> Char.toString(a) + Char.toString(b) + c, "5", "24", "13") `assertEq!` "21435"
+
+/////////////////////////////////////////////////////////////////////////////
+// unfold                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def unfold01() : Bool = 
+    String2.unfold(_ -> None, 0) `assertEq!` ""
+
+@test
+def unfold02() : Bool =
+    String2.unfold(x -> if (x > 0) None else Some('A', x+1), 0) `assertEq!` "A"
+
+@test
+def unfold03() : Bool =
+    String2.unfold(x -> if (x > 1) None else Some('A', x+1), 0) `assertEq!` "AA"
+
+@test
+def unfold04() : Bool =
+    String2.unfold(x -> if (x > 4) None else Some('A', x+1), 0) `assertEq!` "AAAAA"
 
 /////////////////////////////////////////////////////////////////////////////
 // exists                                                                  //

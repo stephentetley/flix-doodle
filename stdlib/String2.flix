@@ -239,28 +239,6 @@ namespace String2 {
         (take(n,s), drop(n,s))
 
     ///
-    /// Deconstruct the string `s` from the left returning the first char and the rest of the string.
-    ///
-    /// Return None if `s` is empty.
-    ///
-    pub def viewl(s: Str): Option[(Char, Str)] = 
-        if (String.length(s) == 0) 
-            None 
-        else 
-            Some(String.charAt(0, s), drop(1,s))
-
-    ///
-    /// Deconstruct the string `s` from the right returning the first char and the rest of the string.
-    ///
-    /// Return None if `s` is empty.
-    ///
-    pub def viewr(s: Str): Option[(Str, Char)] = match String.length(s) {
-        case x if x > 1  => Some(take(x-1, s), String.charAt(x-1, s))
-        case x if x == 1 => Some("", String.charAt(0, s))
-        case x if x < 1  => None
-    }
-
-    ///
     /// Applies `f` to a start value `x` and all elements in `s` going from left to right.
     ///
     pub def foldLeft(f: (b, Char) -> b, x: b, s: Str) : b = 
