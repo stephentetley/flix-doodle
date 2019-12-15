@@ -425,31 +425,65 @@ def unfold04() : Bool =
 // exists                                                                  //
 /////////////////////////////////////////////////////////////////////////////
 @test
-def exists01() : Bool = 
-    assert!(String2.exists(Char.isDigit, "number 5 middle"))
+def exists01() : Bool = assertNot!(String2.exists(Char.isDigit, ""))
+    
+@test
+def exists02() : Bool = assertNot!(String2.exists(Char.isDigit, "A"))
 
 @test
-def exists02() : Bool = 
-    assertNot!(String2.exists(Char.isDigit, ""))
+def exists03() : Bool = assert!(String2.exists(Char.isDigit, "5"))
 
 @test
-def exists03() : Bool = 
-    assertNot!(String2.exists(Char.isDigit, "number"))
+def exists04() : Bool = assertNot!(String2.exists(Char.isDigit, "A!"))
+
+@test
+def exists05() : Bool = assert!(String2.exists(Char.isDigit, "A1"))
+
+@test
+def exists06(): Bool = assert!(String2.exists(Char.isDigit, "1A"))
+
+@test
+def exists07(): Bool = assert!(String2.exists(Char.isDigit, "*6"))
+
+@test
+def exists08(): Bool = assertNot!(String2.exists(Char.isDigit, "ZERO"))
+
+@test
+def exists09(): Bool = assert!(String2.exists(Char.isDigit, "A1B"))
 
 /////////////////////////////////////////////////////////////////////////////
 // forall                                                                  //
 /////////////////////////////////////////////////////////////////////////////
 @test
-def forall01() : Bool = 
-    assert!(String2.forall(Char.isDigit, ""))
+def forall01(): Bool = assert!(String2.forall(Char.isDigit, ""))
 
 @test
-def forall02() : Bool = 
-    assert!(String2.forall(Char.isDigit, "12345"))
+def forall02(): Bool = assertNot!(String2.forall(Char.isDigit, "A"))
 
 @test
-def forall03() : Bool = 
-    assertNot!(String2.forall(Char.isDigit, "12b45"))
+def forall03(): Bool = assert!(String2.forall(Char.isDigit, "5"))
+
+@test
+def forall04(): Bool = assertNot!(String2.forall(Char.isDigit, "A!"))
+
+@test
+def forall05(): Bool = assertNot!(String2.forall(Char.isDigit, "A1"))
+
+@test
+def forall06(): Bool = assertNot!(String2.forall(Char.isDigit, "1A"))
+
+@test
+def forall07(): Bool = assert!(String2.forall(Char.isDigit, "19"))
+
+@test
+def forall08(): Bool = assertNot!(String2.forall(Char.isDigit, "A+z"))
+
+@test
+def forall09(): Bool = assertNot!(String2.forall(Char.isDigit, "A1B"))
+
+@test
+def forall10(): Bool = assert!(String2.forall(Char.isDigit, "2019"))
+
 
 /////////////////////////////////////////////////////////////////////////////
 // isAscii                                                                 //
@@ -482,11 +516,53 @@ def isWhiteSpace02() : Bool =
 def isWhiteSpace03() : Bool = 
     assertNot!(String2.isWhiteSpace("     o  "))
 
+/////////////////////////////////////////////////////////////////////////////
+// trimLeft                                                                //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def trimLeft01() : Bool = String2.trimLeft("") `assertEq!` ""
 
-// @test
-// def isWhiteSpace04() : Bool = 
-//     assert!(String2.isWhiteSpace("\t"))
+@test
+def trimLeft02() : Bool = String2.trimLeft("A") `assertEq!` "A"
 
+@test
+def trimLeft03() : Bool = String2.trimLeft(" A") `assertEq!` "A"
+
+@test
+def trimLeft04() : Bool = String2.trimLeft("  A") `assertEq!` "A"
+
+@test
+def trimLeft05() : Bool = String2.trimLeft(" ABC") `assertEq!` "ABC"
+
+@test
+def trimLeft06() : Bool = String2.trimLeft("ABC ") `assertEq!` "ABC "
+
+@test
+def trimLeft07() : Bool = String2.trimLeft(" ABC ") `assertEq!` "ABC "
+
+/////////////////////////////////////////////////////////////////////////////
+// trimRight                                                               //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def trimRight01() : Bool = String2.trimRight("") `assertEq!` ""
+
+@test
+def trimRight02() : Bool = String2.trimRight("A") `assertEq!` "A"
+
+@test
+def trimRight03() : Bool = String2.trimRight("A ") `assertEq!` "A"
+
+@test
+def trimRight04() : Bool = String2.trimRight("A  ") `assertEq!` "A"
+
+@test
+def trimRight05() : Bool = String2.trimRight("ABC ") `assertEq!` "ABC"
+
+@test
+def trimRight06() : Bool = String2.trimRight(" ABC") `assertEq!` " ABC"
+
+@test
+def trimRight07() : Bool = String2.trimRight(" ABC ") `assertEq!` " ABC"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -496,14 +572,6 @@ def isWhiteSpace03() : Bool =
 def splitAt01() : Bool = 
     String2.splitAt(1,"hello") `assertEq!` ("h", "ello")
 
-
-@test
-def trimLeft01() : Bool = 
-    String2.trimLeft("    body ") `assertEq!` "body "
-
-@test
-def trimRighr01() : Bool = 
-    String2.trimRight(" body      ") `assertEq!` " body"
 
 @test
 def padLeft01() : Bool = 
