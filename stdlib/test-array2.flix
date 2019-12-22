@@ -311,11 +311,243 @@ def mapWithIndex07(): Bool =
     let a = Array2.mapWithIndex((e, i) -> if (i < 1) e > 2 else e <= 2, [7,8]);
     Array.toList(a) `assertEq!` true :: false :: Nil
 
+/////////////////////////////////////////////////////////////////////////////
+// flatMap                                                                 //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def flatMap01(): Bool = 
+    let a = Array2.flatMap(i -> Array2.repeat(i, i), []);
+    Array.toList(a) `assertEq!` Nil
 
-@test 
-def count01(): Bool = 
-    let a = [1,2,3,4,5];
-    Array2.count(x -> x > 3, a) `assertEq!` 2
+@test
+def flatMap02(): Bool = 
+    let a = Array2.flatMap(i -> Array2.repeat(i, i), [0]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def flatMap03(): Bool = 
+    let a = Array2.flatMap(i -> Array2.repeat(i, i), [1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def flatMap04(): Bool =
+    let a = Array2.flatMap(i -> Array2.repeat(i, i), [2]);
+    Array.toList(a) `assertEq!` 2 :: 2 :: Nil
+
+@test
+def flatMap05(): Bool =
+    let a = Array2.flatMap(i -> Array2.repeat(i, i), [1,2]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 2 :: Nil
+
+
+@test
+def flatMap06(): Bool =
+    let a = Array2.flatMap(i -> Array2.repeat(i, i), [2,3]);
+    Array.toList(a) `assertEq!` 2 :: 2 :: 3 :: 3 :: 3 :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// count                                                                   //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def count01(): Bool = Array2.count(i -> i > 3, []) `assertEq!` 0
+
+@test
+def count02(): Bool = Array2.count(i -> i > 3, [1]) `assertEq!` 0
+
+@test
+def count03(): Bool = Array2.count(i -> i > 3, [4]) `assertEq!` 1
+
+@test
+def count04(): Bool = Array2.count(i -> i > 3, [1,2]) `assertEq!` 0
+
+@test
+def count05(): Bool = Array2.count(i -> i > 3, [1,8]) `assertEq!` 1
+
+@test
+def count06(): Bool = Array2.count(i -> i > 3, [8,1]) `assertEq!` 1
+
+@test
+def count07(): Bool = Array2.count(i -> i > 3, [6,7]) `assertEq!` 2
+
+/////////////////////////////////////////////////////////////////////////////
+// repeat                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def repeat01(): Bool = 
+    let a = Array2.repeat(1, -1);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def repeat02(): Bool = 
+    let a = Array2.repeat(1, 0);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def repeat03(): Bool = 
+    let a = Array2.repeat(1, 1);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def repeat04(): Bool = 
+    let a = Array2.repeat(1, 2);
+    Array.toList(a) `assertEq!` 1 :: 1 :: Nil
+
+@test
+def repeat05(): Bool = 
+    let a = Array2.repeat(1, 3);
+    Array.toList(a) `assertEq!` 1 :: 1 :: 1 :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// reverse                                                                 //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def reverse01(): Bool =  
+    let a = Array2.reverse([]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def reverse02(): Bool =   
+    let a = Array2.reverse([1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def reverse03(): Bool =   
+    let a = Array2.reverse([1,2]);
+    Array.toList(a) `assertEq!` 2 :: 1 :: Nil
+
+@test
+def reverse04(): Bool =   
+    let a = Array2.reverse([1,1]);
+    Array.toList(a) `assertEq!` 1 :: 1 :: Nil
+
+@test
+def reverse05(): Bool =   
+    let a = Array2.reverse([1,2,3]);
+    Array.toList(a) `assertEq!` 3 :: 2 :: 1 :: Nil
+
+@test
+def reverse06(): Bool =   
+    let a = Array2.reverse([1,2,3,4]);
+    Array.toList(a) `assertEq!` 4 :: 3 :: 2 :: 1 :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// scan                                                                    //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def scan01(): Bool = 
+    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, []);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def scan02(): Bool = 
+    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, [false]);
+    Array.toList(a) `assertEq!` 1 :: 3 :: Nil
+
+@test
+def scan03(): Bool = 
+    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, [true]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def scan04(): Bool = 
+    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, [false,false]);
+    Array.toList(a) `assertEq!` 1 :: 3 :: 5 :: Nil
+
+@test
+def scan05(): Bool = 
+    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, [false,true]);
+    Array.toList(a) `assertEq!` 1 :: 3 :: 4 :: Nil
+
+@test
+def scan06(): Bool = 
+    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, [true,false]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 4 :: Nil
+
+@test
+def scan07(): Bool = 
+    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, [true,true]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 3 :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// scanLeft                                                                //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def scanLeft01(): Bool = 
+    let a = Array2.scanLeft((i, b) -> if (b) i+1 else i+2, 1, []);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def scanLeft02(): Bool = 
+    let a = Array2.scanLeft((i, b) -> if (b) i+1 else i+2, 1, [false]);
+    Array.toList(a) `assertEq!` 1 :: 3 :: Nil
+
+@test
+def scanLeft03(): Bool = 
+    let a = Array2.scanLeft((i, b) -> if (b) i+1 else i+2, 1, [true]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def scanLeft04(): Bool = 
+    let a = Array2.scanLeft((i, b) -> if (b) i+1 else i+2, 1, [false,false]);
+    Array.toList(a) `assertEq!` 1 :: 3 :: 5 :: Nil
+
+@test
+def scanLeft05(): Bool = 
+    let a = Array2.scanLeft((i, b) -> if (b) i+1 else i+2, 1, [false,true]);
+    Array.toList(a) `assertEq!` 1 :: 3 :: 4 :: Nil
+
+@test
+def scanLeft06(): Bool = 
+    let a = Array2.scanLeft((i, b) -> if (b) i+1 else i+2, 1, [true,false]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 4 :: Nil
+
+@test
+def scanLeft07(): Bool = 
+    let a = Array2.scanLeft((i, b) -> if (b) i+1 else i+2, 1, [true,true]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 3 :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// scanRight                                                               //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def scanRight01(): Bool = 
+    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, []);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def scanRight02(): Bool = 
+    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, [false]);
+    Array.toList(a) `assertEq!` 3 :: 1 :: Nil
+
+@test
+def scanRight03(): Bool =  
+    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, [true]);
+    Array.toList(a) `assertEq!` 2 :: 1 :: Nil
+
+@test
+def scanRight04(): Bool =  
+    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, [false,false]);
+    Array.toList(a) `assertEq!` 5 :: 3 :: 1 :: Nil
+
+@test
+def scanRight05(): Bool =  
+    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, [false,true]);
+    Array.toList(a) `assertEq!` 4 :: 2 :: 1 :: Nil
+
+@test
+def scanRight06(): Bool =  
+    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, [true,false]);
+    Array.toList(a) `assertEq!` 4 :: 3 :: 1 :: Nil
+
+@test
+def scanRight07(): Bool =  
+    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, [true,true]);
+    Array.toList(a) `assertEq!` 3 :: 2 :: 1 :: Nil
+
+
+// ________
+// Other...
+// --------
 
 @test
 def foldLeft01(): Bool = 
@@ -421,41 +653,8 @@ def filterMap01(): Bool =
     Array.length(Array2.filterMap(x -> if (x % 2 == 0) Some(x) else None, a)) `assertEq!` 3
 
 
-/////////////////////////////////////////////////////////////////////////////
-// reverse                                                                 //
-/////////////////////////////////////////////////////////////////////////////
-@test 
-def reverse01(): Bool = 
-    let a: Array[Int] = [1, 2, 3, 4, 5];
-    let b = Array2.reverse(a);
-    Array.toList(b) `assertEq!` 5 :: 4 :: 3 :: 2 :: 1 :: Nil
-
-/////////////////////////////////////////////////////////////////////////////
-// scan                                                                    //
-/////////////////////////////////////////////////////////////////////////////
-@test
-def scan01(): Bool = 
-    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, []);
-    Array.toList(a) `assertEq!` 1 :: Nil
-
-@test
-def scan02(): Bool = 
-    let a = Array2.scan((i, b) -> if (b) i+1 else i+2, 1, [false]);
-    Array.toList(a) `assertEq!` 1 :: 3 :: Nil
 
 
-/////////////////////////////////////////////////////////////////////////////
-// scanRight                                                               //
-/////////////////////////////////////////////////////////////////////////////
-@test
-def scanRight01(): Bool = 
-    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, []);
-    Array.toList(a) `assertEq!` 1 :: Nil
-
-@test
-def scanRight02(): Bool = 
-    let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, [false]);
-    Array.toList(a) `assertEq!` 3 :: 1 :: Nil
 
 
 /////////////////////////////////////////////////////////////////////////////
