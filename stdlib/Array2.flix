@@ -238,24 +238,6 @@ namespace Array2 {
         }
 
     ///
-    /// Accumulates the result of applying `f` pairwise to the elements of `a` and `b`
-    /// starting with the initial value `c` and going from left to right.
-    ///
-    pub def foldLeft2(f: (c, a, b) -> c, c: c, a: Array[a], b: Array[b]): c = 
-        foldLeft2Helper(f, c, a, b, 0)
-
-    ///
-    /// Helper function for `foldLeft2`.
-    ///
-    def foldLeft2Helper(f: c -> a -> b -> c , s: c, a: Array[a], b: Array[b], i: Int): c = 
-        if (i >= Array.length(a) || i >= Array.length(b))
-            s
-        else {
-            let s1 = f(s, a[i], b[i]);
-            foldLeft2Helper(f, s1, a, b, i + 1)
-        }
-
-    ///
     /// Applies `f` to a start value `s` and all elements in `a` going from right to left.
     ///
     /// That is, the result is of the form: `f(a[0], ...f(a[n-1], f(a[n], s))...)`.
@@ -272,6 +254,30 @@ namespace Array2 {
         else {
             let s1 = f(a[i], s);
             foldRightHelper(f, s1, a, i - 1)
+        }
+    
+    ///
+    /// Alias for `foldLeft2`.
+    ///
+    pub def fold2(f: (c, a, b) -> c, c: c, a: Array[a], b: Array[b]): c = 
+        foldLeft2(f, c, a, b)
+
+    ///
+    /// Accumulates the result of applying `f` pairwise to the elements of `a` and `b`
+    /// starting with the initial value `c` and going from left to right.
+    ///
+    pub def foldLeft2(f: (c, a, b) -> c, c: c, a: Array[a], b: Array[b]): c = 
+        foldLeft2Helper(f, c, a, b, 0)
+
+    ///
+    /// Helper function for `foldLeft2`.
+    ///
+    def foldLeft2Helper(f: c -> a -> b -> c , s: c, a: Array[a], b: Array[b], i: Int): c = 
+        if (i >= Array.length(a) || i >= Array.length(b))
+            s
+        else {
+            let s1 = f(s, a[i], b[i]);
+            foldLeft2Helper(f, s1, a, b, i + 1)
         }
 
     ///
@@ -328,7 +334,8 @@ namespace Array2 {
     pub def reduceRight(f: (a, a) -> a, a: Array[a]): Option[a] = 
         if (Array.length(a) > 0) 
             let end = Array.length(a) - 1;
-            Some(reduceRightHelper(f, a, a[end], end-1))
+            let ac = a[end];
+            Some(reduceRightHelper(f, a, ac, end-1))
         else 
             None
 
@@ -339,7 +346,7 @@ namespace Array2 {
         if (i < 0)
             x
         else 
-            reduceRightHelper(f, a, f(x, a[i]), i-1)
+            reduceRightHelper(f, a, f(a[i], x), i-1)
 
 
     ///

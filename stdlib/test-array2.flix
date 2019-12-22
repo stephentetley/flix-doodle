@@ -544,42 +544,215 @@ def scanRight07(): Bool =
     let a = Array2.scanRight((b, i) -> if (b) i+1 else i+2, 1, [true,true]);
     Array.toList(a) `assertEq!` 3 :: 2 :: 1 :: Nil
 
+/////////////////////////////////////////////////////////////////////////////
+// fold                                                                    //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def fold01(): Bool = Array2.fold((i, e) -> (i - e)*(e % 2 + 1), 100, []) `assertEq!` 100
+
+@test
+def fold02(): Bool = Array2.fold((i, e) -> (i - e)*(e % 2 + 1), 100, [1]) `assertEq!` 198
+
+@test
+def fold03(): Bool = Array2.fold((i, e) -> (i - e)*(e % 2 + 1), 100, [1,2]) `assertEq!` 196
+
+@test
+def fold04(): Bool = Array2.fold((i, e) -> (i - e)*(e % 2 + 1), 100, [1,2,3]) `assertEq!` 386
+
+/////////////////////////////////////////////////////////////////////////////
+// foldLeft                                                                //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def foldLeft01(): Bool = Array2.foldLeft((i, e) -> (i - e)*(e % 2 + 1), 100, []) `assertEq!` 100
+
+@test
+def foldLeft02(): Bool = Array2.foldLeft((i, e) -> (i - e)*(e % 2 + 1), 100, [1]) `assertEq!` 198
+
+@test
+def foldLeft03(): Bool = Array2.foldLeft((i, e) -> (i - e)*(e % 2 + 1), 100, [1,2]) `assertEq!` 196
+
+@test
+def foldLeft04(): Bool = Array2.foldLeft((i, e) -> (i - e)*(e % 2 + 1), 100, [1,2,3]) `assertEq!` 386
+
+/////////////////////////////////////////////////////////////////////////////
+// foldRight                                                               //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def foldRight01(): Bool = Array2.foldRight((e, i) -> (i - e)*(e % 2 + 1), 100, []) `assertEq!` 100
+
+@test
+def foldRight02(): Bool = Array2.foldRight((e, i) -> (i - e)*(e % 2 + 1), 100, [1]) `assertEq!` 198
+
+@test
+def foldRight03(): Bool = Array2.foldRight((e, i) -> (i - e)*(e % 2 + 1), 100, [1,2]) `assertEq!` 194
+
+@test
+def foldRight04(): Bool = Array2.foldRight((e, i) -> (i - e)*(e % 2 + 1), 100, [1,2,3]) `assertEq!` 382
+
+/////////////////////////////////////////////////////////////////////////////
+// fold2                                                                   //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def fold201(): Bool = Array2.fold2((c, a, b) -> if (b) a+c else a*c, 4, [], []) `assertEq!` 4
+
+@test
+def fold202(): Bool = Array2.fold2((c, a, b) -> if (b) a+c else a*c, 4, [1], []) `assertEq!` 4
+
+@test
+def fold203(): Bool = Array2.fold2((c, a, b) -> if (b) a+c else a*c, 4, [], [true]) `assertEq!` 4
+
+@test
+def fold204(): Bool = Array2.fold2((c, a, b) -> if (b) a+c else a*c, 4, [2], [true]) `assertEq!` 6
+
+@test
+def fold205(): Bool = Array2.fold2((c, a, b) -> if (b) a+c else a*c, 4, [2], [false]) `assertEq!` 8
+
+@test
+def fold206(): Bool = Array2.fold2((c, a, b) -> if (b) a+c else a*c, 4, [3,2], [true,true]) `assertEq!` 9
+
+@test
+def fold207(): Bool = Array2.fold2((c, a, b) -> if (b) a+c else a*c, 4, [3,2], [true,false]) `assertEq!` 14
+
+@test
+def fold208(): Bool = Array2.fold2((c, a, b) -> if (b) a+c else a*c, 4, [3,2], [false,true]) `assertEq!` 14
+
+@test
+def fold209(): Bool = Array2.fold2((c, a, b) -> if (b) a+c else a*c, 4, [3,2], [false,false]) `assertEq!` 24
+
+@test
+def fold210(): Bool = Array2.fold2((c, a, b) -> if (b) a+c else a*c, 4, [6,-4,3,2],
+                    [true,false,false,true]) `assertEq!` -118
+
+/////////////////////////////////////////////////////////////////////////////
+// foldLeft2                                                               //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def foldLeft201(): Bool = Array2.foldLeft2((c, a, b) -> if (b) a+c else a*c, 4, [], []) `assertEq!` 4
+
+@test
+def foldLeft202(): Bool = Array2.foldLeft2((c, a, b) -> if (b) a+c else a*c, 4, [1], []) `assertEq!` 4
+
+@test
+def foldLeft203(): Bool = Array2.foldLeft2((c, a, b) -> if (b) a+c else a*c, 4, [], [true]) `assertEq!` 4
+
+@test
+def foldLeft204(): Bool = Array2.foldLeft2((c, a, b) -> if (b) a+c else a*c, 4, [2], [true]) `assertEq!` 6
+
+@test
+def foldLeft205(): Bool = Array2.foldLeft2((c, a, b) -> if (b) a+c else a*c, 4, [2], [false]) `assertEq!` 8
+
+@test
+def foldLeft206(): Bool = Array2.foldLeft2((c, a, b) -> if (b) a+c else a*c, 4, [3,2], [true,true]) `assertEq!` 9
+
+@test
+def foldLeft207(): Bool = Array2.foldLeft2((c, a, b) -> if (b) a+c else a*c, 4, [3,2], [true,false]) `assertEq!` 14
+
+@test
+def foldLeft208(): Bool = Array2.foldLeft2((c, a, b) -> if (b) a+c else a*c, 4, [3,2], [false,true]) `assertEq!` 14
+
+@test
+def foldLeft209(): Bool = Array2.foldLeft2((c, a, b) -> if (b) a+c else a*c, 4, [3,2], [false,false]) `assertEq!` 24
+
+@test
+def foldLeft210(): Bool = Array2.foldLeft2((c, a, b) -> if (b) a+c else a*c, 4, [6,-4,3,2],
+                        [true,false,false,true]) `assertEq!` -118
+
+/////////////////////////////////////////////////////////////////////////////
+// foldRight2                                                              //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def foldRight201(): Bool = Array2.foldRight2((a, b, c) -> if (b) a+c else a*c, 4, [], []) `assertEq!` 4
+
+@test
+def foldRight202(): Bool = Array2.foldRight2((a, b, c) -> if (b) a+c else a*c, 4, [1], []) `assertEq!` 4
+
+@test
+def foldRight203(): Bool = Array2.foldRight2((a, b, c) -> if (b) a+c else a*c, 4, [], [true]) `assertEq!` 4
+
+@test
+def foldRight204(): Bool = Array2.foldRight2((a, b, c) -> if (b) a+c else a*c, 4, [2], [true]) `assertEq!` 6
+
+@test
+def foldRight205(): Bool = Array2.foldRight2((a, b, c) -> if (b) a+c else a*c, 4, [2], [false]) `assertEq!` 8
+
+@test
+def foldRight206(): Bool = Array2.foldRight2((a, b, c) -> if (b) a+c else a*c, 4, [3,2], [true,true]) `assertEq!` 9
+
+@test
+def foldRight207(): Bool = Array2.foldRight2((a, b, c) -> if (b) a+c else a*c, 4, [3,2], [true,false]) `assertEq!` 11
+
+@test
+def foldRight208(): Bool = Array2.foldRight2((a, b, c) -> if (b) a+c else a*c, 4, [3,2], [false,true]) `assertEq!` 18
+
+@test
+def foldRight209(): Bool = Array2.foldRight2((a, b, c) -> if (b) a+c else a*c, 4, [3,2], [false,false]) `assertEq!` 24
+
+@test
+def foldRight210(): Bool = Array2.foldRight2((a, b, c) -> if (b) a+c else a*c, 4, [6,-4,3,2],
+                         [true,false,false,true]) `assertEq!` -66
+
+/////////////////////////////////////////////////////////////////////////////
+// reduce                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def reduce01(): Bool = Array2.reduce((a, b) -> a-b, []: Array[Int]) `assertEq!` None
+
+@test
+def reduce02(): Bool = Array2.reduce((a, b) -> a-b, [1]) `assertEq!` Some(1)
+
+@test
+def reduce03(): Bool = Array2.reduce((a, b) -> a-b, [1,2]) `assertEq!` Some(-1)
+
+@test
+def reduce04(): Bool = Array2.reduce((a, b) -> a-b, [1,2,3]) `assertEq!` Some(-4)
+
+@test
+def reduce05(): Bool = Array2.reduce((a, b) -> a-b, [1,2,3,4]) `assertEq!` Some(-8)
+
+/////////////////////////////////////////////////////////////////////////////
+// reduceLeft                                                              //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def reduceLeft01(): Bool = Array2.reduceLeft((a, b) -> a-b, []: Array[Int]) `assertEq!` None
+
+@test
+def reduceLeft02(): Bool = Array2.reduceLeft((a, b) -> a-b, [1]) `assertEq!` Some(1)
+
+@test
+def reduceLeft03(): Bool = Array2.reduceLeft((a, b) -> a-b, [1,2]) `assertEq!` Some(-1)
+
+@test
+def reduceLeft04(): Bool = Array2.reduceLeft((a, b) -> a-b, [1,2,3]) `assertEq!` Some(-4)
+
+@test
+def reduceLeft05(): Bool = Array2.reduceLeft((a, b) -> a-b, [1,2,3,4]) `assertEq!` Some(-8)
+
+/////////////////////////////////////////////////////////////////////////////
+// reduceRight                                                             //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def reduceRight01(): Bool = Array2.reduceRight((a, b) -> a-b, []: Array[Int]) `assertEq!` None
+
+@test
+def reduceRight02(): Bool = Array2.reduceRight((a, b) -> a-b, [1]) `assertEq!` Some(1)
+
+@test
+def reduceRight03(): Bool = Array2.reduceRight((a, b) -> a-b, [1,2]) `assertEq!` Some(-1)
+
+@test
+def reduceRight04(): Bool = Array2.reduceRight((a, b) -> a-b, [1,2,3]) `assertEq!` Some(2)
+
+@test
+def reduceRight05(): Bool = Array2.reduceRight((a, b) -> a-b, [1,2,3,4]) `assertEq!` Some(-2)
+
+
 
 // ________
 // Other...
 // --------
 
-@test
-def foldLeft01(): Bool = 
-    let a = Array.new(1, 10);
-    let fn = x -> y -> x + y;
-    Array2.foldLeft(fn, 0, a) `assertEq!` 10
 
-@test
-def fold01(): Bool = 
-    let a = Array.new(1, 10);
-    let fn = x -> y -> x + y;
-    Array2.fold(fn, 0, a) `assertEq!` 10
 
-@test
-def foldLeft201(): Bool = 
-    let a = Array.new(1, 10);
-    let b = Array.new(1, 7);
-    let fn = xs -> x -> y -> (x + y) :: xs;
-    List.length(Array2.foldLeft2(fn, Nil, a, b)) `assertEq!` 7
-
-@test
-def foldRight01(): Bool = 
-    let a = Array.new(1, 10);
-    let fn = x -> y -> x + y;
-    Array2.foldRight(fn, 0, a) `assertEq!` 10
-
-@test
-def foldRight201(): Bool = 
-    let a = [1,2,3,4,5,6,7,8,9,0];
-    let b = [1,2,3,4,5,6,7];
-    let fn = (x, y, xs) -> (x + y) :: xs;
-    List.length(Array2.foldRight2(fn, Nil, a, b)) `assertEq!` 7
 
 /////////////////////////////////////////////////////////////////////////////
 // take                                                                    //
