@@ -745,6 +745,68 @@ def reduceRight04(): Bool = Array2.reduceRight((a, b) -> a-b, [1,2,3]) `assertEq
 @test
 def reduceRight05(): Bool = Array2.reduceRight((a, b) -> a-b, [1,2,3,4]) `assertEq!` Some(-2)
 
+/////////////////////////////////////////////////////////////////////////////
+// drop                                                                    //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def drop01(): Bool = 
+    let a = Array2.drop(-1, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def drop02(): Bool = 
+    let a = Array2.drop(0, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def drop03(): Bool = 
+    let a = Array2.drop(1, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def drop04(): Bool = 
+    let a = Array2.drop(-1, [1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def drop05(): Bool = 
+    let a = Array2.drop(0, [1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def drop06(): Bool = 
+    let a = Array2.drop(1, [1]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def drop07(): Bool = 
+    let a = Array2.drop(2, [1]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def drop08(): Bool =
+    let a = Array2.drop(0, [1,2]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def drop09(): Bool = 
+    let a = Array2.drop(1, [1,2]);
+    Array.toList(a) `assertEq!` 2 :: Nil
+
+@test
+def drop10(): Bool = 
+    let a = Array2.drop(2, [1,2]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def drop11(): Bool = 
+    let a = Array2.drop(2, [1,2,3,4,5,6]);
+    Array.toList(a) `assertEq!` 3 :: 4 :: 5 :: 6 :: Nil
+
+@test
+def drop12(): Bool = 
+    let a = Array2.drop(4, [1,2,3,4,5,6]);
+    Array.toList(a) `assertEq!` 5 :: 6 :: Nil
 
 
 // ________
@@ -763,10 +825,6 @@ def take01(): Bool =
     let a = Array.new(1, 10);
     Array.length(Array2.take(2, a)) `assertEq!` 2
 
-@test
-def drop01(): Bool = 
-    let a = Array.new(1, 10);
-    Array.length(Array2.drop(3, a)) `assertEq!` 7
 
 
 @test

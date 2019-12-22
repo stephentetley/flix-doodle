@@ -352,15 +352,19 @@ namespace Array2 {
     ///
     /// Returns `a` without the first `n` elements.
     ///
-    /// Returns `[]]` if `n > length(xs)`.
+    /// Returns `[]` if `n > length(xs)`.
     /// Returns `a` if `n < 0`.
     ///
     pub def drop(n: Int, a: Array[a]) : Array[a] = 
-        if (n < 1)
-            Array.slice(a, 0, Array.length(a))
+        if (n > Array.length(a))
+            []
         else {
-            let last = Array.length(a);
-            Array.slice(a, n, last)
+            if (n < 1)
+                Array.slice(a, 0, Array.length(a))
+            else {
+                let last = Array.length(a);
+                Array.slice(a, n, last)
+            }
         }
 
     ///
