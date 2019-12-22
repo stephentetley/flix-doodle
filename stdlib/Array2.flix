@@ -372,11 +372,10 @@ namespace Array2 {
     ///
     pub def dropWhile(f: a -> Bool, a: Array[a]): Array[a] = 
         match findIndexOf(x -> !(f(x)), a) { 
-            case None => a
+            case None => []
             case Some(i) => drop(i, a)
         }
         
-
     ///
     /// Returns the first `n` elements of `a`.
     ///
@@ -388,6 +387,7 @@ namespace Array2 {
             []
         else
             Array.slice(a, 0, n)
+    
 
     ///
     /// Returns the longest prefix of `a` that satisfies the predicate `f`.
@@ -472,15 +472,19 @@ namespace Array2 {
     ///
     /// TODO - ideally this would be public but there is no corresponding function in List.
     ///
-    def findIndexOf(f: a -> Bool, a: Array[a]): Option[Int] = 
-        let i = findIndexOfHelper(f, a, 0);
-        if (i < 0) None else Some(i)
+    pub def findIndexOf(f: a -> Bool, a: Array[a]): Option[Int] = 
+        if (Array.length(a) == 0)
+            None
+        else {
+            let i = findIndexOfHelper(f, a, 0);
+            if (i < 0) None else Some(i)
+        }
 
     ///
     /// Helper function for `findIndexOf`.
     ///
     def findIndexOfHelper(f: a -> Bool, a: Array[a], i: Int32): Int32 = 
-        if (i > Array.length(a))
+        if (i >= Array.length(a))
             -1
         else
             if (f(a[i])) i else findIndexOfHelper(f, a, i + 1)

@@ -808,6 +808,48 @@ def drop12(): Bool =
     let a = Array2.drop(4, [1,2,3,4,5,6]);
     Array.toList(a) `assertEq!` 5 :: 6 :: Nil
 
+/////////////////////////////////////////////////////////////////////////////
+// dropWhile                                                               //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def dropWhile01(): Bool =  
+    let a = Array2.dropWhile(i -> i > 3, []);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def dropWhile02(): Bool =  
+    let a = Array2.dropWhile(i -> i > 3, [1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def dropWhile03(): Bool =  
+    let a = Array2.dropWhile(i -> i > 3, [4]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def dropWhile04(): Bool =  
+    let a = Array2.dropWhile(i -> i > 3, [1,2]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def dropWhile05(): Bool =  
+    let a = Array2.dropWhile(i -> i > 3, [1,5]);
+    Array.toList(a) `assertEq!` 1 :: 5 :: Nil
+
+@test
+def dropWhile06(): Bool =  
+    let a = Array2.dropWhile(i -> i > 3, [5,1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def dropWhile07(): Bool =  
+    let a = Array2.dropWhile(i -> i > 3, [5,8]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def dropWhile08(): Bool =  
+    let a = Array2.dropWhile(i -> i > 3, [4, 6, -3, 11, -5, 1, 2, 16, 7, 1, 7]);
+    Array.toList(a) `assertEq!` -3 :: 11 :: -5 :: 1 :: 2 :: 16 :: 7 :: 1 :: 7 :: Nil
 
 // ________
 // Other...
@@ -832,10 +874,6 @@ def takeWhile01(): Bool =
     let a = [1,2,3,4,5,6,7,8];
     Array.length(Array2.takeWhile(x -> x < 5, a)) `assertEq!` 4
 
-@test
-def dropWhile01(): Bool = 
-    let a = [1,2,3,4,5,6,7,8];
-    Array.length(Array2.dropWhile(x -> x < 5, a)) `assertEq!` 4
 
 
 @test
