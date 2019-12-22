@@ -851,29 +851,115 @@ def dropWhile08(): Bool =
     let a = Array2.dropWhile(i -> i > 3, [4, 6, -3, 11, -5, 1, 2, 16, 7, 1, 7]);
     Array.toList(a) `assertEq!` -3 :: 11 :: -5 :: 1 :: 2 :: 16 :: 7 :: 1 :: 7 :: Nil
 
-// ________
-// Other...
-// --------
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////
 // take                                                                    //
 /////////////////////////////////////////////////////////////////////////////
-
 @test
 def take01(): Bool = 
-    let a = Array.new(1, 10);
-    Array.length(Array2.take(2, a)) `assertEq!` 2
-
-
+    let a = Array2.take(-1, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
 
 @test
-def takeWhile01(): Bool = 
-    let a = [1,2,3,4,5,6,7,8];
-    Array.length(Array2.takeWhile(x -> x < 5, a)) `assertEq!` 4
+def take02(): Bool =  
+    let a = Array2.take(0, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
 
+@test
+def take03(): Bool =  
+    let a = Array2.take(1, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def take04(): Bool = 
+    let a = Array2.take(-1, [1]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def take05(): Bool = 
+    let a = Array2.take(0, [1]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def take06(): Bool = 
+    let a = Array2.take(1, [1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def take07(): Bool = 
+    let a = Array2.take(2, [1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def take08(): Bool = 
+    let a = Array2.take(0, [1,2]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def take09(): Bool = 
+    let a = Array2.take(1, [1,2]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def take10(): Bool = 
+    let a = Array2.take(2, [1,2]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def take11(): Bool =  
+    let a = Array2.take(2, [1,2,3,4,5,6]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def take12(): Bool = 
+    let a = Array2.take(4, [1,2,3,4,5,6]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 3 :: 4 :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// takeWhile                                                               //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def takeWhile01(): Bool =  
+    let a = Array2.takeWhile(i -> i > 3, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def takeWhile02(): Bool =  
+    let a = Array2.takeWhile(i -> i > 3, [1]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def takeWhile03(): Bool =  
+    let a = Array2.takeWhile(i -> i > 3, [4]);
+    Array.toList(a) `assertEq!` 4 :: Nil
+
+@test
+def takeWhile04(): Bool =  
+    let a = Array2.takeWhile(i -> i > 3, [1,2]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def takeWhile05(): Bool =  
+    let a = Array2.takeWhile(i -> i > 3, [1,5]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def takeWhile06(): Bool =  
+    let a = Array2.takeWhile(i -> i > 3, [5,1]);
+    Array.toList(a) `assertEq!` 5 :: Nil
+
+@test
+def takeWhile07(): Bool =  
+    let a = Array2.takeWhile(i -> i > 3, [5,8]);
+    Array.toList(a) `assertEq!` 5 :: 8 :: Nil
+
+@test
+def takeWhile08(): Bool =  
+    let a = Array2.takeWhile(i -> i > 3, [4, 6, -3, 11, -5, 1, 2, 16, 7, 1, 7]);
+    Array.toList(a) `assertEq!` 4 :: 6 :: Nil
+
+// ________
+// Other...
+// --------
 
 
 @test

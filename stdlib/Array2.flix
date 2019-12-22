@@ -383,10 +383,14 @@ namespace Array2 {
     /// Returns `[]]` if `n < 0`.
     ///
     pub def take(n: Int, a: Array[a]) : Array[a] = 
-        if (n < 1) 
-            []
-        else
-            Array.slice(a, 0, n)
+        if (n > Array.length(a))
+            a
+        else {
+            if (n < 1) 
+                []
+            else
+                Array.slice(a, 0, n)
+        }
     
 
     ///
@@ -394,7 +398,7 @@ namespace Array2 {
     ///
     pub def takeWhile(f: a -> Bool, a: Array[a]): Array[a] =  
         match findIndexOf(x -> !(f(x)), a) {
-            case None => []
+            case None => a
             case Some(i) => take(i, a)
         }
         
