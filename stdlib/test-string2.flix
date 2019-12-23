@@ -158,6 +158,58 @@ def map211() : Bool =
 def map212() : Bool =
     String2.map2((a,b) -> if (b =='*') '*' else a, "AB", "..") `assertEq!` "AB"
 
+/////////////////////////////////////////////////////////////////////////////
+// matches                                                                 //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def matches01() : Bool =
+    assert!(String2.matches("", ""))
+
+@test
+def matches02() : Bool =
+    assertNot!(String2.matches("ABCDE", ""))
+
+@test
+def matches03() : Bool =
+    assertNot!(String2.matches("", "[A-Z]+"))
+
+@test
+def matches04() : Bool =
+    assert!(String2.matches("ABCDE", "[A-Z]+"))
+
+@test
+def matches05() : Bool =
+    /// Bad regex
+    assertNot!(String2.matches("ABCDE", "+"))
+
+
+/////////////////////////////////////////////////////////////////////////////
+// hashCode                                                                //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def hashCode01() : Bool = 
+    assert!(String2.hashCode("") == String2.hashCode("")) 
+
+@test
+def hashCode02() : Bool = 
+    assert!(String2.hashCode("A") == String2.hashCode("A")) 
+
+@test
+def hashCode03() : Bool = 
+    assert!(String2.hashCode("A") != String2.hashCode("B")) 
+
+@test
+def hashCode04() : Bool = 
+    assert!(String2.hashCode("AB") == String2.hashCode("AB")) 
+
+@test
+def hashCode05() : Bool = 
+    assert!(String2.hashCode("AB") != String2.hashCode("ABC")) 
+
+@test
+def hashCode06() : Bool = 
+    assert!(String2.hashCode("ABC") != String2.hashCode("CBA")) 
+
 
 /////////////////////////////////////////////////////////////////////////////
 // take                                                                    //

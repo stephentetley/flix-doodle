@@ -75,7 +75,15 @@ namespace String2 {
     ///
     /// Returns `true` if the string `s` matches the `regex`.
     ///
-    pub def matches(s: Str, regex: Str): Bool = native method java.lang.String.matches(s, regex) as Bool
+    /// If the regex is invalid `false` is returned. 
+    ///
+    pub def matches(s: Str, regex: Str): Bool =  
+        try {
+            native method java.lang.String.matches(s, regex) as Bool
+        } catch { 
+            case _: ##java.util.regex.PatternSyntaxException => false
+        }
+        
     
     ///
     /// Returns the hash code of the string `s`.
