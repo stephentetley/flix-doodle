@@ -1065,6 +1065,31 @@ def indexOf05(): Bool = Array2.indexOf(1, [1,2]) `assertEq!` Some(0)
 @test
 def indexOf06(): Bool = Array2.indexOf(2, [1,2]) `assertEq!` Some(1)
 
+/////////////////////////////////////////////////////////////////////////////
+// find                                                                    //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def find01(): Bool = Array2.find(i -> i > 2, []: Array[Int32]) `assertEq!` None
+
+@test
+def find02(): Bool = Array2.find(i -> i > 2, [1]) `assertEq!` None
+
+@test
+def find03(): Bool = Array2.find(i -> i > 2, [3]) `assertEq!` Some(3)
+
+@test
+def find04(): Bool = Array2.find(i -> i > 2, [1,2]) `assertEq!` None
+
+@test
+def find05(): Bool = Array2.find(i -> i > 2, [6,-6]) `assertEq!` Some(6)
+
+@test
+def find06(): Bool = Array2.find(i -> i > 2, [-6,6]) `assertEq!` Some(6)
+
+@test
+def find07(): Bool = Array2.find(i -> i > 2, [6,7]) `assertEq!` Some(6)
+
+
 // ________
 // Other...
 // --------
