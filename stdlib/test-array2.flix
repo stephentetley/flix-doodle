@@ -332,6 +332,41 @@ def flatMap06(): Bool =
     Array.toList(a) `assertEq!` 2 :: 2 :: 3 :: 3 :: 3 :: Nil
 
 /////////////////////////////////////////////////////////////////////////////
+// flatMap2                                                                //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def flatMap201(): Bool = 
+    let arr = Array2.flatMap2((a, b) -> if (b) Array2.repeat(a, a) else Array2.repeat(a+1, a+1), [], []);
+    Array.toList(arr) `assertEq!` Nil
+
+@test
+def flatMap202(): Bool =  
+    let arr = Array2.flatMap2((a, b) -> if (b) Array2.repeat(a, a) else Array2.repeat(a+1, a+1), [1], []);
+    Array.toList(arr) `assertEq!` Nil
+
+@test
+def flatMap203(): Bool =  
+    let arr = Array2.flatMap2((a, b) -> if (b) Array2.repeat(a, a) else Array2.repeat(a+1, a+1), [], [true]);
+    Array.toList(arr) `assertEq!` Nil
+
+@test
+def flatMap204(): Bool =  
+    let arr = Array2.flatMap2((a, b) -> if (b) Array2.repeat(a, a) else Array2.repeat(a+1, a+1), [2], [true]);
+    Array.toList(arr) `assertEq!` 2 :: 2 :: Nil
+
+@test
+def flatMap205(): Bool = 
+    let arr = Array2.flatMap2((a, b) -> if (b) Array2.repeat(a, a) else Array2.repeat(a+1, a+1), [2], [false]);
+    Array.toList(arr) `assertEq!` 3 :: 3 :: 3 :: Nil
+
+@test
+def flatMap206(): Bool =  
+    let arr = Array2.flatMap2((a, b) -> if (b) Array2.repeat(a, a) else Array2.repeat(a+1, a+1), [1,2,3,4,5],
+                   [false,true,true,false,false]);
+    Array.toList(arr) `assertEq!`
+                   2 :: 2 :: 2 :: 2 :: 3 :: 3 :: 3 :: 5 :: 5 :: 5 :: 5 :: 5 :: 6 :: 6 :: 6 :: 6 :: 6 :: 6 :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
 // count                                                                   //
 /////////////////////////////////////////////////////////////////////////////
 @test
@@ -1050,6 +1085,54 @@ def indexOf05(): Bool = Array2.indexOf(1, [1,2]) `assertEq!` Some(0)
 
 @test
 def indexOf06(): Bool = Array2.indexOf(2, [1,2]) `assertEq!` Some(1)
+
+/////////////////////////////////////////////////////////////////////////////
+// indexOfLeft                                                             //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def indexOfLeft01(): Bool = Array2.indexOfLeft(0, []: Array[Int32]) `assertEq!` None
+
+@test
+def indexOfLeft02(): Bool = Array2.indexOfLeft(0, [1]) `assertEq!` None
+
+@test
+def indexOfLeft03(): Bool = Array2.indexOfLeft(1, [1]) `assertEq!` Some(0)
+
+@test
+def indexOfLeft04(): Bool = Array2.indexOfLeft(0, [1,2]) `assertEq!` None
+
+@test
+def indexOfLeft05(): Bool = Array2.indexOfLeft(1, [1,2]) `assertEq!` Some(0)
+
+@test
+def indexOfLeft06(): Bool = Array2.indexOfLeft(2, [1,2]) `assertEq!` Some(1)
+
+@test
+def indexOfLeft07(): Bool = Array2.indexOfLeft(1, [1,1]) `assertEq!` Some(0)
+
+/////////////////////////////////////////////////////////////////////////////
+// indexOfRight                                                            //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def indexOfRight01(): Bool = Array2.indexOfRight(0, []: Array[Int32]) `assertEq!` None
+
+@test
+def indexOfRight02(): Bool = Array2.indexOfRight(0, [1]) `assertEq!` None
+
+@test
+def indexOfRight03(): Bool = Array2.indexOfRight(1, [1]) `assertEq!` Some(0)
+
+@test
+def indexOfRight04(): Bool = Array2.indexOfRight(0, [1,2]) `assertEq!` None
+
+@test
+def indexOfRight05(): Bool = Array2.indexOfRight(1, [1,2]) `assertEq!` Some(0)
+
+@test
+def indexOfRight06(): Bool = Array2.indexOfRight(2, [1,2]) `assertEq!` Some(1)
+
+@test
+def indexOfRight07(): Bool = Array2.indexOfRight(1, [1,1]) `assertEq!` Some(1)
 
 /////////////////////////////////////////////////////////////////////////////
 // find                                                                    //

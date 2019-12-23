@@ -157,7 +157,6 @@ namespace Array2 {
         let len = Int32.min(Array.length(a), Array.length(b));
         init(i -> f(a[i], b[i]), len) |> flatten
 
-
     ///
     /// Returns the number of elements in `a` that satisfy the predicate `f`.
     ///
@@ -469,20 +468,44 @@ namespace Array2 {
         exists(y -> y == x, a)
     
     ///
-    /// Optionally returns the position of `x` in `a`.
+    /// Alias for `IndexOfLeft`
     ///
-    pub def indexOf(x: a, a: Array[a]): Option[Int32] = 
-        let i = indexOfHelper(x, a, 0);
+    pub def indexOf(x: a, a: Array[a]): Option[Int32] = indexOfLeft(x,a)
+        
+    ///
+    /// Optionally returns the position of the first occurence of `x` in `a` 
+    /// searching from left to right.
+    ///
+    pub def indexOfLeft(x: a, a: Array[a]): Option[Int32] = 
+        let i = indexOfLeftHelper(x, a, 0);
         if (i < 0) None else Some(i)
 
     ///
-    /// Helper function for `indexOf`.
+    /// Helper function for `indexOfLeft`.
     ///
-    def indexOfHelper(x: a, a: Array[a], i: Int32): Int32 = 
+    def indexOfLeftHelper(x: a, a: Array[a], i: Int32): Int32 = 
         if (i >= Array.length(a))
             -1
         else 
-            if (a[i] == x) i else indexOfHelper(x, a, i+1)
+            if (a[i] == x) i else indexOfLeftHelper(x, a, i+1)
+
+    ///
+    /// Optionally returns the position of the first occurence of `x` in `a` 
+    /// searching from right to left.
+    ///
+    pub def indexOfRight(x: a, a: Array[a]): Option[Int32] = 
+        let start = Array.length(a) - 1;
+        let i = indexOfRightHelper(x, a, start);
+        if (i < 0) None else Some(i)
+
+    ///
+    /// Helper function for `indexOfLeft`.
+    ///
+    def indexOfRightHelper(x: a, a: Array[a], i: Int32): Int32 = 
+        if (i < 0)
+            -1
+        else 
+            if (a[i] == x) i else indexOfRightHelper(x, a, i-1)
 
     ///
     /// Alias for `findLeft`.
