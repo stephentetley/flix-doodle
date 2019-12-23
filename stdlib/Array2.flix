@@ -15,6 +15,25 @@
  */
  
 namespace Array2 {
+    
+    ///
+    /// Returns the list of characters `xs` as an array.
+    ///
+    /// TODO - List would be a better location for this.
+    ///
+    pub def toArray(xs: List[a]) : Array[a] = match List.head(xs) {
+        case None => []
+        case Some(x) => 
+            let a = Array.new(x, List.length(xs));
+            let f = (i,b) -> { a[i] = b; i + 1 };
+            List.fold(f, 0, xs);
+            a
+        } 
+
+    ///
+    /// Returns true if and only if `a` is the empty array, i.e. `[]`.
+    ///
+    pub def isEmpty(a: Array[a]): Bool = Array.length(a) == 0
 
     ///
     /// Build an array of length `len` by applying `f` to the successive indices.
@@ -474,7 +493,7 @@ namespace Array2 {
     /// Optionally returns the first element of `a` that satisfies the predicate `f` when searching from left to right.
     ///
     pub def findLeft(f: a -> Bool, a: Array[a]): Option[a] = 
-        match findIndexOf(x -> !(f(x)), a) {
+        match findIndexOf(x -> f(x), a) {
             case None => None
             case Some(i) => Some(a[i])
         }
@@ -483,7 +502,7 @@ namespace Array2 {
     /// Optionally returns the first element of `xs` that satisfies the predicate `f` when searching from right to left.
     ///
     pub def findRight(f: a -> Bool, a: Array[a]): Option[a] = 
-        match findIndexOfRight(x -> !(f(x)), a) {
+        match findIndexOfRight(x -> f(x), a) {
             case None => None
             case Some(i) => Some(a[i])
         }
@@ -533,21 +552,7 @@ namespace Array2 {
         if (i < 0)
             -1
         else
-            if (f(a[i])) i else findIndexOfRightHelper(f, a, i - 1)
-
-    ///
-    /// Returns the list of characters `xs` as an array.
-    ///
-    /// TODO - List would be a better location for this.
-    ///
-    pub def toArray(xs: List[a]) : Array[a] = match List.head(xs) {
-        case None => []
-        case Some(x) => 
-            let a = Array.new(x, List.length(xs));
-            let f = (i,b) -> { a[i] = b; i + 1 };
-            List.fold(f, 0, xs);
-            a
-        }   
+            if (f(a[i])) i else findIndexOfRightHelper(f, a, i - 1)  
 
     ///
     /// Returns an array of every element in `a` that satisfies the predicate `f`.
@@ -587,16 +592,43 @@ namespace Array2 {
     /// Rotate the contents of array `a` by `n` steps to the left.
     ///
     pub def rotateLeft(n: Int32, a: Array[a]): Array[a] = 
+        if (isEmpty(a))
+            []
+        else {
+            if (n < 0) 
+                rotateRightHelper(Int32.abs(n), a)
+            else
+                rotateLeftHelper(n, a)
+        }
+
+    ///
+    /// Helper function for `rotateLeft`, `n` must be positive.
+    ///
+    def rotateLeftHelper(n: Int32, a: Array[a]): Array[a] = 
         let len = Array.length(a);
-        let f = i -> { let i1 = i + n; a[i1 % len] };
+        let f = i -> { let i1 = n + i; a[i1 % len] };
         init(f, len)
 
     ///
     /// Rotate the contents of array `a` by `n` steps to the right.
     /// 
     pub def rotateRight(n: Int32, a: Array[a]): Array[a] = 
+        if (isEmpty(a))
+            []
+        else {
+            if (n < 0) 
+                rotateLeftHelper(Int32.abs(n), a)
+            else
+                rotateRightHelper(n, a)
+        }
+
+    ///
+    /// Helper function for `rotateRight`, `n` must be positive.
+    /// 
+    pub def rotateRightHelper(n: Int32, a: Array[a]): Array[a] = 
         let len = Array.length(a);
-        let start = len - n;
+        let n1 = n % len;
+        let start = len - n1;
         let f = i -> { let i1 = start + i; a[i1 % len] };
         init(f, len)
 

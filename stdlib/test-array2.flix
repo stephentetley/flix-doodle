@@ -1,4 +1,16 @@
 /////////////////////////////////////////////////////////////////////////////
+// isEmpty                                                                 //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def isEmpty01(): Bool = assert!(Array2.isEmpty([]: Array[Int32]))
+
+@test
+def isEmpty02(): Bool = assertNot!(Array2.isEmpty([1]))
+
+@test
+def isEmpty03(): Bool = assertNot!(Array2.isEmpty([1,2]))
+
+/////////////////////////////////////////////////////////////////////////////
 // init                                                                    //
 /////////////////////////////////////////////////////////////////////////////
 @test
@@ -1089,58 +1101,361 @@ def find06(): Bool = Array2.find(i -> i > 2, [-6,6]) `assertEq!` Some(6)
 @test
 def find07(): Bool = Array2.find(i -> i > 2, [6,7]) `assertEq!` Some(6)
 
+/////////////////////////////////////////////////////////////////////////////
+// findLeft                                                                //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def findLeft01(): Bool = Array2.findLeft(i -> i > 2, []) `assertEq!` None
+
+@test
+def findLeft02(): Bool = Array2.findLeft(i -> i > 2, [1]) `assertEq!` None
+
+@test
+def findLeft03(): Bool = Array2.findLeft(i -> i > 2, [3]) `assertEq!` Some(3)
+
+@test
+def findLeft04(): Bool = Array2.findLeft(i -> i > 2, [1,2]) `assertEq!` None
+
+@test
+def findLeft05(): Bool = Array2.findLeft(i -> i > 2, [6,-6]) `assertEq!` Some(6)
+
+@test
+def findLeft06(): Bool = Array2.findLeft(i -> i > 2, [-6,6]) `assertEq!` Some(6)
+
+@test
+def findLeft07(): Bool = Array2.findLeft(i -> i > 2, [6,7]) `assertEq!` Some(6)
+
+/////////////////////////////////////////////////////////////////////////////
+// findRight                                                               //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def findRight01(): Bool = Array2.findRight(i -> i > 2, []: Array[Int32]) `assertEq!` None
+
+@test
+def findRight02(): Bool = Array2.findRight(i -> i > 2, [1]) `assertEq!` None
+
+@test
+def findRight03(): Bool = Array2.findRight(i -> i > 2, [3]) `assertEq!` Some(3)
+
+@test
+def findRight04(): Bool = Array2.findRight(i -> i > 2, [1,2]) `assertEq!` None
+
+@test
+def findRight05(): Bool = Array2.findRight(i -> i > 2, [6,-6]) `assertEq!` Some(6)
+
+@test
+def findRight06(): Bool = Array2.findRight(i -> i > 2, [-6,6]) `assertEq!` Some(6)
+
+@test
+def findRight07(): Bool = Array2.findRight(i -> i > 2, [6,7]) `assertEq!` Some(7)
+
+
+/////////////////////////////////////////////////////////////////////////////
+// findIndexOf                                                             //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def findIndexOf01(): Bool = Array2.findIndexOf(i -> i > 2, []: Array[Int32]) `assertEq!` None
+
+@test
+def findIndexOf02(): Bool = Array2.findIndexOf(i -> i > 2, [1]) `assertEq!` None
+
+@test
+def findIndexOf03(): Bool = Array2.findIndexOf(i -> i > 2, [3]) `assertEq!` Some(0)
+
+@test
+def findIndexOf04(): Bool = Array2.findIndexOf(i -> i > 2, [1,2]) `assertEq!` None
+
+@test
+def findIndexOf05(): Bool = Array2.findIndexOf(i -> i > 2, [6,-6]) `assertEq!` Some(0)
+
+@test
+def findIndexOf06(): Bool = Array2.findIndexOf(i -> i > 2, [-6,6]) `assertEq!` Some(1)
+
+@test
+def findIndexOf07(): Bool = Array2.findIndexOf(i -> i > 2, [6,7]) `assertEq!` Some(0)
+
+/////////////////////////////////////////////////////////////////////////////
+// findIndexOfLeft                                                         //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def findIndexOfLeft01(): Bool = Array2.findIndexOfLeft(i -> i > 2, []: Array[Int32]) `assertEq!` None
+
+@test
+def findIndexOfLeft02(): Bool = Array2.findIndexOfLeft(i -> i > 2, [1]) `assertEq!` None
+
+@test
+def findIndexOfLeft03(): Bool = Array2.findIndexOfLeft(i -> i > 2, [3]) `assertEq!` Some(0)
+
+@test
+def findIndexOfLeft04(): Bool = Array2.findIndexOfLeft(i -> i > 2, [1,2]) `assertEq!` None
+
+@test
+def findIndexOfLeft05(): Bool = Array2.findIndexOfLeft(i -> i > 2, [6,-6]) `assertEq!` Some(0)
+
+@test
+def findIndexOfLeft06(): Bool = Array2.findIndexOfLeft(i -> i > 2, [-6,6]) `assertEq!` Some(1)
+
+@test
+def findIndexOfLeft07(): Bool = Array2.findIndexOfLeft(i -> i > 2, [6,7]) `assertEq!` Some(0)
+
+/////////////////////////////////////////////////////////////////////////////
+// findIndexOfRight                                                        //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def findIndexOfRight01(): Bool = Array2.findIndexOfRight(i -> i > 2, []: Array[Int32]) `assertEq!` None
+
+@test
+def findIndexOfRight02(): Bool = Array2.findIndexOfRight(i -> i > 2, [1]) `assertEq!` None
+
+@test
+def findIndexOfRight03(): Bool = Array2.findIndexOfRight(i -> i > 2, [3]) `assertEq!` Some(0)
+
+@test
+def findIndexOfRight04(): Bool = Array2.findIndexOfRight(i -> i > 2, [1,2]) `assertEq!` None
+
+@test
+def findIndexOfRight05(): Bool = Array2.findIndexOfRight(i -> i > 2, [6,-6]) `assertEq!` Some(0)
+
+@test
+def findIndexOfRight06(): Bool = Array2.findIndexOfRight(i -> i > 2, [-6,6]) `assertEq!` Some(1)
+
+@test
+def findIndexOfRight07(): Bool = Array2.findIndexOfRight(i -> i > 2, [6,7]) `assertEq!` Some(1)
+
+/////////////////////////////////////////////////////////////////////////////
+// filter                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def filter01(): Bool = 
+    let a = Array2.filter(i -> i > 3, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def filter02(): Bool =  
+    let a = Array2.filter(i -> i > 3, [2]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def filter03(): Bool = 
+    let a = Array2.filter(i -> i > 3, [4]);
+    Array.toList(a) `assertEq!` 4 :: Nil
+
+@test
+def filter04(): Bool = 
+    let a = Array2.filter(i -> i > 3, [1,3]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def filter05(): Bool = 
+    let a = Array2.filter(i -> i > 3, [1,8]);
+    Array.toList(a) `assertEq!` 8 :: Nil
+
+@test
+def filter06(): Bool = 
+    let a = Array2.filter(i -> i > 3, [8,1]);
+    Array.toList(a) `assertEq!` 8 :: Nil
+
+@test
+def filter07(): Bool = 
+    let a = Array2.filter(i -> i > 3, [8,9]);
+    Array.toList(a) `assertEq!` 8 :: 9 :: Nil
+
+@test
+def filter08(): Bool = 
+    let a = Array2.filter(i -> i > 3, [1,4,11,2,-22,17]);
+    Array.toList(a) `assertEq!` 4 :: 11 :: 17 :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// filterMap                                                               //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def filterMap01(): Bool =  
+    let a = Array2.filterMap(i -> if (i % 2 == 0) Some(i/2) else None, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def filterMap02(): Bool =  
+    let a = Array2.filterMap(i -> if (i % 2 == 0) Some(i/2) else None, [1]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def filterMap03(): Bool = 
+    let a = Array2.filterMap(i -> if (i % 2 == 0) Some(i/2) else None, [2]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def filterMap04(): Bool = 
+    let a = Array2.filterMap(i -> if (i % 2 == 0) Some(i/2) else None, [1,3]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def filterMap05(): Bool = 
+    let a = Array2.filterMap(i -> if (i % 2 == 0) Some(i/2) else None, [1,4]);
+    Array.toList(a) `assertEq!` 2 :: Nil
+
+@test
+def filterMap06(): Bool = 
+    let a = Array2.filterMap(i -> if (i % 2 == 0) Some(i/2) else None, [6,-1]);
+    Array.toList(a) `assertEq!` 3 :: Nil
+
+@test
+def filterMap07(): Bool =  
+    let a = Array2.filterMap(i -> if (i % 2 == 0) Some(i/2) else None, [8,6]);
+    Array.toList(a) `assertEq!` 4 :: 3 :: Nil
+
+@test
+def filterMap08(): Bool =  
+    let a = Array2.filterMap(i -> if (i % 2 == 0) Some(i/2) else None, [0,1,2,3,4,5,10]);
+    Array.toList(a) `assertEq!` 0 :: 1 :: 2 :: 5 :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// findMap                                                                 //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def findMap01(): Bool = Array2.findMap(i -> if (i % 2 == 0) Some(i/2) else None, []: Array[Int32]) `assertEq!` None
+
+@test
+def findMap02(): Bool = Array2.findMap(i -> if (i % 2 == 0) Some(i/2) else None, [1]) `assertEq!` None
+
+@test
+def findMap03(): Bool = Array2.findMap(i -> if (i % 2 == 0) Some(i/2) else None, [2]) `assertEq!` Some(1)
+
+@test
+def findMap04(): Bool = Array2.findMap(i -> if (i % 2 == 0) Some(i/2) else None, [1,3]) `assertEq!` None
+
+@test
+def findMap05(): Bool = Array2.findMap(i -> if (i % 2 == 0) Some(i/2) else None, [1,4]) `assertEq!` Some(2)
+
+@test
+def findMap06(): Bool = Array2.findMap(i -> if (i % 2 == 0) Some(i/2) else None, [6,-1]) `assertEq!` Some(3)
+
+@test
+def findMap07(): Bool = Array2.findMap(i -> if (i % 2 == 0) Some(i/2) else None, [8,6]) `assertEq!` Some(4)
+
+@test
+def findMap08(): Bool = Array2.findMap(i -> if (i % 2 == 0) Some(i/2) else None, [0,1,2,3,4,5,10]) `assertEq!` Some(0)
+
+/////////////////////////////////////////////////////////////////////////////
+// rotateLeft                                                              //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def rotateLeft01(): Bool = 
+    let a = Array2.rotateLeft(0, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def rotateLeft02(): Bool =  
+    let a = Array2.rotateLeft(1, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def rotateLeft03(): Bool =  
+    let a = Array2.rotateLeft(0, [1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def rotateLeft04(): Bool =  
+    let a = Array2.rotateLeft(0, [1,2]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def rotateLeft05(): Bool =  
+    let a = Array2.rotateLeft(1, [1,2]);
+    Array.toList(a) `assertEq!` 2 :: 1 :: Nil
+
+@test
+def rotateLeft06(): Bool =  
+    let a = Array2.rotateLeft(2, [1,2]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def rotateLeft07(): Bool =  
+    let a = Array2.rotateLeft(3, [1,2]);
+    Array.toList(a) `assertEq!` 2 :: 1 :: Nil
+
+@test
+def rotateLeft08(): Bool =  
+    let a = Array2.rotateLeft(-1, [1,2]);
+    Array.toList(a) `assertEq!` 2 :: 1 :: Nil
+
+@test
+def rotateLeft09(): Bool =  
+    let a = Array2.rotateLeft(0, [1,2,3]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 3 :: Nil
+
+@test
+def rotateLeft10(): Bool =  
+    let a = Array2.rotateLeft(1, [1,2,3]);
+    Array.toList(a) `assertEq!` 2 :: 3 :: 1 :: Nil
+
+@test
+def rotateLeft11(): Bool =  
+    let a = Array2.rotateLeft(2, [1,2,3]);
+    Array.toList(a) `assertEq!` 3 :: 1 :: 2 :: Nil
+
+/////////////////////////////////////////////////////////////////////////////
+// rotateRight                                                             //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def rotateRight01(): Bool = 
+    let a = Array2.rotateRight(0, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def rotateRight02(): Bool = 
+    let a = Array2.rotateRight(1, []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def rotateRight03(): Bool = 
+    let a = Array2.rotateRight(0, [1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
+
+@test
+def rotateRight04(): Bool = 
+    let a = Array2.rotateRight(0, [1,2]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def rotateRight05(): Bool = 
+    let a = Array2.rotateRight(1, [1,2]);
+    Array.toList(a) `assertEq!` 2 :: 1 :: Nil
+
+@test
+def rotateRight06(): Bool = 
+    let a = Array2.rotateRight(2, [1,2]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
+
+@test
+def rotateRight07(): Bool = 
+    let a = Array2.rotateRight(3, [1,2]);
+    Array.toList(a) `assertEq!` 2 :: 1 :: Nil
+
+@test
+def rotateRight08(): Bool = 
+    let a = Array2.rotateRight(-1, [1,2]);
+    Array.toList(a) `assertEq!` 2 :: 1 :: Nil
+
+@test
+def rotateRight09(): Bool = 
+    let a = Array2.rotateRight(0, [1,2,3]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 3 :: Nil
+
+@test
+def rotateRight10(): Bool = 
+    let a = Array2.rotateRight(1, [1,2,3]);
+    Array.toList(a) `assertEq!` 3 :: 1 :: 2 :: Nil
+
+@test
+def rotateRight11(): Bool = 
+    let a = Array2.rotateRight(2, [1,2,3]);
+    Array.toList(a) `assertEq!` 2 :: 3 :: 1 :: Nil
+
 
 // ________
 // Other...
 // --------
 
-
-@test
-def findLeft01(): Bool = 
-    let a: Array[Int] = [0, 1, 2, 3, 4, 5];
-    Array2.findLeft(x -> x > 2, a) `assertEq!` Some(3)
-
-
-@test
-def findRight01(): Bool = 
-    let a: Array[Int] = [0, 1, 2, 3, 4, 5];
-    Array2.findRight(x -> x > 2, a) `assertEq!` Some(5)
-
-
-@test
-def filter01(): Bool = 
-    let a: Array[Int] = [0, 1, 2, 3, 4, 5];    
-    Array.length(Array2.filter(x -> x % 2 == 0, a)) `assertEq!` 3
-
-
-@test
-def filterMap01(): Bool = 
-    let a: Array[Int] = [0, 1, 2, 3, 4, 5];    
-    Array.length(Array2.filterMap(x -> if (x % 2 == 0) Some(x) else None, a)) `assertEq!` 3
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-// rotateLeft                                                              //
-/////////////////////////////////////////////////////////////////////////////
-@test 
-def rotateLeft01(): Bool = 
-    let a: Array[Int] = [1, 2, 3, 4, 5];
-    let b = Array2.rotateLeft(2, a);
-    Array.toList(b) `assertEq!` 3 :: 4 :: 5 :: 1 :: 2 :: Nil
-
-
-/////////////////////////////////////////////////////////////////////////////
-// rotateRight                                                             //
-/////////////////////////////////////////////////////////////////////////////
-@test 
-def rotateRight01(): Bool = 
-    let a: Array[Int] = [1, 2, 3, 4, 5];
-    let b = Array2.rotateRight(2, a);
-    Array.toList(b) `assertEq!` 4 :: 5 :: 1 :: 2 :: 3 :: Nil
 
 
 /////////////////////////////////////////////////////////////////////////////
