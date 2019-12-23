@@ -76,123 +76,97 @@ def range06(): Bool =
 /////////////////////////////////////////////////////////////////////////////
 @test
 def append01(): Bool = 
-    let a: Array[Int32] = [];
-    let b: Array[Int32] = [];
-    let c = Array2.append(a,b);
-    Array.toList(c) `assertEq!` Nil
+    let a = Array2.append([]: Array[Int32], []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
 
 @test
 def append02(): Bool = 
-    let a: Array[Int32] = [];
-    let b: Array[Int32] = [1];
-    let c = Array2.append(a,b);
-    Array.toList(c) `assertEq!` 1 :: Nil
+    let a = Array2.append([]: Array[Int32], [1]);
+    Array.toList(a) `assertEq!` 1 :: Nil
 
 @test
 def append03(): Bool = 
-    let a: Array[Int32] = [];
-    let b: Array[Int32] = [1,2];
-    let c = Array2.append(a,b);
-    Array.toList(c)  `assertEq!` 1 :: 2 :: Nil
+    let a = Array2.append([]: Array[Int32], [1,2]);
+    Array.toList(a)  `assertEq!` 1 :: 2 :: Nil
 
 @test
 def append04(): Bool = 
-    let a: Array[Int32] = [1];
-    let b: Array[Int32] = [];
-    let c = Array2.append(a,b);
-    Array.toList(c) `assertEq!` 1 :: Nil
+    let a = Array2.append([1], []: Array[Int32]);
+    Array.toList(a) `assertEq!` 1 :: Nil
 
 @test
 def append05(): Bool = 
-    let a: Array[Int32] = [1,2];
-    let b: Array[Int32] = [];
-    let c = Array2.append(a,b);
-    Array.toList(c)  `assertEq!` 1 :: 2 :: Nil
+    let a = Array2.append([1,2], []: Array[Int32]);
+    Array.toList(a)  `assertEq!` 1 :: 2 :: Nil
 
 @test
 def append06(): Bool =
-    let a: Array[Int32] = [1];
-    let b: Array[Int32] = [2];
-    let c = Array2.append(a,b);
-    Array.toList(c)  `assertEq!` 1 :: 2 :: Nil
+    let a = Array2.append([1], [2]);
+    Array.toList(a)  `assertEq!` 1 :: 2 :: Nil
 
 @test
 def append07(): Bool =
-    let a: Array[Int32] = [1,2];
-    let b: Array[Int32] = [3];
-    let c = Array2.append(a,b);
-    Array.toList(c)  `assertEq!` 1 :: 2 :: 3 :: Nil
+    let a = Array2.append([1,2], [3]);
+    Array.toList(a)  `assertEq!` 1 :: 2 :: 3 :: Nil
 
 @test
 def append08(): Bool = 
-    let a: Array[Int32] = [1];
-    let b: Array[Int32] = [2,3];
-    let c = Array2.append(a,b);
-    Array.toList(c)  `assertEq!` 1 :: 2 :: 3 :: Nil
+    let a = Array2.append([1], [2,3]);
+    Array.toList(a)  `assertEq!` 1 :: 2 :: 3 :: Nil
 
 /////////////////////////////////////////////////////////////////////////////
 // flatten                                                                 //
 /////////////////////////////////////////////////////////////////////////////
 @test
 def flatten01(): Bool = 
-    let a: Array[Array[Int32]] = [];
-    let b = Array2.flatten(a);
-    Array.toList(b) `assertEq!` Nil
+    let a = Array2.flatten([]: Array[Array[Int32]]);
+    Array.toList(a) `assertEq!` Nil
 
 @test
 def flatten02(): Bool = 
-    let a: Array[Array[Int32]] = [[]];
-    let b = Array2.flatten(a);
-    Array.toList(b) `assertEq!` Nil
+    let a = Array2.flatten([[]]: Array[Array[Int32]]);
+    Array.toList(a) `assertEq!` Nil
 
 @test
 def flatten03(): Bool = 
-    let a: Array[Array[Int32]] = [[1]];
-    let b: Array[Int32] = Array2.flatten(a);
-    Array.toList(b) `assertEq!` 1 :: Nil
+    let a = Array2.flatten([[1]]);
+    Array.toList(a) `assertEq!` 1 :: Nil
 
 @test
 def flatten04(): Bool = 
-    let a: Array[Array[Int32]] = [[1,2]];
-    let b: Array[Int32] = Array2.flatten(a);
-    Array.toList(b) `assertEq!` 1 :: 2 :: Nil
+    let a= Array2.flatten([[1,2]]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
 
 @test
 def flatten05(): Bool = 
-    let a: Array[Array[Int32]] = [[],[]];
-    let b: Array[Int32] = Array2.flatten(a);
-    Array.toList(b) `assertEq!` Nil
+    let a = Array2.flatten([[],[]]: Array[Array[Int32]]);
+    Array.toList(a) `assertEq!` Nil
 
 @test
 def flatten06(): Bool = 
-    let a: Array[Array[Int32]] = [[1],[]];
-    let b: Array[Int32] = Array2.flatten(a);
-    Array.toList(b) `assertEq!` 1 :: Nil
+    let a = Array2.flatten([[1],[]]);
+    Array.toList(a) `assertEq!` 1 :: Nil
 
 @test
 def flatten07(): Bool = 
-    let a: Array[Array[Int32]] = [[],[1]];
-    let b: Array[Int32] = Array2.flatten(a);
-    Array.toList(b) `assertEq!` 1 :: Nil
+    let a = Array2.flatten([[],[1]]);
+    Array.toList(a) `assertEq!` 1 :: Nil
 
 @test
 def flatten08(): Bool = 
-    let a: Array[Array[Int32]] = [[1],[2]];
-    let b: Array[Int32] = Array2.flatten(a);
-    Array.toList(b) `assertEq!` 1 :: 2 :: Nil
+    let a = Array2.flatten([[1],[2]]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: Nil
 
 @test
 def flatten09(): Bool = 
-    let a: Array[Array[Int32]] = [[1,2],[3,4,5]];
-    let b: Array[Int32] = Array2.flatten(a);
-    Array.toList(b) `assertEq!` 1 :: 2 :: 3 :: 4 :: 5 :: Nil
+    let a = Array2.flatten([[1,2],[3,4,5]]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 3 :: 4 :: 5 :: Nil
 
 
 @test
 def flatten10(): Bool = 
-    let a: Array[Array[Int32]] = [[1],[2,3],[4]];
-    let b: Array[Int32] = Array2.flatten(a);
-    Array.toList(b) `assertEq!` 1 :: 2 :: 3 :: 4 :: Nil
+    let a = Array2.flatten([[1],[2,3],[4]]);
+    Array.toList(a) `assertEq!` 1 :: 2 :: 3 :: 4 :: Nil
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1451,13 +1425,6 @@ def rotateRight11(): Bool =
     let a = Array2.rotateRight(2, [1,2,3]);
     Array.toList(a) `assertEq!` 2 :: 3 :: 1 :: Nil
 
-
-// ________
-// Other...
-// --------
-
-
-
 /////////////////////////////////////////////////////////////////////////////
 // replace                                                                 //
 /////////////////////////////////////////////////////////////////////////////
@@ -1501,26 +1468,83 @@ def replace08(): Bool =
     let a = Array2.replace(3, 4, [3, 3]); 
     Array.toList(a) `assertEq!` 4 :: 4 :: Nil
 
-
 /////////////////////////////////////////////////////////////////////////////
 // zip                                                                     //
 /////////////////////////////////////////////////////////////////////////////
 @test
 def zip01(): Bool = 
-    let a = Array2.init(identity, 10);
-    let b = Array2.init(identity, 5);
-    let c = Array2.zip(a, b);
-    Array.toList(c) `assertEq!` (0,0) :: (1,1) :: (2,2) :: (3,3) :: (4,4) :: Nil
+    let a = Array2.zip([]: Array[Int32], []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def zip02(): Bool = 
+    let a = Array2.zip([1], []: Array[Int32]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def zip03(): Bool = 
+    let a = Array2.zip([]: Array[Int32], [2]);
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def zip04(): Bool = 
+    let a = Array2.zip([1], [2]);
+    Array.toList(a) `assertEq!` (1, 2) :: Nil
+
+@test
+def zip05(): Bool = 
+    let a = Array2.zip([1,3], [2,4]);
+    Array.toList(a) `assertEq!` (1, 2) :: (3, 4) :: Nil
+
+@test
+def zip06(): Bool = 
+    let a = Array2.zip([1,3,5], [2,4,6]);
+    Array.toList(a) `assertEq!` (1, 2) :: (3, 4) :: (5, 6) :: Nil
+
+@test
+def zip07(): Bool = 
+    let a = Array2.zip([1,3,5,7], [2,4,6,8]);
+    Array.toList(a) `assertEq!` (1, 2) :: (3, 4) :: (5, 6) :: (7, 8) :: Nil
 
 /////////////////////////////////////////////////////////////////////////////
-// zipWith                                                                  //
+// zipWith                                                                 //
 /////////////////////////////////////////////////////////////////////////////
 @test
 def zipWith01(): Bool = 
-    let a = Array2.init(identity, 10);
-    let b = Array2.init(identity, 5);
-    let c = Array2.zipWith((x,y) -> x + y, a, b);
-    Array.toList(c) `assertEq!` 0 :: 2 :: 4 :: 6 :: 8 :: Nil
+    let arr = Array2.zipWith((a, b) -> if (b) a+1 else a, []: Array[Int32], []: Array[Bool]);
+    Array.toList(arr) `assertEq!` Nil
+
+@test
+def zipWith02(): Bool = 
+    let arr = Array2.zipWith((a, b) -> if (b) a+1 else a, [1], []: Array[Bool]);
+    Array.toList(arr) `assertEq!` Nil
+
+@test
+def zipWith03(): Bool = 
+    let arr = Array2.zipWith((a, b) -> if (b) a+1 else a, []: Array[Int32], [true]);
+    Array.toList(arr) `assertEq!` Nil
+
+@test
+def zipWith04(): Bool = 
+    let arr = Array2.zipWith((a, b) -> if (b) a+1 else a, [1], [true]);
+    Array.toList(arr) `assertEq!` 2 :: Nil
+
+@test
+def zipWith05(): Bool = 
+    let arr = Array2.zipWith((a, b) -> if (b) a+1 else a, [1], [false]);
+    Array.toList(arr) `assertEq!` 1 :: Nil
+
+@test
+def zipWith06(): Bool = 
+    let arr = Array2.zipWith((a, b) -> if (b) a+1 else a, [1, 2, 3, 4, 5, 6, 7, 8],
+                      [false, true, true, false, false, true, true, true]);
+    Array.toList(arr) `assertEq!` 1 :: 3 :: 4 :: 4 :: 5 :: 7 :: 8 :: 9 :: Nil
+
+
+// ________
+// Other...
+// --------
+
 
 
 /////////////////////////////////////////////////////////////////////////////

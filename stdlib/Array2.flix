@@ -516,7 +516,7 @@ namespace Array2 {
     /// Optionally returns the position of the first element in `x` satisfying `f`.
     ///
     pub def findIndexOfLeft(f: a -> Bool, a: Array[a]): Option[Int] = 
-        if (Array.length(a) == 0)
+        if (isEmpty(a))
             None
         else {
             let i = findIndexOfLeftHelper(f, a, 0);
