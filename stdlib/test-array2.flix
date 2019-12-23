@@ -957,32 +957,118 @@ def takeWhile08(): Bool =
     let a = Array2.takeWhile(i -> i > 3, [4, 6, -3, 11, -5, 1, 2, 16, 7, 1, 7]);
     Array.toList(a) `assertEq!` 4 :: 6 :: Nil
 
+/////////////////////////////////////////////////////////////////////////////
+// exists                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def exists01(): Bool = assertNot!(Array2.exists(i -> i > 3, [] : Array[Int32]))
+
+@test
+def exists02(): Bool = assertNot!(Array2.exists(i -> i > 3, [1]))
+
+@test
+def exists03(): Bool = assert!(Array2.exists(i -> i > 3, [5]))
+
+@test
+def exists04(): Bool = assertNot!(Array2.exists(i -> i > 3, [1,2]))
+
+@test
+def exists05(): Bool = assert!(Array2.exists(i -> i > 3, [1,6]))
+
+@test
+def exists06(): Bool = assert!(Array2.exists(i -> i > 3, [6,1]))
+
+@test
+def exists07(): Bool = assert!(Array2.exists(i -> i > 3, [16,6]))
+
+@test
+def exists08(): Bool = assertNot!(Array2.exists(i -> i > 3, [1,-9,3]))
+
+@test
+def exists09(): Bool = assert!(Array2.exists(i -> i > 3, [1,9,3]))
+
+/////////////////////////////////////////////////////////////////////////////
+// forall                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def forall01(): Bool = assert!(Array2.forall(i -> i > 3, []: Array[Int32]))
+
+@test
+def forall02(): Bool = assertNot!(Array2.forall(i -> i > 3, [1]))
+
+@test
+def forall03(): Bool = assert!(Array2.forall(i -> i > 3, [5]))
+
+@test
+def forall04(): Bool = assertNot!(Array2.forall(i -> i > 3, [1,2]))
+
+@test
+def forall05(): Bool = assertNot!(Array2.forall(i -> i > 3, [1,6]))
+
+@test
+def forall06(): Bool = assertNot!(Array2.forall(i -> i > 3, [6,1]))
+
+@test
+def forall07(): Bool = assert!(Array2.forall(i -> i > 3, [16,6]))
+
+@test
+def forall08(): Bool = assertNot!(Array2.forall(i -> i > 3, [1,-9,3]))
+
+@test
+def forall09(): Bool = assertNot!(Array2.forall(i -> i > 3, [1,9,3]))
+
+@test
+def forall10(): Bool = assert!(Array2.forall(i -> i > 3, [11,9,31]))
+
+/////////////////////////////////////////////////////////////////////////////
+// memberOf                                                                //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def memberOf01(): Bool = assertNot!(Array2.memberOf(0, []: Array[Int32]))
+
+@test
+def memberOf02(): Bool = assertNot!(Array2.memberOf(0, [1]))
+
+@test
+def memberOf03(): Bool = assert!(Array2.memberOf(0, [0]))
+
+@test
+def memberOf04(): Bool = assertNot!(Array2.memberOf(0, [1,2]))
+
+@test
+def memberOf05(): Bool = assert!(Array2.memberOf(1, [1,2]))
+
+@test
+def memberOf06(): Bool = assert!(Array2.memberOf(2, [1,2]))
+
+@test
+def memberOf07(): Bool = assertNot!(Array2.memberOf(3, [1,2]))
+
+/////////////////////////////////////////////////////////////////////////////
+// indexOf                                                                 //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def indexOf01(): Bool = Array2.indexOf(0, []: Array[Int32]) `assertEq!` None
+
+@test
+def indexOf02(): Bool = Array2.indexOf(0, [1]) `assertEq!` None
+
+@test
+def indexOf03(): Bool = Array2.indexOf(1, [1]) `assertEq!` Some(0)
+
+@test
+def indexOf04(): Bool = Array2.indexOf(0, [1,2]) `assertEq!` None
+
+@test
+def indexOf05(): Bool = Array2.indexOf(1, [1,2]) `assertEq!` Some(0)
+
+@test
+def indexOf06(): Bool = Array2.indexOf(2, [1,2]) `assertEq!` Some(1)
+
 // ________
 // Other...
 // --------
 
-
-@test
-def exists01(): Bool = 
-    let a = Array.new(1, 10);
-    a[6] = 2;
-    assert!(Array2.exists(x -> x > 1, a))
-
-@test
-def forall01(): Bool = 
-    let a = Array.new(1, 10);
-    assert!(Array2.forall(x -> x == 1, a))
-
-@test
-def memberOf01(): Bool = 
-    // let a = toArray(1 :: 2 :: 3 :: Nil);
-    let a: Array[Int] = [1, 2, 3];
-    assert!(Array2.memberOf(2, a))
-
-@test
-def indexOf01(): Bool = 
-    let a: Array[Int] = [0, 1, 2, 3];
-    Array2.indexOf(2, a) `assertEq!` Some(2)
 
 @test
 def findLeft01(): Bool = 

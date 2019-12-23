@@ -371,7 +371,7 @@ namespace Array2 {
     /// Returns `a` without the longest prefix that satisfies the predicate `f`.
     ///
     pub def dropWhile(f: a -> Bool, a: Array[a]): Array[a] = 
-        match findIndexOf(x -> !(f(x)), a) { 
+        match findLeft(x -> !(f(x)), a) { 
             case None => []
             case Some(i) => drop(i, a)
         }
@@ -397,14 +397,10 @@ namespace Array2 {
     /// Returns the longest prefix of `a` that satisfies the predicate `f`.
     ///
     pub def takeWhile(f: a -> Bool, a: Array[a]): Array[a] =  
-        match findIndexOf(x -> !(f(x)), a) {
+        match findLeft(x -> !(f(x)), a) {
             case None => a
             case Some(i) => take(i, a)
         }
-        
-
-    
-
 
     ///
     /// Returns `true` if and only if at least one element in `a` satisfies the predicate `f`.
@@ -460,8 +456,6 @@ namespace Array2 {
         let i = indexOfHelper(x, a, 0);
         if (i < 0) None else Some(i)
 
-        
-
     ///
     /// Helper function for `indexOf`.
     ///
@@ -472,44 +466,29 @@ namespace Array2 {
             if (a[i] == x) i else indexOfHelper(x, a, i+1)
 
     ///
-    /// Optionally returns the position of the first element in `x` satisfying `f`.
+    /// Alias for `findLeft`.
     ///
-    /// TODO - ideally this would be public but there is no corresponding function in List.
-    ///
-    pub def findIndexOf(f: a -> Bool, a: Array[a]): Option[Int] = 
-        if (Array.length(a) == 0)
-            None
-        else {
-            let i = findIndexOfHelper(f, a, 0);
-            if (i < 0) None else Some(i)
-        }
-
-    ///
-    /// Helper function for `findIndexOf`.
-    ///
-    def findIndexOfHelper(f: a -> Bool, a: Array[a], i: Int32): Int32 = 
-        if (i >= Array.length(a))
-            -1
-        else
-            if (f(a[i])) i else findIndexOfHelper(f, a, i + 1)
-
-
+    pub def find(f: a -> Bool, xs: Array[a]): Option[a] = findLeft(f, xs)
 
     ///
     /// Optionally returns the first element of `a` that satisfies the predicate `f` when searching from left to right.
     ///
-    pub def findLeft(f: a -> Bool, a: Array[a]): Option[a] = findLeftHelper(f, a, 0)
+    pub def findLeft(f: a -> Bool, a: Array[a]): Option[a] = 
+        if (Array.length(a) == 0)
+            None
+        else {
+            let i = findLeftHelper(f, a, 0);
+            if (i < 0) None else Some(i)
+        }
 
     ///
     /// Helper function for `findLeft`.
     ///
-    def findLeftHelper(f: a -> Bool, a: Array[a], i: Int32): Option[a] = 
+    def findLeftHelper(f: a -> Bool, a: Array[a], i: Int32): Int32 = 
         if (i >= Array.length(a))
-            None
-        else { 
-            let x = a[i];
-            if (f(x)) Some(x) else findLeftHelper(f, a, i+1)
-        }
+            -1
+        else
+            if (f(a[i])) i else findLeftHelper(f, a, i + 1)
 
     ///
     /// Optionally returns the first element of `xs` that satisfies the predicate `f` when searching from right to left.
@@ -525,7 +504,7 @@ namespace Array2 {
             None
         else { 
             let x = a[i];
-            if (f(x)) Some(x) else findLeftHelper(f, a, i-1)
+            if (f(x)) Some(x) else findRightHelper(f, a, i-1)
         }
     
 
