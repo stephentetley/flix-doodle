@@ -46,7 +46,6 @@ namespace String2 {
             initHelper(a, f, len, i+1) 
         }
 
-
     ///
     /// Returns the result of applying `f` to every character in `s`.
     ///
@@ -69,7 +68,7 @@ namespace String2 {
     /// Functionally equivalent to zipWith.
     ///
     pub def map2(f: (Char, Char) -> Char, s: Str, t: Str): Str =
-        let len = String.length(s);
+        let len = Int32.min(String.length(s), String.length(t));
         init(i -> f(String.charAt(i, s), String.charAt(i, t)), len)
 
 

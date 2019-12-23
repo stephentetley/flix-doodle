@@ -1,4 +1,28 @@
 /////////////////////////////////////////////////////////////////////////////
+// toArray                                                                 //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def toArray01() : Bool = 
+    let a = String2.toArray("");
+    Array.toList(a) `assertEq!` Nil
+
+@test
+def toArray02() : Bool = 
+    let a = String2.toArray("A");
+    Array.toList(a) `assertEq!` 'A' :: Nil
+
+@test
+def toArray03() : Bool = 
+    let a = String2.toArray("AB");
+    Array.toList(a) `assertEq!` 'A' :: 'B' :: Nil
+
+@test
+def toArray04() : Bool = 
+    let a = String2.toArray("ABC");
+    Array.toList(a) `assertEq!` 'A' :: 'B' :: 'C' :: Nil
+
+
+/////////////////////////////////////////////////////////////////////////////
 // init                                                                    //
 /////////////////////////////////////////////////////////////////////////////
 @test
@@ -7,38 +31,133 @@ def init01(): Bool =
 
 @test
 def init02(): Bool =
-    String2.init(_ -> 'A', 1) `assertEq!` "AA"
+    String2.init(_ -> 'A', -1) `assertEq!` ""
 
 @test
 def init03(): Bool =
-    String2.init(_ -> 'A', 2) `assertEq!` "AA"
+    String2.init(_ -> 'A', 1) `assertEq!` "A"
 
 @test
 def init04(): Bool =
-    String.length(String2.init(_ -> '*', 50)) `assertEq!` 50
+    String2.init(_ -> 'A', 2) `assertEq!` "AA"
 
-
-/////////////////////////////////////////////////////////////////////////////
-// toArray                                                                 //
-/////////////////////////////////////////////////////////////////////////////
 @test
-def toArray01() : Bool = 
-    Array.length(String2.toArray("abcde")) `assertEq!` 5
+def init05(): Bool =
+    String2.init(_ -> 'A', 10) `assertEq!` "AAAAAAAAAA"
+
+@test
+def init06(): Bool =
+    String.length(String2.init(_ -> 'A', 50)) `assertEq!` 50
 
 /////////////////////////////////////////////////////////////////////////////
 // map                                                                     //
 /////////////////////////////////////////////////////////////////////////////
 @test
 def map01() : Bool =
-    String2.map(_ -> 'A', "") `assertEq!` ""
+    String2.map(c -> if (Char.isDigit(c)) '*' else c, "") `assertEq!` ""
 
 @test
 def map02() : Bool =
-    String2.map(_ -> 'A', "1") `assertEq!` "A"
+   String2.map(c -> if (Char.isDigit(c)) '*' else c, "1") `assertEq!` "*"
 
 @test
 def map03() : Bool =
-    String2.map(_ -> 'A', "12") `assertEq!` "AA"
+    String2.map(c -> if (Char.isDigit(c)) '*' else c, "A") `assertEq!` "A"
+
+@test
+def map04() : Bool =
+    String2.map(c -> if (Char.isDigit(c)) '*' else c, "12") `assertEq!` "**"
+
+@test
+def map05() : Bool =
+    String2.map(c -> if (Char.isDigit(c)) '*' else c, "1B") `assertEq!` "*B"
+
+@test
+def map06() : Bool =
+    String2.map(c -> if (Char.isDigit(c)) '*' else c, "AB") `assertEq!` "AB"
+
+/////////////////////////////////////////////////////////////////////////////
+// mapWithIndex                                                            //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def mapWithIndex01() : Bool =
+    String2.mapWithIndex((c,i) -> if (i < 3) '*' else c, "") `assertEq!` ""
+
+@test
+def mapWithIndex02() : Bool =
+    String2.mapWithIndex((c,i) -> if (i < 3) '*' else c, "A") `assertEq!` "*"
+
+@test
+def mapWithIndex03() : Bool =
+    String2.mapWithIndex((c,i) -> if (i < 3) '*' else c, "AB") `assertEq!` "**"
+
+@test
+def mapWithIndex04() : Bool =
+    String2.mapWithIndex((c,i) -> if (i < 3) '*' else c, "ABC") `assertEq!` "***"
+
+@test
+def mapWithIndex05() : Bool =
+    String2.mapWithIndex((c,i) -> if (i < 3) '*' else c, "ABCD") `assertEq!` "***D"
+
+@test
+def mapWithIndex06() : Bool =
+    String2.mapWithIndex((c,i) -> if (i < 3) '*' else c, "ABCDE") `assertEq!` "***DE"
+
+@test
+def mapWithIndex07() : Bool =
+    String2.mapWithIndex((c,i) -> if (i < 3) '*' else c, "ABCDEF") `assertEq!` "***DEF"
+
+/////////////////////////////////////////////////////////////////////////////
+// map2                                                                    //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def map201() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "", "") `assertEq!` ""
+
+@test
+def map202() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "", "*") `assertEq!` ""
+
+@test
+def map203() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "A", "") `assertEq!` ""
+
+@test
+def map204() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "A", ".") `assertEq!` "A"
+
+@test
+def map205() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "A", "*") `assertEq!` "*"
+
+@test
+def map206() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "A", "**") `assertEq!` "*"
+
+@test
+def map207() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "AB", "*") `assertEq!` "*"
+
+@test
+def map208() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "AB", ".") `assertEq!` "A"
+
+@test
+def map209() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "AB", "**") `assertEq!` "**"
+
+@test
+def map210() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "AB", "*.") `assertEq!` "*B"
+
+@test
+def map211() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "AB", ".*") `assertEq!` "A*"
+
+@test
+def map212() : Bool =
+    String2.map2((a,b) -> if (b =='*') '*' else a, "AB", "..") `assertEq!` "AB"
+
 
 /////////////////////////////////////////////////////////////////////////////
 // take                                                                    //
