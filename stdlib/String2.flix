@@ -97,11 +97,12 @@ namespace String2 {
     ///
     /// If `b` or `e` are out-of-bounds, return the empty string.
     ///
-    pub def slice(b: Int, e: Int, s: Str) : Str = try {
-        native method java.lang.String.substring(s, b, e) as Str
-    } catch { 
-        case _: ##java.lang.IndexOutOfBoundsException => ""
-    }
+    pub def slice(b: Int, e: Int, s: Str) : Str = 
+        try {
+            native method java.lang.String.substring(s, b, e) as Str
+        } catch { 
+            case _: ##java.lang.IndexOutOfBoundsException => ""
+        }
     
 
     ///
