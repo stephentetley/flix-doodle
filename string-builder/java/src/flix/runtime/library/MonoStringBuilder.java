@@ -6,9 +6,20 @@ import java.lang.*;
 public class MonoStringBuilder {
     private StringBuilder sb = new StringBuilder();
 
-
     public String toString() {
         return sb.toString();
+    }
+
+    public MonoStringBuilder copy () {
+        String content = this.sb.toString();
+        MonoStringBuilder s2 = new MonoStringBuilder();
+        s2.appendString(content);
+        return s2;
+    }
+
+    public void append(MonoStringBuilder sb1) {
+        this.sb.append(sb1.sb);
+        return;
     }
 
     public void appendString(String s) {
