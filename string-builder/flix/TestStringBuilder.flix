@@ -21,6 +21,65 @@
 @test
 def new01(): StringBuilder = StringBuilder.new()
 
+/////////////////////////////////////////////////////////////////////////////
+// append                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test 
+def append01(): Bool = 
+    let sb1 = StringBuilder.new();
+    let sb2 = StringBuilder.new();
+    StringBuilder.append(sb1, sb2);
+    StringBuilder.toString(sb1) `assertEq!` ""
+
+@test 
+def append02(): Bool = 
+    let sb1 = StringBuilder.new();
+    let sb2 = StringBuilder.new();
+    StringBuilder.appendString(sb1, "Hello");
+    StringBuilder.append(sb1, sb2);
+    StringBuilder.toString(sb1) `assertEq!` "Hello"
+
+@test 
+def append03(): Bool = 
+    let sb1 = StringBuilder.new();
+    let sb2 = StringBuilder.new();
+    StringBuilder.appendString(sb2, "World!");
+    StringBuilder.append(sb1, sb2);
+    StringBuilder.toString(sb1) `assertEq!` "World!"
+
+@test 
+def append04(): Bool = 
+    let sb1 = StringBuilder.new();
+    let sb2 = StringBuilder.new();
+    StringBuilder.appendString(sb1, "Hello");
+    StringBuilder.appendString(sb2, " World!");
+    StringBuilder.append(sb1, sb2);
+    StringBuilder.toString(sb1) `assertEq!` "Hello World!"
+
+/////////////////////////////////////////////////////////////////////////////
+// appendStr                                                            //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def appendStr01(): Bool = 
+    let sb = StringBuilder.new();
+    StringBuilder.appendStr(sb, "hello");
+    StringBuilder.toString(sb) `assertEq!` "hello"
+
+@test
+def appendStr02(): Bool = 
+    let sb = StringBuilder.new();
+    StringBuilder.appendStr(sb, "hello");
+    StringBuilder.appendStr(sb, "!");
+    StringBuilder.toString(sb) `assertEq!` "hello!"
+
+@test
+def appendStr03(): Bool = 
+    let sb = StringBuilder.new();
+    StringBuilder.appendStr(sb, "hello");
+    StringBuilder.appendStr(sb, " ");
+    StringBuilder.appendStr(sb, "world!");
+    StringBuilder.toString(sb) `assertEq!` "hello world!"
+
 
 /////////////////////////////////////////////////////////////////////////////
 // appendString                                                            //
@@ -180,3 +239,42 @@ def appendLineSeparator01(): Bool =
     let sb = StringBuilder.new();
     StringBuilder.appendLineSeparator(sb);
     StringBuilder.toString(sb) `assertEq!` String.lineSeparator()
+
+/////////////////////////////////////////////////////////////////////////////
+// length                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def length01(): Bool = 
+    let sb = StringBuilder.new();
+    StringBuilder.length(sb) `assertEq!` 0
+
+@test
+def length02(): Bool = 
+    let sb = StringBuilder.new();
+    StringBuilder.appendChar(sb, 'A');
+    StringBuilder.length(sb) `assertEq!` 1
+
+@test
+def length03(): Bool = 
+    let sb = StringBuilder.new();
+    StringBuilder.appendChar(sb, 'A');
+    StringBuilder.appendChar(sb, 'B');
+    StringBuilder.length(sb) `assertEq!` 2
+
+@test
+def length04(): Bool = 
+    let sb = StringBuilder.new();
+    StringBuilder.appendStr(sb, "A");
+    StringBuilder.appendStr(sb, "B");
+    StringBuilder.length(sb) `assertEq!` 2
+
+@test
+def length05(): Bool = 
+    let sb = StringBuilder.new();
+    StringBuilder.appendStr(sb, "Hello");
+    StringBuilder.appendChar(sb, ' ');
+    StringBuilder.appendStr(sb, "World");
+    StringBuilder.appendChar(sb, '!');
+    StringBuilder.length(sb) `assertEq!` 12
+
+

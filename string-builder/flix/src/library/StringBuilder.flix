@@ -34,6 +34,16 @@ namespace StringBuilder {
         let StringBuilder(msb) = sb;
         native method flix.runtime.library.MonoStringBuilder.toString(msb) as Str
 
+    pub def append(sb: StringBuilder, sb1: StringBuilder): Unit =
+        let StringBuilder(msb) = sb;
+        let s1: Str = toString(sb1);
+        native method flix.runtime.library.MonoStringBuilder.appendString(msb, s1) as Unit
+
+    ///
+    /// Alias for `appendString`
+    ///
+    pub def appendStr(sb: StringBuilder, s: Str): Unit = appendString(sb, s)
+
     pub def appendString(sb: StringBuilder, s: Str): Unit =
         let StringBuilder(msb) = sb;
         native method flix.runtime.library.MonoStringBuilder.appendString(msb, s) as Unit
@@ -69,6 +79,10 @@ namespace StringBuilder {
     pub def appendLineSeparator(sb: StringBuilder): Unit =
         let StringBuilder(msb) = sb;
         native method flix.runtime.library.MonoStringBuilder.appendLineSeparator(msb) as Unit
+
+    pub def length(sb: StringBuilder): Int32 =
+        let StringBuilder(msb) = sb;
+        native method flix.runtime.library.MonoStringBuilder.length(msb) as Int32
 
     pub def appendLine(sb: StringBuilder, s: Str) : Unit =
         appendString(sb, s);

@@ -25,17 +25,6 @@ public class MonoStringBuilder {
         return sb.toString();
     }
 
-    public MonoStringBuilder copy () {
-        String content = this.sb.toString();
-        MonoStringBuilder s2 = new MonoStringBuilder();
-        s2.appendString(content);
-        return s2;
-    }
-
-    public void append(MonoStringBuilder sb1) {
-        this.sb.append(sb1.sb);
-        return;
-    }
 
     public void appendString(String s) {
         this.sb.append(s);
@@ -77,13 +66,14 @@ public class MonoStringBuilder {
         return;
     }
 
-
-
     public void appendLineSeparator() {
         String s = System.lineSeparator();
         this.sb.append(s);
         return;
     }
 
+    public int length() {
+        return this.sb.length();
+    }
 
 }
