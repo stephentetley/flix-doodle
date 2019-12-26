@@ -240,6 +240,15 @@ def appendLineSeparator01(): Bool =
     StringBuilder.appendLineSeparator(sb);
     StringBuilder.toString(sb) `assertEq!` String.lineSeparator()
 
+@test
+def appendLineSeparator02(): Bool =
+    let sb = StringBuilder.new();
+    StringBuilder.appendChar(sb, 'A');
+    StringBuilder.appendLineSeparator(sb);
+    StringBuilder.appendChar(sb, 'B');
+    let s1 = "A" + String.lineSeparator() + "B";
+    StringBuilder.toString(sb) `assertEq!` s1
+
 /////////////////////////////////////////////////////////////////////////////
 // length                                                                  //
 /////////////////////////////////////////////////////////////////////////////
