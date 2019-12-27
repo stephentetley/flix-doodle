@@ -1,4 +1,4 @@
-package flix.runtime.library;
+package flix.runtime.csvimport;
 
 import org.apache.commons.csv.CSVRecord;
 
