@@ -150,6 +150,18 @@ def appendInt803(): Bool =
     StringBuilder.appendInt8(sb, -1i8);
     StringBuilder.toString(sb) `assertEq!` "-1"
 
+@test
+def appendInt804(): Bool =
+    let sb = StringBuilder.new();
+    StringBuilder.appendInt8(sb, 127i8);
+    StringBuilder.toString(sb) `assertEq!` "127"
+
+@test
+def appendInt805(): Bool =
+    let sb = StringBuilder.new();
+    StringBuilder.appendInt8(sb, -127i8);
+    StringBuilder.toString(sb) `assertEq!` "-127"
+
 /////////////////////////////////////////////////////////////////////////////
 // appendInt16                                                             //
 /////////////////////////////////////////////////////////////////////////////
@@ -214,6 +226,27 @@ def appendInt6403(): Bool =
     StringBuilder.toString(sb) `assertEq!` "-1"
 
 /////////////////////////////////////////////////////////////////////////////
+// appendBigInt                                                            //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def appendBigInt01(): Bool =
+    let sb = StringBuilder.new();
+    StringBuilder.appendBigInt(sb, 0ii);
+    StringBuilder.toString(sb) `assertEq!` "0"
+
+@test
+def appendBigInt02(): Bool =
+    let sb = StringBuilder.new();
+    StringBuilder.appendBigInt(sb, 1ii);
+    StringBuilder.toString(sb) `assertEq!` "1"
+
+@test
+def appendBigInt03(): Bool =
+    let sb = StringBuilder.new();
+    StringBuilder.appendBigInt(sb, -1ii);
+    StringBuilder.toString(sb) `assertEq!` "-1"
+
+/////////////////////////////////////////////////////////////////////////////
 // appendFloat32                                                           //
 /////////////////////////////////////////////////////////////////////////////
 @test
@@ -245,6 +278,23 @@ def appendLineSeparator02(): Bool =
     let sb = StringBuilder.new();
     StringBuilder.appendChar(sb, 'A');
     StringBuilder.appendLineSeparator(sb);
+    StringBuilder.appendChar(sb, 'B');
+    let s1 = "A" + String.lineSeparator() + "B";
+    StringBuilder.toString(sb) `assertEq!` s1
+
+/////////////////////////////////////////////////////////////////////////////
+// appendLine                                                              //
+/////////////////////////////////////////////////////////////////////////////
+@test
+def appendLine01(): Bool =
+    let sb = StringBuilder.new();
+    StringBuilder.appendLine(sb, "");
+    StringBuilder.toString(sb) `assertEq!` String.lineSeparator()
+
+@test
+def appendLine02(): Bool =
+    let sb = StringBuilder.new();
+    StringBuilder.appendLine(sb, "A");
     StringBuilder.appendChar(sb, 'B');
     let s1 = "A" + String.lineSeparator() + "B";
     StringBuilder.toString(sb) `assertEq!` s1
