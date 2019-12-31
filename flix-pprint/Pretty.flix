@@ -16,7 +16,7 @@
 
  namespace Pretty {
 
-    enum Doc {
+    pub enum Doc {
         case Empty,
         case Text(Str),
         case Line(Bool),
@@ -27,23 +27,93 @@
         case Nesting(Int32 -> Doc)
     }
 
-    // enum SimpleDoc {
-    //     case SEmpty,
-    //     case SText(Str, SimpleDoc),
-    //     case SLine(Str, SimpleDoc)
-    // }
+    enum SimpleDoc {
+        case SEmpty,
+        case SText(Str, SimpleDoc),
+        case SLine(Str, SimpleDoc)
+    }
 
-    // def extend(s: Str, i: Int32): Str = 
-    //     s + String.repeat(i, " ")
+    def extend(s: Str, i: Int32): Str = 
+        s + String.repeat(i, " ")
 
 
-    // def flatten(columnPos: Int32, doc: Doc) : Doc =
-    //     flattenHelper(columnPos, 0, doc, (x,y) -> (x,y)) |> snd
+    def flatten(columnPos: Int32, doc: Doc) : Doc =
+        flattenHelper(columnPos, 0, doc, (x,y) -> (x,y)) |> snd
 
-    // def flattenHelper (column: Int32, nest: Int32, doc: Doc, cont : (Int32, Doc) -> (Int32, Doc)) : (int * Doc) = 
-    //     match doc {
-    //         case 
-    //     }
+    def flattenHelper (column: Int32, nest: Int32, doc: Doc, cont : (Int32, Doc) -> (Int32, Doc)): (Int32, Doc) = 
+        match doc {
+            case Empty => cont(column, Empty)
+            case Text(s) => cont(column + String.length(s), doc)
+            case Cat(x,y) => 
+                flattenHelper(column, nest, x, (col1,x1) -> 
+                    flattenHelper(col1, nest, y, (col2, y1) -> 
+                        cont(col2, Cat(x1, y1))))
+            case Nest(n,x) => flattenHelper(column, nest+n, x, cont)
+            case Line(true) => cont(column, Empty)
+            case Line(false) => cont(column+1, Text(" "))
+            case Group(x) => flattenHelper(column, nest, x, cont)
+            case Column(fn) => flattenHelper(column, nest, fn(column), cont)
+            case Nesting(fn) => flattenHelper(column, nest, fn(nest), cont)
+        }
+
+    def layout (width: Int32, doc: Doc): SimpleDoc = 
+        layoutBest(width, 0, ("",doc) :: Nil, false, identity, _ -> SEmpty)
+
+    def layoutBest(width: Int32, col: Int32, docs: List[(Str, Doc)], alternate: Bool, sk: SimpleDoc -> SimpleDoc, fk: Unit -> SimpleDoc): SimpleDoc = 
+        match docs {
+            case Nil => sk(SEmpty)
+            case (_, Empty) :: rs => layoutBest(width, col, rs, alternate, sk, fk)
+            case (iz, Cat(x,y)) :: rs =>
+                layoutBest(width, col, (iz,x) :: (iz,y) :: rs, alternate, sk, fk)
+            case (iz, Nest(n,x)) :: rs => 
+                layoutBest(width, col, (extend(iz,n),x) :: rs, alternate, sk, fk)
+            case (iz, Line(_)) :: rs =>
+                let sk1 = v1 -> sk(SLine(iz, v1));
+                layoutBest(width, String.length(iz), rs, alternate, sk1, fk)
+            case (iz, Group(x)) :: rs =>
+                let fk1 = _ -> layoutBest(width, col, (iz, x) :: rs, alternate, sk, fk);
+                layoutBest(width, col, (iz, flatten(col,x)) :: rs, true, sk, fk1)
+            case (_, Text(t)) :: rs =>
+                if ((width >= 0) && alternate && isTooBig(t,col,width))
+                    fk()
+                else {
+                    let sk1 = v1 -> sk(SText(t, v1));
+                    layoutBest(width, col + String.length(t), rs, alternate, sk1, fk)
+                }
+            case (iz, Column(fn)) :: rs =>
+                layoutBest(width, col, (iz, fn(col)) :: rs, alternate, sk, fk)
+            case (iz, Nesting(fn)) :: rs =>
+                layoutBest(width, col, (iz, fn(String.length(iz))) :: rs, alternate, sk, fk)
+        }
+
+    def isTooBig(text: Str, col: Int32, width: Int32) : Bool = 
+        col + String.length(text) > width
+
+
+    ///
+    /// Pretty print the document to a string.
+    /// Lines are terminated with the operating systems default line terminator.
+    ///
+    pub def prettyPrint(width: Int32, doc: Doc) : Str = 
+        let sb = StringBuilder.new();
+        let simpleDoc = layout(width, doc);
+        prettyPrintHelper(sb, simpleDoc, identity);
+        StringBuilder.toString(sb)
+
+    def prettyPrintHelper(sb: StringBuilder, sdoc: SimpleDoc, cont: Unit -> Unit) : Unit = 
+        match sdoc {
+            case SEmpty => cont()
+            case SText(t,rest) => { 
+                StringBuilder.appendStr(sb, t);
+                prettyPrintHelper(sb, rest, cont)
+            }
+            case SLine(x,rest) => { 
+                StringBuilder.appendLineSeparator(sb);
+                StringBuilder.appendStr(sb, x);
+                prettyPrintHelper(sb, rest, cont)
+            }
+        }
+
 
     // ************************************************************************
     // Primitive printers 
@@ -156,12 +226,18 @@
     ///
     pub def <&>(x: Doc, y: Doc): Doc = x <> line() <> y
 
+    
+
     ///
     /// Concatenate two documents separating with `linebreak`.
     /// This is (<$$>) in PPrint (Haskell).
     ///
     pub def <&&>(x: Doc, y: Doc): Doc = x <> linebreak() <> y
 
+    ///
+    /// Alias for `<&&>`
+    ///
+    pub def vlinebreak(x: Doc, y: Doc): Doc = x <&&> y
 
 
     // ************************************************************************
@@ -190,9 +266,37 @@
     pub def hsep(docs: List[Doc]): Doc = foldDocs((x,y) -> besideSpace(x,y), docs)
 
     ///
+    /// Separate documents vertically with (<&>)
+    ///
+    pub def vsep(docs: List[Doc]): Doc = foldDocs((x,y) -> x <&> y, docs)
+
+    ///
     /// Concatenate documents horizontally (no space).
     ///
     pub def hcat(docs: List[Doc]): Doc= foldDocs((x,y) -> x <> y, docs)
+
+    ///
+    /// Separate documents with (<&&>)
+    ///
+    pub def vcat(docs: List[Doc]): Doc = foldDocs((x,y) -> x <&&> y, docs)
+
+    ///
+    /// `(align d)` renders the document `d` with the nesting level set to 
+    /// the current column.
+    ///
+    pub def align(doc: Doc) :Doc = 
+        column(k -> nesting(i -> nest(k - i, doc)))
+
+    ///
+    /// Implement hanging indentation.
+    ///
+    pub def hang(i: Int32, doc: Doc): Doc = align(nest(i,doc))
+
+    // ///
+    // /// Print an Int32 literal.
+    // ///
+    // pub def int32(i: Int32): Doc = Int32.toString(i) |> text
+
 
     // ************************************************************************
     // Character printers
