@@ -17,6 +17,16 @@
 namespace String2 {
 
     ///
+    /// Concatenate a list of strings into a single string.
+    ///
+    pub def flatten(xs: List[Str]): Str = 
+        let sb = StringBuilder.new();
+        List.iter(s -> StringBuilder.appendStr(ac, s), xs);
+        StringBuilder.toString(sb)
+
+
+
+    ///
     /// Returns the given string `s` as an array of characters.
     ///
     pub def toArray(s: Str): Array[Char] = 

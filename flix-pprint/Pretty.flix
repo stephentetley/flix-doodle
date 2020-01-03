@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- namespace Pretty {
+namespace Pretty {
 
     pub enum Doc {
         case Empty,
