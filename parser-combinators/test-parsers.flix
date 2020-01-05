@@ -17,4 +17,8 @@ def return01() : Result[Int32, Str] =
 def anyChar01() : Result[Char, Str] = 
     StringParser.run(StringParser.anyChar(), "abc")
 
+@test
+def alt01() : Result[Char, Str] = 
+    let parser = StringParser.alt(StringParser.char('A'), StringParser.char('a'));
+    StringParser.run(parser, "abc")
 

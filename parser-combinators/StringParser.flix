@@ -61,7 +61,14 @@ namespace StringParser {
         Parser((_,_,_,_) -> Err(msg))
 
 
-    // def furthest (x: SrcPos, y: SrcPos): SrcPos = if x >= y then x else y
+    def furthest (x: SrcPos, y: SrcPos): SrcPos = if (x >= y) x else y
+
+    pub def alt(p: Parser[ans,t], q: Parser[ans,t]): Parser[ans, t] =
+        Parser((sk, fk, inp, pos) -> 
+            let fkp = { pos1 ->
+                let fkq = pos2 -> fk(furthest(pos1,pos2));
+                apply1(q, sk, fkq, inp, pos) };
+            apply1(p, sk, fkp, inp, pos))
 
     pub def anyChar() : Parser[r, Char] = 
         Parser((sk, fk, inp, pos) -> match Util.charAtSafe(pos, inp) {
@@ -69,24 +76,11 @@ namespace StringParser {
                 case Some(ch) => sk(ch, fk, inp, (pos+1))
             })
 
-
+    pub def char(c: Char) : Parser[r, Char] = 
+        Parser((sk, fk, inp, pos) -> match Util.charAtSafe(pos, inp) {
+                case None => fk(pos)
+                case Some(ch) => 
+                    if (ch == c) sk(ch, fk, inp, (pos+1)) else fk(pos)
+            })
     
-
-    // def apply1(parser: Parser[t], input: Str): Result[(Str, t), Str] = match parser { 
-    //     case Parser(f) => f(input) 
-    // }
-
-
-    // pub def merror(msg: Str): Parser[t] = 
-    //     Parser(_ -> Err(msg))
-
-    // pub def return(x: t): Parser[t] =
-    //     Parser(str -> Ok (str,x))
-
-    // pub def bind (ma: Parser[t], fn: t -> Parser[u]): Parser[u] = 
-    //     Parser(str -> match apply1(ma, str) {
-    //         case Ok(str1, a) => apply1(fn(a), str1)
-    //         case Err(msg) => Err(msg)
-    //     })
-
 }
