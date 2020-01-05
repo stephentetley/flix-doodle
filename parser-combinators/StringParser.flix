@@ -17,35 +17,32 @@
 
 
 
-namespace ParserCombinators {
+namespace StringParser {
     
     type alias SrcPos = Int32
 
     type alias ErrMsg = Str
 
-    type alias Answer[ans] = Result[ans, ErrMsg]
+    type alias FailK[t] = SrcPos -> Result[t, ErrMsg]
 
+    type alias SuccessK[ans, t] = (ans, FailK[t], Str, SrcPos) -> Result[t, ErrMsg]
 
-    type alias FailK[ans] = SrcPos -> Answer[ans]
-
-    type alias SuccessK[r, ans] = (r, FailK[ans], Str, SrcPos) -> Answer[ans]
-
-    pub enum Parser[r, ans] {
-        case Parser((SuccessK[r, ans], FailK[ans], Str, SrcPos) -> Answer[ans])
+    pub enum Parser[ans, t] {
+        case Parser((SuccessK[ans, t], FailK[t], Str, SrcPos) -> Result[t, ErrMsg])
     }
 
-    pub def fail() : Parser[r, ans] = 
+    pub def fail() : Parser[ans, t] = 
         Parser((_, fk, _, pos) -> fk(pos))
 
-    pub def return(x: ans): Parser[r, ans] =
+    pub def return(x: ans): Parser[ans, t] =
         Parser((sk, fk, inp, pos) -> sk(x, fk, inp, pos))
 
-    def apply1(parser: Parser[r, ans], sk: SuccessK[r, ans], fk: FailK[ans], inp: Str, pos: SrcPos): Result[ans, Str] = 
+    def apply1(parser: Parser[ans, t], sk: SuccessK[ans, t], fk: FailK[t], inp: Str, pos: SrcPos): Result[t, ErrMsg] = 
         match parser {
             case Parser(f) => f(sk, fk, inp, pos)
         }
 
-    pub def bind(ma: Parser[r, a], k: a -> Parser[r,b]) : Parser[r,b] = 
+    pub def bind(ma: Parser[a, t], k: a -> Parser[b, t]) : Parser[b, t] = 
         Parser((sk, fk, inp, pos) -> match apply1(ma, sk, fk, inp, pos) { 
                 case Err(msg) => Err(msg)
                 case Ok(ans) => apply1(k(ans), sk, fk, inp, pos)
@@ -53,20 +50,23 @@ namespace ParserCombinators {
 
 
 
-    pub def run(parser: Parser[ans, ans], input: Str): Result[ans, Str] = 
+    pub def run(parser: Parser[t, t], input: Str): Result[t, ErrMsg] = 
         let failk = _ -> Err("error");
         let successk = (x, _, _, _) -> Ok(x);
         match parser {
             case Parser(f) => f(successk, failk, input, 0)
         }
 
-    pub def throwError(msg: Str) : Parser[r, ans] = 
+    pub def throwError(msg: Str) : Parser[ans, t] = 
         Parser((_,_,_,_) -> Err(msg))
 
+
+    // def furthest (x: SrcPos, y: SrcPos): SrcPos = if x >= y then x else y
+
     pub def anyChar() : Parser[r, Char] = 
-        Parser((sk, fk, inp, pos) -> match String2.viewl(inp) {
+        Parser((sk, fk, inp, pos) -> match Util.charAtSafe(pos, inp) {
                 case None => fk(pos)
-                case Some(ch, inp1) => sk(ch, fk, inp1, (pos+1))
+                case Some(ch) => sk(ch, fk, inp, (pos+1))
             })
 
 
