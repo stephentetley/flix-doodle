@@ -57,9 +57,14 @@ namespace StringParser {
             case Parser(f) => f(successk, failk, input, 0)
         }
 
-    pub def throwError(msg: Str) : Parser[ans, t] = 
+    pub def throwError(msg: Str): Parser[ans, t] = 
         Parser((_,_,_,_) -> Err(msg))
 
+    pub def swapError(msg: Str, p: Parser[ans,t]): Parser[ans, t] = 
+        Parser((sk, fk, inp, pos) -> match apply1(p, sk, fk, inp, pos) { 
+                case Err(_) => Err(msg)
+                case Ok(ans) => Ok(ans)
+            })
 
     def furthest (x: SrcPos, y: SrcPos): SrcPos = if (x >= y) x else y
 
@@ -70,17 +75,42 @@ namespace StringParser {
                 apply1(q, sk, fkq, inp, pos) };
             apply1(p, sk, fkp, inp, pos))
 
-    pub def anyChar() : Parser[r, Char] = 
+    pub def ap(mf: Parser[a -> b, t], ma: Parser[a, t]): Parser[b, t] =
+        bind(mf, f -> bind(ma, a -> return(f(a))))
+
+    pub def seqLeft(ma: Parser[a, t], mb: Parser[b, t]): Parser[a, t] =
+        bind(ma, a -> bind(mb, _ -> return(a)))
+
+    pub def seqRight(ma: Parser[a, t], mb: Parser[b, t]): Parser[b, t] =
+        bind(ma, _ -> bind(mb, b -> return(b)))
+
+    pub def anyChar(): Parser[Char, t] = 
         Parser((sk, fk, inp, pos) -> match Util.charAtSafe(pos, inp) {
                 case None => fk(pos)
                 case Some(ch) => sk(ch, fk, inp, (pos+1))
-            })
+            }) |> swapError("anyChar")
 
-    pub def char(c: Char) : Parser[r, Char] = 
+    pub def satisfy(test: Char -> Bool): Parser[Char, t] = 
         Parser((sk, fk, inp, pos) -> match Util.charAtSafe(pos, inp) {
                 case None => fk(pos)
                 case Some(ch) => 
-                    if (ch == c) sk(ch, fk, inp, (pos+1)) else fk(pos)
-            })
+                    if (test(ch)) sk(ch, fk, inp, (pos+1)) else fk(pos)
+            }) |> swapError("satisfy")
+
+
+    pub def char(c: Char): Parser[Char, t] = 
+        satisfy(ch -> ch == c) |> swapError("char")
     
+    pub def horizon(i: Int): Parser[Str, t] = 
+        Parser((sk, fk, inp, pos) -> match Util.trySlice(pos, pos+i, inp) {
+                case None => fk(pos)
+                case Some(s) => sk(s, fk, inp, (pos+1))
+            }) |> swapError("horizon")
+
+    pub def string(needle: Str): Parser[Str, t] = 
+        Parser((sk, fk, inp, pos) -> match Util.trySlice(pos, pos + String.length(needle), inp) {
+                case None => fk(pos)
+                case Some(s) => 
+                    if (s == needle) sk(s, fk, inp, (pos+ String.length(needle))) else fk(pos)
+            })
 }
