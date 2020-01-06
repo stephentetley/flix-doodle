@@ -23,137 +23,150 @@ namespace StringParser {
 
     type alias ErrMsg = Str
 
-    type alias FailK[t] = SrcPos -> Result[t, ErrMsg]
 
-    type alias SuccessK[ans, t] = (ans, FailK[t], Str, SrcPos) -> Result[t, ErrMsg]
-
-    pub enum Parser[ans, t] {
-        case Parser((SuccessK[ans, t], FailK[t], Str, SrcPos) -> Result[t, ErrMsg])
+    pub enum Parser[ans] {
+        case Parser((Str, SrcPos) -> Result[(ans, SrcPos), ErrMsg])
     }
 
-    pub def fail() : Parser[ans, t] = 
-        Parser((_, fk, _, pos) -> fk(pos))
+    pub def fail() : Parser[ans] = Parser((_,_) -> Err("fail"))
 
-    pub def return(x: ans): Parser[ans, t] =
-        Parser((sk, fk, inp, pos) -> sk(x, fk, inp, pos))
+    pub def return(x: ans): Parser[ans] = Parser((_, pos) -> Ok(x, pos))
 
-    def apply1(parser: Parser[ans, t], sk: SuccessK[ans, t], fk: FailK[t], inp: Str, pos: SrcPos): Result[t, ErrMsg] = 
-        match parser {
-            case Parser(f) => f(sk, fk, inp, pos)
-        }
+    def apply1(parser: Parser[ans], inp: Str, pos: SrcPos): Result[(ans, SrcPos), ErrMsg] = 
+        let Parser(f) = parser;
+        f(inp, pos)
+        
 
-    pub def bind(ma: Parser[a, t], k: a -> Parser[b, t]) : Parser[b, t] = 
-        Parser((sk, fk, inp, pos) -> match apply1(ma, sk, fk, inp, pos) { 
+    pub def bind(ma: Parser[a], k: a -> Parser[b]) : Parser[b] = 
+        Parser((inp, pos) -> match apply1(ma, inp, pos) { 
                 case Err(msg) => Err(msg)
-                case Ok(ans) => apply1(k(ans), sk, fk, inp, pos)
+                case Ok(ans, pos1) => apply1(k(ans), inp, pos1)
             })
 
-    pub def fmap(f: a -> b, ma: Parser[a, t]) : Parser[b, t] = 
-        Parser((sk, fk, inp, pos) -> match apply1(ma, sk, fk, inp, pos) { 
+    pub def fmap(f: a -> b, ma: Parser[a]) : Parser[b] = 
+        Parser((inp, pos) -> match apply1(ma, inp, pos) { 
                 case Err(msg) => Err(msg)
-                case Ok(ans) => Ok(f(ans))
+                case Ok(ans, pos1) => Ok(f(ans), pos1)
             })
 
-    pub def run(parser: Parser[t, t], input: Str): Result[t, ErrMsg] = 
-        let failk = _ -> Err("error");
-        let successk = (x, _, _, _) -> Ok(x);
-        match parser {
-            case Parser(f) => f(successk, failk, input, 0)
+    pub def run(parser: Parser[a], input: Str): Result[a, ErrMsg] = 
+        let Parser(f) = parser;
+        match f(input, 0) {
+            case Err(msg) => Err(msg)
+            case Ok((a, _)) => Ok(a)
         }
 
-    pub def throwError(msg: Str): Parser[ans, t] = 
-        Parser((_,_,_,_) -> Err(msg))
+    pub def throwError(msg: Str): Parser[ans] = 
+        Parser((_,_) -> Err(msg))
 
-    pub def swapError(msg: Str, p: Parser[ans,t]): Parser[ans, t] = 
-        Parser((sk, fk, inp, pos) -> match apply1(p, sk, fk, inp, pos) { 
+    pub def swapError(msg: Str, p: Parser[ans]): Parser[ans] = 
+        Parser((inp, pos) -> match apply1(p, inp, pos) { 
                 case Err(_) => Err(msg)
-                case Ok(ans) => Ok(ans)
+                case Ok(ans, pos1) => Ok(ans, pos1)
             })
 
-    pub def option(one: ans, p: Parser[ans,t]): Parser[ans, t] = 
-        Parser((sk, fk, inp, pos) -> match apply1(p, sk, fk, inp, pos) { 
-                case Err(_) => Ok(one)
-                case Ok(ans) => Ok(ans)
+    pub def option(one: ans, p: Parser[ans]): Parser[ans] = 
+        Parser((inp, pos) -> match apply1(p, inp, pos) { 
+                case Err(_) => Ok(one, pos)
+                case Ok(ans, pos1) => Ok(ans, pos1)
             })
 
-    pub def optional(p: Parser[ans, t]): Parser[Option[ans], t] = 
+    pub def optional(p: Parser[ans]): Parser[Option[ans]] = 
         alt(fmap(x -> Some(x), p), return(None))
 
-    def furthest (x: SrcPos, y: SrcPos): SrcPos = if (x >= y) x else y
+    pub def alt(p: Parser[ans], q: Parser[ans]): Parser[ans] =
+        Parser((inp, pos) -> match (apply1(p, inp, pos), apply1(q, inp, pos)) {
+            case (Err(_), Err(_)) => Err("alt")
+            case (Err(_), b) => b
+            case (a, Err(_)) => a
+            case (Ok(a, pos1a), Ok(b, pos1b)) => 
+                if (pos1b > pos1a) 
+                    Ok(b, pos1b)
+                else 
+                    Ok(a, pos1a)
+        })
 
-    pub def alt(p: Parser[ans,t], q: Parser[ans,t]): Parser[ans, t] =
-        Parser((sk, fk, inp, pos) -> 
-            let fkp = { pos1 ->
-                let fkq = pos2 -> fk(furthest(pos1,pos2));
-                apply1(q, sk, fkq, inp, pos) };
-            apply1(p, sk, fkp, inp, pos))
-
-    pub def ap(pf: Parser[a -> b, t], pa: Parser[a, t]): Parser[b, t] =
+    pub def ap(pf: Parser[a -> b], pa: Parser[a]): Parser[b] =
         bind(pf, f -> bind(pa, a -> return(f(a))))
 
-    pub def seqLeft(pa: Parser[a, t], pb: Parser[b, t]): Parser[a, t] =
+    pub def seqLeft(pa: Parser[a], pb: Parser[b]): Parser[a] =
         bind(pa, a -> bind(pb, _ -> return(a)))
 
-    pub def seqRight(pa: Parser[a, t], pb: Parser[b, t]): Parser[b, t] =
+    pub def seqRight(pa: Parser[a], pb: Parser[b]): Parser[b] =
         bind(pa, _ -> bind(pb, b -> return(b)))
 
 
-    pub def satisfies(p: Parser[ans, t], test: ans -> Bool): Parser[ans, t] = 
+    pub def satisfies(p: Parser[ans], test: ans -> Bool): Parser[ans] = 
         bind(p, ans -> if (test(ans)) return(ans) else fail())
 
-    pub def count(i: Int32, p: Parser[ans, t]): Parser[List[ans], t] = countHelper(i, p, Nil)
+    pub def count(i: Int32, p: Parser[ans]): Parser[List[ans]] = 
+        Parser((inp, pos) -> countHelper(i, p, inp, pos, () -> Err("count"), (xs, pos1)-> Ok(xs, pos1)))
 
-    def countHelper(i: Int32, p: Parser[ans, t], acc: List[ans]): Parser[List[ans], t] = 
-        if (i < 0) 
-            return(List.reverse(acc)) 
-        else { 
-            bind(p, v1 -> countHelper(i-1, p, v1 :: acc)) 
+    type alias ListAnswer[ans] = Result[(List[ans], SrcPos), ErrMsg]
+
+    def countHelper(i: Int32, p: Parser[ans], inp: Str, pos: SrcPos, fk: Unit -> ListAnswer[ans], sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
+        if (i <= 0)
+            sk(Nil, pos)
+        else 
+            match apply1(p, inp, pos) {
+                case Err(_) => fk()
+                case Ok(a, pos1) => countHelper(i-1, p, inp, pos1, fk, (xs,posk) -> sk(a :: xs, posk))
+            }
+    
+
+
+    pub def many(p: Parser[ans]): Parser[List[ans]] = 
+        Parser((inp, pos) -> manyHelper(p, inp, pos, (xs, pos1)-> Ok(xs, pos1)))
+
+
+    pub def many1(p: Parser[ans]): Parser[List[ans]] = 
+        bind(p, v1 -> 
+            bind(many(p), vs -> return(v1 :: vs))) |> swapError("many1")
+
+
+    def manyHelper(p: Parser[ans], inp: Str, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
+        match apply1(p, inp, pos) {
+            case Err(_) => sk(Nil, pos)
+            case Ok(a, pos1) => manyHelper(p, inp, pos1, (xs,posk) -> sk(a :: xs, posk))
         }
 
-    pub def many(p: Parser[ans, t]): Parser[List[ans], t] = 
-        alt(many1(p), return(Nil))
-
-    pub def many1(p: Parser[ans, t]): Parser[List[ans], t] = 
-        bind(p, v1 -> 
-            bind(many(p), vs -> return(v1 :: vs)))
-
-    pub def anyChar(): Parser[Char, t] = 
-        Parser((sk, fk, inp, pos) -> match Util.charAtSafe(pos, inp) {
-                case None => fk(pos)
-                case Some(ch) => sk(ch, fk, inp, (pos+1))
-            }) |> swapError("anyChar")
-
-    pub def satisfy(test: Char -> Bool): Parser[Char, t] = 
-        Parser((sk, fk, inp, pos) -> match Util.charAtSafe(pos, inp) {
-                case None => fk(pos)
-                case Some(ch) => 
-                    if (test(ch)) sk(ch, fk, inp, (pos+1)) else fk(pos)
-            }) |> swapError("satisfy")
-
-
-    pub def char(c: Char): Parser[Char, t] = 
-        satisfy(ch -> ch == c) |> swapError("char")
-    
-    pub def horizon(i: Int): Parser[Str, t] = 
-        Parser((sk, fk, inp, pos) -> match Util.trySlice(pos, pos+i, inp) {
-                case None => fk(pos)
-                case Some(s) => sk(s, fk, inp, (pos+1))
-            }) |> swapError("horizon")
-
-    pub def string(needle: Str): Parser[Str, t] = 
-        Parser((sk, fk, inp, pos) -> match Util.trySlice(pos, pos + String.length(needle), inp) {
-                case None => fk(pos)
-                case Some(s) => 
-                    if (s == needle) sk(s, fk, inp, (pos+ String.length(needle))) else fk(pos)
+    pub def anyChar(): Parser[Char] = 
+        Parser((inp, pos) -> match Util.charAtSafe(pos, inp) {
+                case None => Err("anyChar")
+                case Some(ch) => Ok(ch, pos+1)
             })
 
-    pub def digit(): Parser[Char, t] = 
+    pub def satisfy(test: Char -> Bool): Parser[Char] = 
+        Parser((inp, pos) -> match Util.charAtSafe(pos, inp) {
+                case None => Err("satisfy")
+                case Some(ch) => 
+                    if (test(ch)) Ok(ch, pos+1) else Err("satisfy")
+            }) 
+
+
+    pub def char(c: Char): Parser[Char] = 
+        satisfy(ch -> ch == c) |> swapError("char")
+    
+    pub def horizon(i: Int): Parser[Str] = 
+        Parser((inp, pos) -> match Util.trySlice(pos, pos+i, inp) {
+                case None => Err("horizon")
+                case Some(s) => Ok(s, pos+i)
+            })
+
+    pub def string(needle: Str): Parser[Str] = 
+        Parser((inp, pos) -> match Util.trySlice(pos, pos + String.length(needle), inp) {
+                case None => Err("string")
+                case Some(s) => 
+                    if (s == needle) Ok(needle, pos + String.length(needle)) else Err("string")
+            })
+
+    pub def digit(): Parser[Char] = 
         satisfy(c -> Char.isDigit(c))
 
-    pub def letter(): Parser[Char, t] = 
+    pub def letter(): Parser[Char] = 
         satisfy(c -> Char.isLetter(c))
 
-    pub def whiteSpace(): Parser[Char, t] = 
+    pub def whiteSpace(): Parser[Char] = 
         satisfy(c -> Char.isWhiteSpace(c))
 
 }
