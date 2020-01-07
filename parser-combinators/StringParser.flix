@@ -130,6 +130,62 @@ namespace StringParser {
             case Ok(a, pos1) => manyHelper(p, inp, pos1, (xs,posk) -> sk(a :: xs, posk))
         }
 
+    type alias SkipAnswer = Result[(Unit, SrcPos), ErrMsg]
+
+    pub def skipMany(p: Parser[ans]): Parser[Unit] = 
+        Parser((inp, pos) -> skipManyHelper(p, inp, pos, pos1-> Ok((), pos1)))
+
+    pub def skipMany1(p: Parser[ans]): Parser[Unit] = 
+        seqRight(p, skipMany(p))
+
+
+    def skipManyHelper(p: Parser[ans], inp: Str, pos: SrcPos, sk: SrcPos -> SkipAnswer): SkipAnswer = 
+        match apply1(p, inp, pos) {
+            case Err(_) => sk(pos)
+            case Ok(_, pos1) => skipManyHelper(p, inp, pos1, posk -> sk(posk))
+        }
+
+    pub def sepBy(p: Parser[ans], sep: Parser[sep]): Parser[List[ans]] = 
+        Parser((inp, pos) -> sepByHelper(p, sep, inp, pos, (xs,pos1)-> Ok(xs, pos1)))
+
+
+    def sepByHelper(p: Parser[ans], sep: Parser[sep], inp: Str, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
+        match apply1(p, inp, pos) {
+            case Err(_) => sk(Nil, pos)
+            case Ok(a, pos1) => manyHelper(seqRight(sep, p), inp, pos1, (xs,posk) -> sk(a :: xs, posk))
+        }
+
+    pub def sepBy1(p: Parser[ans], sep: Parser[sep]): Parser[List[ans]] = 
+        bind(p, v1 -> 
+            bind(many(seqRight(sep,p)), vs -> return(v1 :: vs))) |> swapError("sepBy1")
+
+    pub def endBy(p: Parser[ans], sep: Parser[sep]): Parser[List[ans]] = 
+        many(seqLeft(p, sep))
+
+    pub def endBy1(p: Parser[ans], sep: Parser[sep]): Parser[List[ans]] = 
+        many1(seqLeft(p, sep)) |> swapError("endBy1")
+
+    pub def sepEndBy(p: Parser[ans], sep: Parser[sep]): Parser[List[ans]] = 
+        Parser((inp, pos) -> sepEndByHelper(p, sep, inp, pos, (xs,pos1)-> Ok(xs, pos1)))
+
+    def sepEndByHelper(p: Parser[ans], sep: Parser[sep], inp: Str, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
+        match apply1(p, inp, pos) {
+            case Err(_) => sk(Nil, pos)
+            case Ok(a, pos1) => match apply1(sep, inp, pos1) {
+                case Err(_) => sk(a :: Nil, pos)
+                case Ok(_, pos2) => sepEndByHelper(p, sep, inp, pos2, (xs,posk) -> sk(a :: xs, posk))
+            }
+        }
+
+    pub def sepEndBy1(p: Parser[ans], sep: Parser[sep]): Parser[List[ans]] = 
+        Parser((inp, pos) -> match apply1(p, inp, pos) {
+            case Err(_) => Err("sepEndBy1")
+            case Ok(a, pos1) => match apply1(sep, inp, pos1) {
+                case Err(_) => Ok(a :: Nil, pos1)
+                case Ok(_, pos2) => sepEndByHelper(p, sep, inp, pos2, (xs,posk) -> Ok(a :: xs, posk))
+            }
+        })
+
     pub def anyChar(): Parser[Char] = 
         Parser((inp, pos) -> match Util.charAtSafe(pos, inp) {
                 case None => Err("anyChar")

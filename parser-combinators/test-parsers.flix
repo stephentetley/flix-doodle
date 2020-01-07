@@ -54,4 +54,70 @@ def many102() : Result[List[Char], Str] =
     let parser = StringParser.many1(StringParser.letter());
     StringParser.run(parser, "123") 
 
-    
+
+@test
+def skipMany01() : Result[Char, Str] = 
+    let parser = 
+        StringParser.seqRight(StringParser.skipMany(StringParser.digit()), StringParser.letter());
+    StringParser.run(parser, "123A") 
+
+@test
+def skipMany101() : Result[Char, Str] = 
+    let parser = 
+        StringParser.seqRight(StringParser.skipMany1(StringParser.digit()), StringParser.letter());
+    StringParser.run(parser, "123A") 
+
+@test
+def sepBy01() : Result[List[Char], Str] = 
+    let parser = 
+        StringParser.sepBy(StringParser.digit(), StringParser.char('#'));
+    StringParser.run(parser, "1#2#3") 
+
+@test
+def sepBy101() : Result[List[Char], Str] = 
+    let parser = 
+        StringParser.sepBy1(StringParser.digit(), StringParser.char('#'));
+    StringParser.run(parser, "1#2#3") 
+
+@test
+def endBy01() : Result[List[Char], Str] = 
+    let parser = 
+        StringParser.endBy(StringParser.digit(), StringParser.char('#'));
+    StringParser.run(parser, "1#2#3#") 
+
+@test
+def endBy101() : Result[List[Char], Str] = 
+    let parser = 
+        StringParser.endBy1(StringParser.digit(), StringParser.char('#'));
+    StringParser.run(parser, "1#2#3#") 
+
+@test
+def sepEndBy01() : Result[List[Char], Str] = 
+    let parser = 
+        StringParser.sepEndBy(StringParser.digit(), StringParser.char('#'));
+    StringParser.run(parser, "1#2#3#") 
+
+@test
+def sepEndBy02() : Result[List[Char], Str] = 
+    let parser = 
+        StringParser.sepEndBy(StringParser.digit(), StringParser.char('#'));
+    StringParser.run(parser, "1#2#3") 
+
+@test
+def sepEndBy101() : Result[List[Char], Str] = 
+    let parser = 
+        StringParser.sepEndBy1(StringParser.digit(), StringParser.char('#'));
+    StringParser.run(parser, "1#2#3#") 
+
+@test
+def sepEndBy102() : Result[List[Char], Str] = 
+    let parser = 
+        StringParser.sepEndBy1(StringParser.digit(), StringParser.char('#'));
+    StringParser.run(parser, "1#2#3") 
+
+// fails
+@test
+def sepEndBy103() : Result[List[Char], Str] = 
+    let parser = 
+        StringParser.sepEndBy1(StringParser.digit(), StringParser.char('#'));
+    StringParser.run(parser, "This fails...") 
