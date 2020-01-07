@@ -117,7 +117,40 @@ def sepEndBy102() : Result[List[Char], Str] =
 
 // fails
 @test
-def sepEndBy103() : Result[List[Char], Str] = 
+def sepEndBy103(): Result[List[Char], Str] = 
     let parser = 
         StringParser.sepEndBy1(StringParser.digit(), StringParser.char('#'));
     StringParser.run(parser, "This fails...") 
+
+@test
+def choice01(): Result[Char, Str] = 
+    let parser = 
+        StringParser.choice(StringParser.digit() :: StringParser.char('#') :: Nil);
+    StringParser.run(parser, "#") 
+
+@test
+def manyTill01(): Result[List[Char], Str] = 
+    let parser = 
+        StringParser.manyTill(StringParser.digit(), StringParser.char('#'));
+    StringParser.run(parser, "12345#") 
+
+@test
+def eof01(): Result[Unit, Str] = 
+    let parser = StringParser.eof();
+    StringParser.run(parser, "")
+
+// fails
+@test
+def notFollowedBy01(): Result[Char, Str] = 
+    let parser = StringParser.seqLeft(StringParser.digit(), StringParser.notFollowedBy(StringParser.char('#')));
+    StringParser.run(parser, "1#")
+
+@test
+def oneOf01(): Result[Char, Str] = 
+    let parser = StringParser.oneOf('a' :: 'b' :: 'c' :: Nil);
+    StringParser.run(parser, "c")
+
+@test
+def noneOf01(): Result[Char, Str] = 
+    let parser = StringParser.noneOf('a' :: 'b' :: 'c' :: Nil);
+    StringParser.run(parser, "d")

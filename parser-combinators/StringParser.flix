@@ -186,6 +186,15 @@ namespace StringParser {
             }
         })
 
+    pub def choice(ps: List[Parser[ans]]): Parser[ans] = 
+        Parser((inp, pos) -> match ps {
+                case Nil => Err("choice")
+                case p :: rs =>  match apply1(p, inp, pos) {
+                    case Ok(a, pos1) => Ok(a, pos1)
+                    case Err(_) => apply1(choice(rs), inp, pos)
+                }
+            })
+
     pub def anyChar(): Parser[Char] = 
         Parser((inp, pos) -> match Util.charAtSafe(pos, inp) {
                 case None => Err("anyChar")
@@ -199,6 +208,35 @@ namespace StringParser {
                     if (test(ch)) Ok(ch, pos+1) else Err("satisfy")
             }) 
 
+    pub def manyTill(p: Parser[ans], end: Parser[sep]): Parser[List[ans]] = 
+        Parser((inp, pos) -> manyTillHelper(p, end, inp, pos, (xs, posk) -> Ok(xs, posk), () -> Err("manyTill")))
+
+    def manyTillHelper(p: Parser[ans], end: Parser[sep], inp: Str, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans], fk: Unit -> ListAnswer[ans]): ListAnswer[ans] = 
+        match apply1(end, inp, pos) {
+            case Ok(_, pos1) => sk(Nil, pos1)
+            case Err(_) => match apply1(p, inp, pos) {
+                case Err(_) => fk()
+                case Ok(a, pos1) => manyTillHelper(p, end, inp, pos1, (xs,posk) -> sk(a :: xs, posk), fk)
+            }
+        }
+
+    // TODO chain combinators
+
+    pub def eof() : Parser[Unit] = 
+        Parser((inp, pos) -> if (pos >= String.length(inp)) Ok((), pos) else Err("eof"))
+
+    pub def notFollowedBy(p: Parser[ans]): Parser[Unit] = 
+        Parser((inp, pos) -> match apply1(p, inp, pos) {
+            case Err(_) => Ok((), pos)
+            case Ok(_,_) => Err("notFollowedBy")
+        })
+
+
+    pub def oneOf(cs: List[Char]): Parser[Char] = 
+        satisfy(ch -> List.memberOf(ch, cs)) |> swapError("oneOf")
+
+    pub def noneOf(cs: List[Char]): Parser[Char] = 
+        satisfy(ch -> !List.memberOf(ch, cs)) |> swapError("noneOf")
 
     pub def char(c: Char): Parser[Char] = 
         satisfy(ch -> ch == c) |> swapError("char")
