@@ -147,10 +147,48 @@ def notFollowedBy01(): Result[Char, Str] =
 
 @test
 def oneOf01(): Result[Char, Str] = 
-    let parser = StringParser.oneOf('a' :: 'b' :: 'c' :: Nil);
+    let parser = StringParser.oneOf(['a', 'b', 'c']);
     StringParser.run(parser, "c")
 
 @test
 def noneOf01(): Result[Char, Str] = 
-    let parser = StringParser.noneOf('a' :: 'b' :: 'c' :: Nil);
+    let parser = StringParser.noneOf(['a', 'b', 'c']);
     StringParser.run(parser, "d")
+
+
+@test
+def upper01(): Result[Char, Str] = 
+    let parser = StringParser.upper();
+    StringParser.run(parser, "A")
+
+@test
+def alphaNum01(): Result[Char, Str] = 
+    let parser = StringParser.alphaNum();
+    StringParser.run(parser, "A")
+
+@test
+def alphaNum02(): Result[Char, Str] = 
+    let parser = StringParser.alphaNum();
+    StringParser.run(parser, "0")
+
+
+@test
+def octDigit01(): Result[List[Char], Str] = 
+    let parser = StringParser.many1(StringParser.octDigit());
+    StringParser.run(parser, "012345678")
+
+@test
+def hexDigit01(): Result[List[Char], Str] = 
+    let parser = StringParser.many1(StringParser.hexDigit());
+    StringParser.run(parser, "0123ABCDEFGH")
+
+@test
+def spaces01(): Result[Char, Str] = 
+    let parser = StringParser.seqRight(StringParser.spaces(), StringParser.alphaNum());
+    StringParser.run(parser, "        0")
+
+@test
+def int3201(): Result[Int32, Str] = 
+    let parser = StringParser.int32();
+    StringParser.run(parser, "-1")
+

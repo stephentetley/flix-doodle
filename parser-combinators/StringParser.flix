@@ -49,6 +49,12 @@ namespace StringParser {
                 case Ok(ans, pos1) => Ok(f(ans), pos1)
             })
 
+
+    pub def liftM2(f: (a,b) -> ans, p1: Parser[a], p2: Parser[b]): Parser[ans] = 
+        bind(p1, v1 -> 
+            bind(p2, v2 -> return(f(v1,v2))))
+
+
     pub def run(parser: Parser[a], input: Str): Result[a, ErrMsg] = 
         let Parser(f) = parser;
         match f(input, 0) {
@@ -113,6 +119,8 @@ namespace StringParser {
                 case Ok(a, pos1) => countHelper(i-1, p, inp, pos1, fk, (xs,posk) -> sk(a :: xs, posk))
             }
     
+    pub def between(open: Parser[z1], close: Parser[z2], p: Parser[ans]): Parser[ans] = 
+        seqRight(open, seqLeft(p, close))
 
 
     pub def many(p: Parser[ans]): Parser[List[ans]] = 
@@ -232,11 +240,11 @@ namespace StringParser {
         })
 
 
-    pub def oneOf(cs: List[Char]): Parser[Char] = 
-        satisfy(ch -> List.memberOf(ch, cs)) |> swapError("oneOf")
+    pub def oneOf(cs: Array[Char]): Parser[Char] = 
+        satisfy(ch -> Array.memberOf(ch, cs)) |> swapError("oneOf")
 
-    pub def noneOf(cs: List[Char]): Parser[Char] = 
-        satisfy(ch -> !List.memberOf(ch, cs)) |> swapError("noneOf")
+    pub def noneOf(cs: Array[Char]): Parser[Char] = 
+        satisfy(ch -> !Array.memberOf(ch, cs)) |> swapError("noneOf")
 
     pub def char(c: Char): Parser[Char] = 
         satisfy(ch -> ch == c) |> swapError("char")
@@ -254,13 +262,82 @@ namespace StringParser {
                     if (s == needle) Ok(needle, pos + String.length(needle)) else Err("string")
             })
 
-    pub def digit(): Parser[Char] = 
-        satisfy(c -> Char.isDigit(c))
+    pub def upper(): Parser[Char] = satisfy(Char.isUpperCase)
 
-    pub def letter(): Parser[Char] = 
-        satisfy(c -> Char.isLetter(c))
+    pub def lower(): Parser[Char] = satisfy(Char.isLowerCase)
 
-    pub def whiteSpace(): Parser[Char] = 
-        satisfy(c -> Char.isWhiteSpace(c))
+    pub def letter(): Parser[Char] = satisfy(Char.isLetter)
+
+    pub def alphaNum(): Parser[Char] = alt(letter(), digit())
+
+    pub def digit(): Parser[Char] = satisfy(Char.isDigit)
+
+    pub def octDigit(): Parser[Char] = 
+        oneOf(['0', '1', '2', '3', '4', '5', '6', '7'])
+
+    pub def hexDigit(): Parser[Char] = 
+        oneOf(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'a', 'b', 'c', 'd', 'e', 'f'])
+
+    // TODO newline() 
+
+    pub def tab(): Parser[Char] = char('\t')
+
+    pub def space(): Parser[Unit] = satisfy(Char.isWhiteSpace) |> fmap(_ -> ())
+
+    pub def spaces(): Parser[Unit] = skipMany(satisfy(Char.isWhiteSpace))
+
+    pub def lexeme(p: Parser[ans]): Parser[ans] = seqLeft(p, spaces())
+
+    pub def symbol(s: Str): Parser[ans] = lexeme(string(s))
+
+    pub def parens(p: Parser[ans]): Parser[ans] = between(symbol("("), symbol(")"), p)
+
+    pub def braces(p: Parser[ans]): Parser[ans] = between(symbol("{"), symbol("}"), p)
+
+    pub def brackets(p: Parser[ans]): Parser[ans] = between(symbol("<"), symbol(">"), p)
+
+    pub def squares(p: Parser[ans]): Parser[ans] = between(symbol("["), symbol("]"), p)
+
+    pub def semi(): Parser[Str] = symbol(";")
+
+    pub def comma(): Parser[Str] = symbol(",")
+
+    pub def colon(): Parser[Str] = symbol(":")
+
+    pub def dot(): Parser[Str] = symbol(".")
+
+    pub def semiSep(p: Parser[ans]): Parser[List[ans]] = sepBy(p, semi())
+
+    pub def semiSep1(p: Parser[ans]): Parser[List[ans]] = sepBy1(p, semi())
+
+    pub def commaSep(p: Parser[ans]): Parser[List[ans]] = sepBy(p, comma())
+
+    pub def commaSep1(p: Parser[ans]): Parser[List[ans]] = sepBy1(p, comma())
+
+    // TODO - charLiteral and stringLiteral
+
+    def readInt32(s: Str): Result[Int32, ErrMsg] = try {
+        let i = native method flix.runtime.library.ReadShowWrapper.ReadInt(s) as Int;
+        Ok(i)
+    } catch {
+        case _: ##java.lang.NumberFormatException => Err("readInt")
+    }
+
+    def sign(): Parser[Str] = 
+        option("", alt(string("+"), string("-")))
+
+    def digits(): Parser[Str] = 
+        many1(digit()) |> fmap(List.toString)
+
+    def intString(): Parser[Str] = 
+        liftM2((x,y) -> x + y, sign(), digits())
+
+    def primInt32(): Parser[Int32] =
+        bind(intString(), v1 -> match readInt32(v1) {
+            case Err(_) => throwError("int32")
+            case Ok(i) => return(i)
+        })
+
+    pub def int32(): Parser[Int32] = lexeme(primInt32())
 
 }
