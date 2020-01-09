@@ -33,14 +33,14 @@ namespace Pretty {
         case SLine(Str, SimpleDoc)
     }
 
-    def extend(s: Str, i: Int32): Str = 
-        s + String.repeat(i, " ")
+    def extend(s: Str, n: Int32): Str = 
+        s + String.repeat(" ", n)
 
 
     def flatten(columnPos: Int32, doc: Doc) : Doc =
         flattenHelper(columnPos, 0, doc, (x,y) -> (x,y)) |> snd
 
-    def flattenHelper (column: Int32, nest: Int32, doc: Doc, cont : (Int32, Doc) -> (Int32, Doc)): (Int32, Doc) = 
+    def flattenHelper(column: Int32, nest: Int32, doc: Doc, cont : (Int32, Doc) -> (Int32, Doc)): (Int32, Doc) = 
         match doc {
             case Empty => cont(column, Empty)
             case Text(s) => cont(column + String.length(s), doc)
@@ -145,7 +145,7 @@ namespace Pretty {
     /// Undocumented - used by `align`.
     /// `nesting` gives access to the current nesting position.
     /// The nesting position is not the same as the column position.
-    pub def nesting (f: Int32 -> Doc): Doc = Nesting(f)
+    pub def nesting(f: Int32 -> Doc): Doc = Nesting(f)
 
     ///
     /// Use the `group` combinator to specify alternate layouts.
@@ -243,21 +243,46 @@ namespace Pretty {
     // ************************************************************************
     // List concatenation 
 
-    pub def foldDocs (op: (Doc, Doc) -> Doc, docs: List[Doc]): Doc = 
+    pub def foldDocs(op: (Doc, Doc) -> Doc, docs: List[Doc]): Doc = 
         match docs {
             case Nil => empty()
             case x :: rs => foldDocsHelper(op, x, rs, identity)
         }
 
-    def foldDocsHelper (op: (Doc, Doc) -> Doc, acc: Doc, docs:List[Doc], cont: Doc -> Doc): Doc = 
+    def foldDocsHelper(op: (Doc, Doc) -> Doc, acc: Doc, docs:List[Doc], cont: Doc -> Doc): Doc = 
         match docs {
             case Nil => cont(acc)
             case x :: rs => foldDocsHelper(op, op(acc,x), rs, cont)
         }
 
-    pub def punctuate(separator: Doc, docs:List[Doc]): Doc =
-        foldDocs((l,r) -> l <> separator <> r, docs)
+    pub def punctuate(sep: Doc, docs:List[Doc]): Doc =
+        foldDocs((l,r) -> l <> sep <> r, docs)
     
+    ///
+    /// Punctuate the list of documents with the separator `sep` and bookend them 
+    /// with `left` and `right`.
+    ///
+    pub def encloseSep(left:Doc, right:Doc, sep: Doc, docs: List[Doc]): Doc = 
+        encloseSepHelper(sep, docs, left, d -> d <> right)
+
+    def encloseSepHelper(sep: Doc, docs: List[Doc], acc: Doc, cont: Doc -> Doc): Doc = 
+            match docs {
+                case Nil => cont(acc)
+                case x :: Nil => { 
+                    let acc1 = acc <!!> x;
+                    cont(acc1)
+                }
+                case x :: rs => {
+                    let acc1 = acc <!!> x <> sep;
+                    encloseSepHelper(sep, rs, acc1, cont)
+                }
+            }
+
+    ///
+    /// Enclose in parens and separate with comma (a,b,c,...)
+    ///
+    pub def tupled(docs: List[Doc]) : Doc = encloseSep(lparen(), rparen(), comma(), docs)
+
     ///
     /// Separate documents horizontally with a space.
     ///
@@ -293,6 +318,11 @@ namespace Pretty {
     pub def hang(i: Int32, doc: Doc): Doc = align(nest(i,doc))
 
     ///
+    /// Indent the document `doc` with `i` spaces.
+    ///
+    pub def indent(i: Int32, doc: Doc): Doc = hang(i, repeatString(" ", i) <> doc)
+
+    ///
     /// Print an Int8 literal.
     ///
     pub def int8(i: Int8): Doc = Util.showInt8(i) |> text
@@ -312,6 +342,22 @@ namespace Pretty {
     ///
     pub def int64(i: Int64): Doc = Util.showInt64(i) |> text
 
+    ///
+    /// Print an float32 literal.
+    ///
+    pub def float32(i: Float32): Doc = Util.showFloat32(i) |> text
+
+    ///
+    /// Print an float64 literal.
+    ///
+    pub def float64(i: Float64): Doc = Util.showFloat64(i) |> text
+
+
+    pub def repeatString(s: Str, n: Int32): Doc = 
+        String.repeat(s, n) |> text
+
+    pub def repeat(d: Doc, n: Int32): Doc = 
+        List.repeat(d, n) |> hcat
 
     // ************************************************************************
     // Character printers
@@ -404,7 +450,7 @@ namespace Pretty {
     ///
     /// Generate a document of n spaces
     ///
-    pub def spaces(n:int): Doc = text <| String.repeat(n, " ")
+    pub def spaces(n:int): Doc = repeatString(" ", n)
 
     ///
     /// Enclose the document body between `l` (left) and `r` (right).

@@ -30,4 +30,10 @@ namespace Util {
     pub def showInt64(i: Int64): Str = 
         native method flix.runtime.library.ReadShowWrapper.ValueOfLong(i) as Str
 
+    pub def showFloat32(d: Float32): Str = 
+        native method flix.runtime.library.ReadShowWrapper.ValueOfFloat(d) as Str
+
+    pub def showFloat64(d: Float64): Str = 
+        native method flix.runtime.library.ReadShowWrapper.ValueOfDouble(d) as Str
+
 }
