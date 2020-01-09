@@ -292,10 +292,25 @@ namespace Pretty {
     ///
     pub def hang(i: Int32, doc: Doc): Doc = align(nest(i,doc))
 
-    // ///
-    // /// Print an Int32 literal.
-    // ///
-    // pub def int32(i: Int32): Doc = Int32.toString(i) |> text
+    ///
+    /// Print an Int8 literal.
+    ///
+    pub def int8(i: Int8): Doc = Util.showInt8(i) |> text
+
+    ///
+    /// Print an Int16 literal.
+    ///
+    pub def int16(i: Int16): Doc = Util.showInt16(i) |> text
+
+    ///
+    /// Print an Int32 literal.
+    ///
+    pub def int32(i: Int32): Doc = Util.showInt32(i) |> text
+
+    ///
+    /// Print an Int64 literal.
+    ///
+    pub def int64(i: Int64): Doc = Util.showInt64(i) |> text
 
 
     // ************************************************************************
