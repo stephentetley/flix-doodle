@@ -192,3 +192,13 @@ def int3201(): Result[Int32, Str] =
     let parser = StringParser.int32();
     StringParser.run(parser, "-1")
 
+@test
+def tempReadInt3201(): Result[Int32, Str] = Util.readInt32("-1")
+
+@test
+def int3202(): Result[List[Int32], Str] = 
+    let parser = StringParser.sepBy(StringParser.int32(), StringParser.comma());
+    StringParser.run(parser, "-1,0,1000,999,3,-10,99,6")
+
+
+

@@ -316,12 +316,6 @@ namespace StringParser {
 
     // TODO - charLiteral and stringLiteral
 
-    def readInt32(s: Str): Result[Int32, ErrMsg] = try {
-        let i = native method flix.runtime.library.ReadShowWrapper.ReadInt(s) as Int;
-        Ok(i)
-    } catch {
-        case _: ##java.lang.NumberFormatException => Err("readInt")
-    }
 
     def sign(): Parser[Str] = 
         option("", alt(string("+"), string("-")))
@@ -332,12 +326,36 @@ namespace StringParser {
     def intString(): Parser[Str] = 
         liftM2((x,y) -> x + y, sign(), digits())
 
+    def primInt8(): Parser[Int8] =
+        bind(intString(), v1 -> match Util.readInt8(v1) {
+            case Err(_) => throwError("int8")
+            case Ok(i) => return(i)
+        })
+
+    pub def int8(): Parser[Int8] = lexeme(primInt8())
+
+    def primInt16(): Parser[Int16] =
+        bind(intString(), v1 -> match Util.readInt16(v1) {
+            case Err(_) => throwError("int16")
+            case Ok(i) => return(i)
+        })
+
+    pub def int16(): Parser[Int16] = lexeme(primInt16())
+
     def primInt32(): Parser[Int32] =
-        bind(intString(), v1 -> match readInt32(v1) {
+        bind(intString(), v1 -> match Util.readInt32(v1) {
             case Err(_) => throwError("int32")
             case Ok(i) => return(i)
         })
 
     pub def int32(): Parser[Int32] = lexeme(primInt32())
 
+    def primInt64(): Parser[Int64] =
+        bind(intString(), v1 -> match Util.readInt64(v1) {
+            case Err(_) => throwError("int64")
+            case Ok(i) => return(i)
+        })
+
+    pub def int64(): Parser[Int64] = lexeme(primInt64())
+    
 }

@@ -16,7 +16,26 @@
 
 package flix.runtime.library;
 
+// Drop this in main/src/flix/runtime/library
+// and rebuild in IntelliJ
+
 public class ReadShowWrapper {
+
+    public static String ValueOfByte(byte i) {
+        return String.valueOf(i);
+    }
+
+    public static byte ReadByte(String s) throws Exception {
+        return Byte.parseByte(s.trim());
+    }
+
+    public static String ValueOfShort(short i) {
+        return String.valueOf(i);
+    }
+
+    public static short ReadShort(String s) throws Exception {
+        return Short.parseShort(s.trim());
+    }
 
     public static String ValueOfInt(int i) {
         return String.valueOf(i);
@@ -26,5 +45,28 @@ public class ReadShowWrapper {
         return Integer.parseInt(s.trim());
     }
 
+    public static String ValueOfLong(long i) {
+        return String.valueOf(i);
+    }
+
+    public static long ReadLong(String s) throws Exception {
+        return Long.parseLong(s.trim());
+    }
+
+    public static String ValueOfFloat(float d) {
+        return String.valueOf(d);
+    }
+
+    public static float ReadFloat(String s) throws Exception {
+        return Float.parseFloat(s.trim());
+    }
+
+    public static String ValueOfDouble(double d) {
+        return String.valueOf(d);
+    }
+
+    public static double ReadDouble(String s) throws Exception {
+        return Double.parseDouble(s.trim());
+    }
 
 }
