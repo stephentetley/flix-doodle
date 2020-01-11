@@ -42,4 +42,12 @@ namespace Util {
     } catch {
         case _: ##java.lang.NumberFormatException => Err("readInt64")
     }
+
+    pub def readBigInt(s: Str): Result[BigInt, Str] = try {
+        let i = native method flix.runtime.library.ReadShowWrapper.ReadBigInteger(s) as BigInt;
+        Ok(i)
+    } catch {
+        case _: ##java.lang.NumberFormatException => Err("readBigInt")
+    }
+
 }

@@ -36,4 +36,7 @@ namespace Util {
     pub def showFloat64(d: Float64): Str = 
         native method flix.runtime.library.ReadShowWrapper.ValueOfDouble(d) as Str
 
+    pub def showBigInt(i: BigInt): Str = 
+        native method flix.runtime.library.ReadShowWrapper.ValueOfBigInteger(i) as Str
+
 }

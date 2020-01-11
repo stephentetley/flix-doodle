@@ -50,10 +50,27 @@ namespace StringParser {
             })
 
 
-    pub def liftM2(f: (a,b) -> ans, p1: Parser[a], p2: Parser[b]): Parser[ans] = 
+    pub def liftM2(f: (a, b) -> ans, p1: Parser[a], p2: Parser[b]): Parser[ans] = 
         bind(p1, v1 -> 
             bind(p2, v2 -> return(f(v1,v2))))
 
+    pub def liftM3(f: (a, b, c) -> ans, p1: Parser[a], p2: Parser[b], p3: Parser[c]): Parser[ans] = 
+        bind(p1, v1 -> 
+            bind(p2, v2 -> 
+                bind(p3, v3 -> return(f(v1, v2, v3)))))
+
+    pub def liftM4(f: (a, b, c, d) -> ans, p1: Parser[a], p2: Parser[b], p3: Parser[c], p4: Parser[d]): Parser[ans] = 
+        bind(p1, v1 -> 
+            bind(p2, v2 -> 
+                bind(p3, v3 -> 
+                    bind(p4, v4 -> return(f(v1, v2, v3, v4))))))
+
+    pub def liftM5(f: (a, b, c, d, e) -> ans, p1: Parser[a], p2: Parser[b], p3: Parser[c], p4: Parser[d], p5: Parser[e]): Parser[ans] = 
+        bind(p1, v1 -> 
+            bind(p2, v2 -> 
+                bind(p3, v3 -> 
+                    bind(p4, v4 -> 
+                        bind(p5, v5 -> return(f(v1, v2, v3, v4, v5)))))))
 
     pub def run(parser: Parser[a], input: Str): Result[a, ErrMsg] = 
         let Parser(f) = parser;
@@ -229,6 +246,31 @@ namespace StringParser {
         }
 
     // TODO chain combinators
+    pub def chainl1(p: Parser[a], op: Parser[(a, a) -> a]): Parser[a] = 
+        bind(p, v1 -> chainl1Helper(p, op, v1))
+
+    def chainl1Helper(p: Parser[a], op: Parser[(a, a) -> a], x: a): Parser[a] = 
+        alt(bind(op, f -> bind(p, v1 -> chainl1Helper(p, op, f(x, v1)))), 
+            return(x))
+
+
+    pub def chainl(p: Parser[a], op: Parser[a -> a -> a], x: a): Parser[a] = 
+        alt(chainl1(p,op), return(x))
+
+
+    def chainr1Helper(p: Parser[a], op: Parser[(a, a) -> a], x: a): Parser[a] = 
+        alt(chainr1Step(p, op, x), return(x))
+
+    def chainr1Step(p: Parser[a], op: Parser[(a, a) -> a], x: a): Parser[a] = 
+        bind(op, f -> 
+            bind(bind(p, v1 -> chainr1Helper(p, op, v1)), y -> 
+                bind(chainr1Helper(p,op, f(x,y)), ans -> return(ans))))
+
+    pub def chainr1(p: Parser[a], op: Parser[(a, a) -> a]): Parser[a] = 
+        bind(p, v1 -> chainr1Helper(p, op, v1))
+
+    pub def chainr(p: Parser[a], op: Parser[(a, a) -> a], x: a): Parser[a] = 
+        alt(chainr1(p, op), return(x))
 
     pub def eof() : Parser[Unit] = 
         Parser((inp, pos) -> if (pos >= String.length(inp)) Ok((), pos) else Err("eof"))
@@ -357,5 +399,13 @@ namespace StringParser {
         })
 
     pub def int64(): Parser[Int64] = lexeme(primInt64())
+
+    def primBigInt(): Parser[BigInt] =
+        bind(intString(), v1 -> match Util.readBigInt(v1) {
+            case Err(_) => throwError("bigInt")
+            case Ok(i) => return(i)
+        })
+
+    pub def bigInt(): Parser[BigInt] = lexeme(primBigInt())
     
 }

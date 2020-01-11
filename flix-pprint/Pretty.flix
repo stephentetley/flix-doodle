@@ -345,13 +345,17 @@ namespace Pretty {
     ///
     /// Print an float32 literal.
     ///
-    pub def float32(i: Float32): Doc = Util.showFloat32(i) |> text
+    pub def float32(d: Float32): Doc = Util.showFloat32(d) |> text
 
     ///
     /// Print an float64 literal.
     ///
-    pub def float64(i: Float64): Doc = Util.showFloat64(i) |> text
+    pub def float64(d: Float64): Doc = Util.showFloat64(d) |> text
 
+    ///
+    /// Print an BigInt literal.
+    ///
+    pub def bigInt(i: BigInt): Doc = Util.showBigInt(i) |> text
 
     pub def repeatString(s: Str, n: Int32): Doc = 
         String.repeat(s, n) |> text
