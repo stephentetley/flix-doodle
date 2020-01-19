@@ -14,29 +14,6 @@
  * limitations under the License.
  */
 
-// Needs ReadShowWrapper from `parser-combinators`...
-
 namespace Util {
-
-    pub def showInt8(i: Int8): Str = 
-        native method flix.runtime.library.ReadShowWrapper.ValueOfByte(i) as Str
-        
-    pub def showInt16(i: Int16): Str = 
-        native method flix.runtime.library.ReadShowWrapper.ValueOfShort(i) as Str
-
-    pub def showInt32(i: Int32): Str = 
-        native method flix.runtime.library.ReadShowWrapper.ValueOfInt(i) as Str
-
-    pub def showInt64(i: Int64): Str = 
-        native method flix.runtime.library.ReadShowWrapper.ValueOfLong(i) as Str
-
-    pub def showFloat32(d: Float32): Str = 
-        native method flix.runtime.library.ReadShowWrapper.ValueOfFloat(d) as Str
-
-    pub def showFloat64(d: Float64): Str = 
-        native method flix.runtime.library.ReadShowWrapper.ValueOfDouble(d) as Str
-
-    pub def showBigInt(i: BigInt): Str = 
-        native method flix.runtime.library.ReadShowWrapper.ValueOfBigInteger(i) as Str
-
+    // Currently not needed
 }

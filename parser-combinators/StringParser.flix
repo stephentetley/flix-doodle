@@ -369,7 +369,7 @@ namespace StringParser {
         liftM2((x,y) -> x + y, sign(), digits())
 
     def primInt8(): Parser[Int8] =
-        bind(intString(), v1 -> match Util.readInt8(v1) {
+        bind(intString(), v1 -> match Int8.fromString(v1) {
             case Err(_) => throwError("int8")
             case Ok(i) => return(i)
         })
@@ -377,7 +377,7 @@ namespace StringParser {
     pub def int8(): Parser[Int8] = lexeme(primInt8())
 
     def primInt16(): Parser[Int16] =
-        bind(intString(), v1 -> match Util.readInt16(v1) {
+        bind(intString(), v1 -> match Int16.fromString(v1) {
             case Err(_) => throwError("int16")
             case Ok(i) => return(i)
         })
@@ -385,7 +385,7 @@ namespace StringParser {
     pub def int16(): Parser[Int16] = lexeme(primInt16())
 
     def primInt32(): Parser[Int32] =
-        bind(intString(), v1 -> match Util.readInt32(v1) {
+        bind(intString(), v1 -> match Int32.fromString(v1) {
             case Err(_) => throwError("int32")
             case Ok(i) => return(i)
         })
@@ -393,7 +393,7 @@ namespace StringParser {
     pub def int32(): Parser[Int32] = lexeme(primInt32())
 
     def primInt64(): Parser[Int64] =
-        bind(intString(), v1 -> match Util.readInt64(v1) {
+        bind(intString(), v1 -> match Int64.fromString(v1) {
             case Err(_) => throwError("int64")
             case Ok(i) => return(i)
         })
@@ -401,7 +401,7 @@ namespace StringParser {
     pub def int64(): Parser[Int64] = lexeme(primInt64())
 
     def primBigInt(): Parser[BigInt] =
-        bind(intString(), v1 -> match Util.readBigInt(v1) {
+        bind(intString(), v1 -> match BigInt.fromString(v1) {
             case Err(_) => throwError("bigInt")
             case Ok(i) => return(i)
         })

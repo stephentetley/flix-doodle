@@ -193,7 +193,7 @@ def int3201(): Result[Int32, Str] =
     StringParser.run(parser, "-1")
 
 @test
-def tempReadInt3201(): Result[Int32, Str] = Util.readInt32("-1")
+def tempReadInt3201(): Result[Int32, Str] = Int32.fromString("-1")
 
 @test
 def int3202(): Result[List[Int32], Str] = 

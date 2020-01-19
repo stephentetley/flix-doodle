@@ -325,37 +325,37 @@ namespace Pretty {
     ///
     /// Print an Int8 literal.
     ///
-    pub def int8(i: Int8): Doc = Util.showInt8(i) |> text
+    pub def int8(i: Int8): Doc = Int8.toString(i) |> text
 
     ///
     /// Print an Int16 literal.
     ///
-    pub def int16(i: Int16): Doc = Util.showInt16(i) |> text
+    pub def int16(i: Int16): Doc = Int16.toString(i) |> text
 
     ///
     /// Print an Int32 literal.
     ///
-    pub def int32(i: Int32): Doc = Util.showInt32(i) |> text
+    pub def int32(i: Int32): Doc = Int32.toString(i) |> text
 
     ///
     /// Print an Int64 literal.
     ///
-    pub def int64(i: Int64): Doc = Util.showInt64(i) |> text
+    pub def int64(i: Int64): Doc = Int64.toString(i) |> text
 
     ///
     /// Print an float32 literal.
     ///
-    pub def float32(d: Float32): Doc = Util.showFloat32(d) |> text
+    pub def float32(d: Float32): Doc = Float32.toString(d) |> text
 
     ///
     /// Print an float64 literal.
     ///
-    pub def float64(d: Float64): Doc = Util.showFloat64(d) |> text
+    pub def float64(d: Float64): Doc = Float64.toString(d) |> text
 
     ///
     /// Print an BigInt literal.
     ///
-    pub def bigInt(i: BigInt): Doc = Util.showBigInt(i) |> text
+    pub def bigInt(i: BigInt): Doc = BigInt.toString(i) |> text
 
     pub def repeatString(s: Str, n: Int32): Doc = 
         String.repeat(s, n) |> text

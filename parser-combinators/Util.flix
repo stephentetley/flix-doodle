@@ -14,40 +14,4 @@ namespace Util {
     } catch {
         case _: ##java.lang.IndexOutOfBoundsException => None
     }
-
-    pub def readInt8(s: Str): Result[Int8, Str] = try {
-        let i = native method flix.runtime.library.ReadShowWrapper.ReadByte(s) as Int8;
-        Ok(i)
-    } catch {
-        case _: ##java.lang.NumberFormatException => Err("readInt8")
-    }
-
-    pub def readInt16(s: Str): Result[Int16, Str] = try {
-        let i = native method flix.runtime.library.ReadShowWrapper.ReadShort(s) as Int16;
-        Ok(i)
-    } catch {
-        case _: ##java.lang.NumberFormatException => Err("readInt16")
-    }
-
-    pub def readInt32(s: Str): Result[Int32, Str] = try {
-        let i = native method flix.runtime.library.ReadShowWrapper.ReadInt(s) as Int32;
-        Ok(i)
-    } catch {
-        case _: ##java.lang.NumberFormatException => Err("readInt32")
-    }
-
-    pub def readInt64(s: Str): Result[Int64, Str] = try {
-        let i = native method flix.runtime.library.ReadShowWrapper.ReadLong(s) as Int64;
-        Ok(i)
-    } catch {
-        case _: ##java.lang.NumberFormatException => Err("readInt64")
-    }
-
-    pub def readBigInt(s: Str): Result[BigInt, Str] = try {
-        let i = native method flix.runtime.library.ReadShowWrapper.ReadBigInteger(s) as BigInt;
-        Ok(i)
-    } catch {
-        case _: ##java.lang.NumberFormatException => Err("readBigInt")
-    }
-
 }
