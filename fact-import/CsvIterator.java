@@ -26,9 +26,15 @@ public class CsvIterator {
 
     private Iterator<CSVRecord> rator;
 
-    public CsvIterator(String filepath) throws Exception {
+    /// TODO - this uses the EXCEL CSVFormat, it should be configurable
+    public CsvIterator(String filepath, boolean hasHeaders) throws Exception {
         FileReader in = new FileReader(filepath);
-        Iterable<CSVRecord> rable = CSVFormat.EXCEL.parse(in);
+        Iterable<CSVRecord> rable = null;
+        if (hasHeaders) {
+            rable = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(in);
+        } else {
+            rable = CSVFormat.EXCEL.parse(in);
+        }
         rator = rable.iterator();
     }
 

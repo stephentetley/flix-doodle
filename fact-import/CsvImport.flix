@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 ///
-/// Represents a CSV Row.
+/// Represents a CSV row.
 ///
 opaque type CsvRow = ##flix.runtime.factimport.CsvRow
 
@@ -23,29 +23,29 @@ opaque type CsvRow = ##flix.runtime.factimport.CsvRow
 namespace CsvImport {
 
     ///
-    /// Represents a CSV Row.
+    /// Represents a CSV iterator.
     ///
     opaque type CsvIterator = ##flix.runtime.factimport.CsvIterator
 
     ///
     /// Returns a new CSVReader.
     ///
-    def newCsvIterator(filepath: Str): CsvIterator =
-        let iterator = native new flix.runtime.factimport.CsvIterator(filepath);
+    def newCsvIterator(filepath: Str, hasHeaders: Bool): CsvIterator =
+        let iterator = native new flix.runtime.factimport.CsvIterator(filepath, hasHeaders);
         CsvIterator(iterator)
 
     def hasNext(iterator: CsvIterator): Bool =
-        let CsvIterator(r1) = iterator;
-        native method flix.runtime.factimport.CsvIterator.hasNext(r1) as Bool
+        let CsvIterator(rator1) = iterator;
+        native method flix.runtime.factimport.CsvIterator.hasNext(rator1) as Bool
 
     def nextRow(iterator: CsvIterator): CsvRow =
-        let CsvIterator(r1) = iterator;
-        let csvRow = native method flix.runtime.factimport.CsvIterator.next(r1);
+        let CsvIterator(rator1) = iterator;
+        let csvRow = native method flix.runtime.factimport.CsvIterator.next(rator1);
         CsvRow(csvRow)
 
-    /// TODO - hasHeaders
-    pub def collect(f: CsvRow -> a, filepath: Str): List[a] =
-        let iterator = newCsvIterator(filepath);
+    /// TODO - hasHeaders should be in a record of configuration options
+    pub def collect(f: CsvRow -> a, filepath: Str, hasHeaders: Bool): List[a] =
+        let iterator = newCsvIterator(filepath, hasHeaders);
         collectHelper(f, iterator, xs -> xs)
 
     def collectHelper(f: CsvRow -> a, iterator: CsvIterator, cont: List[a] -> List[a]): List[a] =
