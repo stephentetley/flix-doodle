@@ -3,7 +3,7 @@
 type alias Lang = { name: Str, year: Int32 }
 
 def getLang (row: SQLiteRow): Lang = 
-    { name = SQLiteImport.getString(row, 0), year = SQLiteImport.getInt32(row, 1) }
+    { name = SQLiteImport.getStringByLabel(row, "name"), year = SQLiteImport.getInt32ByLabel(row, "year") }
 
 def printLang(lang: Lang): Str = 
     let name1 = lang.name;

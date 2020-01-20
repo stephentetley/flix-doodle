@@ -26,12 +26,66 @@ public class SQLiteRow {
     }
 
     // Zero indexed
-    public String getString(int ix) throws Exception {
-        return rs.getString(ix + 1);
+    public String getStringByIndex(int ix) throws Exception {
+        return this.rs.getString(ix+1);
+    }
+
+    public String getStringByLabel(String columnLabel) throws Exception {
+        return this.rs.getString(columnLabel);
     }
 
     // Zero indexed
-    public int getInt(int ix) throws Exception {
-        return rs.getInt(ix +1);
+    public byte getByteByIndex(int ix) throws Exception {
+        return this.rs.getByte(ix+1);
     }
+
+    public byte getByteByLabel(String columnLabel) throws Exception {
+        return this.rs.getByte(columnLabel);
+    }
+
+    // Zero indexed
+    public short getShortByIndex(int ix) throws Exception {
+        return this.rs.getShort(ix+1);
+    }
+
+    public short getShortByLabel(String columnLabel) throws Exception {
+        return this.rs.getShort(columnLabel);
+    }
+
+    // Zero indexed
+    public int getIntByIndex(int ix) throws Exception {
+        return this.rs.getInt(ix+1);
+    }
+
+    public int getIntByLabel(String columnLabel) throws Exception {
+        return this.rs.getInt(columnLabel);
+    }
+
+    // Zero indexed
+    public long getLongByIndex(int ix) throws Exception {
+        return this.rs.getLong(ix+1);
+    }
+
+    public long getLongByLabel(String columnLabel) throws Exception {
+        return this.rs.getLong(columnLabel);
+    }
+
+    // Zero indexed
+    public float getFloatByIndex(int ix) throws Exception {
+        return this.rs.getFloat(ix+1);
+    }
+
+    public float getFloatByLabel(String columnLabel) throws Exception {
+        return this.rs.getFloat(columnLabel);
+    }
+
+    // Zero indexed
+    public double getDoubleByIndex(int ix) throws Exception {
+        return this.rs.getDouble(ix+1);
+    }
+
+    public double getDoubleByLabel(String columnLabel) throws Exception {
+        return this.rs.getDouble(columnLabel);
+    }
+
 }

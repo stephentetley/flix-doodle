@@ -55,12 +55,60 @@ namespace SQLiteImport {
             collectHelper(f, iterator, xs -> cont(x :: xs))
         }
 
-    pub def getString(row: SQLiteRow, ix: Int32): Str =
+    pub def getStringByIndex(row: SQLiteRow, ix: Int32): Str =
         let SQLiteRow(r1) = row;
-        native method flix.runtime.factimport.SQLiteRow.getString(r1, ix) as Str
+        native method flix.runtime.factimport.SQLiteRow.getStringByIndex(r1, ix) as Str
 
-    pub def getInt32(row: SQLiteRow, ix: Int32): Int32 =
+    pub def getStringByLabel(row: SQLiteRow, label: Str): Str =
         let SQLiteRow(r1) = row;
-        native method flix.runtime.factimport.SQLiteRow.getInt(r1, ix) as Int32
+        native method flix.runtime.factimport.SQLiteRow.getStringByLabel(r1, label) as Str
+
+    pub def getInt8ByIndex(row: SQLiteRow, ix: Int32): Int8 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getByteByIndex(r1, ix) as Int8
+
+    pub def getInt8ByLabel(row: SQLiteRow, label: Str): Int8 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getByteByLabel(r1, label) as Int8
+
+    pub def getInt16ByIndex(row: SQLiteRow, ix: Int32): Int16 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getShortByIndex(r1, ix) as Int16
+
+    pub def getInt16ByLabel(row: SQLiteRow, label: Str): Int16 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getShortByLabel(r1, label) as Int16
+
+    pub def getInt32ByIndex(row: SQLiteRow, ix: Int32): Int32 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getIntByIndex(r1, ix) as Int32
+
+    pub def getInt32ByLabel(row: SQLiteRow, label: Str): Int32 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getIntByLabel(r1, label) as Int32
+
+    pub def getInt64ByIndex(row: SQLiteRow, ix: Int32): Int64 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getLongByIndex(r1, ix) as Int64
+
+    pub def getInt64ByLabel(row: SQLiteRow, label: Str): Int64 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getLongByLabel(r1, label) as Int64
+
+    pub def getFloat32ByIndex(row: SQLiteRow, ix: Int32): Float32 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getFloatByIndex(r1, ix) as Float32
+
+    pub def getFloat32ByLabel(row: SQLiteRow, label: Str): Float32 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getFloatByLabel(r1, label) as Float32
+
+    pub def getFloat64ByIndex(row: SQLiteRow, ix: Int32): Float64 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getDoubleByIndex(r1, ix) as Float64
+
+    pub def getFloat64ByLabel(row: SQLiteRow, label: Str): Float64 =
+        let SQLiteRow(r1) = row;
+        native method flix.runtime.factimport.SQLiteRow.getDoubleByLabel(r1, label) as Float64
 
 }
