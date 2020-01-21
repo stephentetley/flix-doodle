@@ -19,43 +19,76 @@
 ///
 opaque type CsvRow = ##flix.runtime.factimport.CsvRow
 
+///
+/// Represents a CSV source (internally an iterator on a CSV file).
+///
+opaque type CsvSource = ##flix.runtime.factimport.CsvIterator
 
 namespace CsvImport {
 
+
+
     ///
-    /// Represents a CSV iterator.
+    /// See Apache Commons CSV User Guide for details:
+    /// http://commons.apache.org/proper/commons-csv/user-guide.html
     ///
-    opaque type CsvIterator = ##flix.runtime.factimport.CsvIterator
+    pub enum CsvFormat {
+        case Default,
+        case Excel,
+        case InformixUnload,
+        case InformixUnloadCsv,
+        case MongodbCsv,
+        case MongodbTsv,
+        case Mysql,
+        case Rfc4180,
+        case Oracle,
+        case PostgresqlCsv,
+        case PostgresqlText,
+        case Tdf
+    }
+
+    def formatToInt(format: CsvFormat): Int32 = match format {
+        case Default => 0
+        case Excel => 1
+        case InformixUnload => 2
+        case InformixUnloadCsv => 3
+        case MongodbCsv => 4
+        case MongodbTsv => 5
+        case Mysql => 6
+        case Rfc4180 => 7
+        case Oracle => 8
+        case PostgresqlCsv => 9
+        case PostgresqlText => 10
+        case Tdf => 11
+    }
 
     ///
     /// Returns a new CSVReader.
     ///
-    def newCsvIterator(filepath: Str, hasHeaders: Bool): CsvIterator =
-        let iterator = native new flix.runtime.factimport.CsvIterator(filepath, hasHeaders);
-        CsvIterator(iterator)
+    pub def newCsvSource(filepath: Str, format: CsvFormat, hasHeaders: Bool): CsvSource =
+        let fmt = formatToInt(format);
+        let iterator = native new flix.runtime.factimport.CsvIterator(filepath, fmt, hasHeaders);
+        CsvSource(iterator)
 
-    def hasNext(iterator: CsvIterator): Bool =
-        let CsvIterator(rator1) = iterator;
-        native method flix.runtime.factimport.CsvIterator.hasNext(rator1) as Bool
+    def hasNext(src: CsvSource): Bool =
+        let CsvSource(iterator) = src;
+        native method flix.runtime.factimport.CsvIterator.hasNext(iterator) as Bool
 
-    def nextRow(iterator: CsvIterator): CsvRow =
-        let CsvIterator(rator1) = iterator;
-        let csvRow = native method flix.runtime.factimport.CsvIterator.next(rator1);
+    def nextRow(src: CsvSource): CsvRow =
+        let CsvSource(iterator) = src;
+        let csvRow = native method flix.runtime.factimport.CsvIterator.next(iterator);
         CsvRow(csvRow)
 
-    /// TODO - hasHeaders should be in a record of configuration options
-    pub def collect(f: CsvRow -> a, filepath: Str, hasHeaders: Bool): List[a] =
-        let iterator = newCsvIterator(filepath, hasHeaders);
-        collectHelper(f, iterator, xs -> xs)
+    pub def collect(src: CsvSource, f: CsvRow -> a): List[a] =
+        collectHelper(f, src, xs -> xs)
 
-    def collectHelper(f: CsvRow -> a, iterator: CsvIterator, cont: List[a] -> List[a]): List[a] =
-        if (!hasNext(iterator))
+    def collectHelper(f: CsvRow -> a, src: CsvSource, cont: List[a] -> List[a]): List[a] =
+        if (!hasNext(src))
             cont(Nil)
         else {
-            let x =  nextRow(iterator) |> f;
-            collectHelper(f, iterator, xs -> cont(x :: xs))
+            let x =  nextRow(src) |> f;
+            collectHelper(f, src, xs -> cont(x :: xs))
         }
-
 
     pub def getString(row: CsvRow, ix: Int32): Str =
         let CsvRow(r1) = row;

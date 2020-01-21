@@ -26,14 +26,58 @@ public class CsvIterator {
 
     private Iterator<CSVRecord> rator;
 
-    /// TODO - this uses the EXCEL CSVFormat, it should be configurable
-    public CsvIterator(String filepath, boolean hasHeaders) throws Exception {
+    // 0 DEFAULT
+    // 1 EXCEL
+    // 2 INFORMIX_UNLOAD
+    // 3 INFORMIX_UNLOAD_CSV
+    // 4 MONGODB_CSV
+    // 5 MONGODB_TSV
+    // 6 MYSQL
+    // 7 RFC4180
+    // 8 ORACLE
+    // 9 POSTGRESQL_CSV
+    // 10 POSTGRESQL_TEXT
+    // 11 TDF
+    private CSVFormat selectFormat(int fmt) {
+        switch (fmt) {
+            case 1:
+                return CSVFormat.EXCEL;
+            case 2:
+                return CSVFormat.INFORMIX_UNLOAD;
+            case 3:
+                return CSVFormat.INFORMIX_UNLOAD_CSV;
+            case 4:
+                return CSVFormat.MONGODB_CSV;
+            case 5:
+                return CSVFormat.MONGODB_TSV;
+            case 6:
+                return CSVFormat.MYSQL;
+            case 7:
+                return CSVFormat.RFC4180;
+            case 8:
+                return CSVFormat.ORACLE;
+            case 9:
+                return CSVFormat.POSTGRESQL_CSV;
+            case 10:
+                return CSVFormat.POSTGRESQL_CSV;
+            case 11:
+                return CSVFormat.POSTGRESQL_TEXT;
+            case 12:
+                return CSVFormat.TDF;
+            default:
+                return CSVFormat.DEFAULT;
+        }
+    }
+
+    /// TODO - more options than hasHeasers...
+    public CsvIterator(String filepath, int format, boolean hasHeaders) throws Exception {
         FileReader in = new FileReader(filepath);
         Iterable<CSVRecord> rable = null;
+        CSVFormat csvformat = selectFormat(format);
         if (hasHeaders) {
-            rable = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(in);
+            rable = csvformat.withFirstRecordAsHeader().parse(in);
         } else {
-            rable = CSVFormat.EXCEL.parse(in);
+            rable = csvformat.parse(in);
         }
         rator = rable.iterator();
     }

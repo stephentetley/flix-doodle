@@ -19,7 +19,6 @@
 ///
 opaque type SQLiteRow = ##flix.runtime.factimport.SQLiteRow
 
-
 namespace SQLiteImport {
 
     ///
