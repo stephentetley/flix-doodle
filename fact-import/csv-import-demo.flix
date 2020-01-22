@@ -3,7 +3,7 @@
 type alias Station = { name: Str, gridref: Str }
 
 def getStation (row: CsvRow): Station = 
-    { name = CsvImport.getString(row, 0), gridref = CsvImport.getString(row, 1) }
+    { name = CsvImport.getStringByLabel(row, "Name"), gridref = CsvImport.getStringByLabel(row, "Grid_Ref") }
 
 def printStation(station: Station): Str = 
     let name1 = station.name;
