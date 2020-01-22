@@ -88,13 +88,36 @@ namespace CsvImport {
             collectHelper(f, src, xs -> cont(x :: xs))
         }
 
+    pub def collectOks(src: CsvSource, f: CsvRow -> Result[a, e]): List[a] =
+        collectOksHelper(f, src, xs -> xs)
+
+    def collectOksHelper(f: CsvRow -> Result[a,e], src: CsvSource, cont: List[a] -> List[a]): List[a] =
+            if (!hasNext(src))
+                cont(Nil)
+            else {
+                match nextRow(src) |> f {
+                    case Err(_) => collectOksHelper(f, src, xs -> cont(xs))
+                    case Ok(x) => collectOksHelper(f, src, xs -> cont(x :: xs))
+                }
+
+            }
+
     pub def getStringByIndex(row: CsvRow, ix: Int32): Str =
         let CsvRow(r1) = row;
         native method flix.runtime.factimport.CsvRow.getStringByIndex(r1, ix) as Str
 
-    pub def getStringByLabel(row: CsvRow, label: Str): Str =
+    ///
+    /// TODO - Option or Result ?
+    ///
+    pub def getStringByLabel(row: CsvRow, label: Str): Result[Str,Str] =
         let CsvRow(r1) = row;
-        native method flix.runtime.factimport.CsvRow.getStringByLabel(r1, label) as Str
+        try {
+            let a = native method flix.runtime.factimport.CsvRow.getStringByLabel(r1, label) as Str;
+            Ok(a)
+        } catch {
+            case _: ##java.lang.IllegalArgumentException => Err("CsvImport.getStringByLabel")
+            case _: ##java.lang.IllegalStateException => Err("CsvImport.getStringByLabel")
+        }
 
     pub def getInt8ByIndex(row: CsvRow, ix: Int32): Int8 =
         let CsvRow(r1) = row;

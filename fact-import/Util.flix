@@ -28,5 +28,25 @@ namespace Util {
             }
         }
 
+    pub def pipeResult2(r1: Result[a, e], r2: Result[b, e], f: (a,b) -> c): Result[c, e] = 
+        match r1 {
+            case Err(e1) => Err(e1)
+            case Ok(a) => match r2 {
+                case Err(e2) => Err(e2)
+                case Ok(b) => Ok(f(a,b))
+            }
+        }
 
+    pub def pipeResult3(r1: Result[a, e], r2: Result[b, e], r3: Result[c, e], f: (a,b,c) -> d): Result[d, e] = 
+        match r1 {
+            case Err(e1) => Err(e1)
+            case Ok(a) => match r2 {
+                case Err(e2) => Err(e2)
+                case Ok(b) => match r3 { 
+                    case Err(e3) => Err(e3) 
+                    case Ok(c) => Ok(f(a,b,c))
+                }
+            }
+        }
+        
 }
