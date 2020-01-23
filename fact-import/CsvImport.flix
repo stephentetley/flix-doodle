@@ -24,6 +24,8 @@ opaque type CsvRow = ##flix.runtime.factimport.CsvRow
 ///
 opaque type CsvSource = ##flix.runtime.factimport.CsvIterator
 
+type alias CsvResult[t] = Validation[t, Str]
+
 namespace CsvImport {
 
     ///
@@ -107,16 +109,16 @@ namespace CsvImport {
         native method flix.runtime.factimport.CsvRow.getStringByIndex(r1, ix) as Str
 
     ///
-    /// TODO - Option or Result ?
+    /// TODO - Option or Result or Validation (aka CsvResult)?
     ///
-    pub def getStringByLabel(row: CsvRow, label: Str): Result[Str,Str] =
+    pub def getStringByLabel(row: CsvRow, label: Str): CsvResult[Str] =
         let CsvRow(r1) = row;
         try {
             let a = native method flix.runtime.factimport.CsvRow.getStringByLabel(r1, label) as Str;
-            Ok(a)
+            Validation.pure(a)
         } catch {
-            case _: ##java.lang.IllegalArgumentException => Err("CsvImport.getStringByLabel")
-            case _: ##java.lang.IllegalStateException => Err("CsvImport.getStringByLabel")
+            case _: ##java.lang.NumberFormatException => Validation.error("getStringByLabel:" + label)
+            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getStringByLabel:" + label)
         }
 
     pub def getInt8ByIndex(row: CsvRow, ix: Int32): Int8 =
