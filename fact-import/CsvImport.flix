@@ -79,35 +79,31 @@ namespace CsvImport {
         let csvRow = native method flix.runtime.factimport.CsvIterator.next(iterator);
         CsvRow(csvRow)
 
-    pub def collect(src: CsvSource, f: CsvRow -> a): List[a] =
+    // Not properly implemented at the moment...
+    pub def collect(src: CsvSource, f: CsvRow -> CsvResult[a]): List[a] =
         collectHelper(f, src, xs -> xs)
 
-    def collectHelper(f: CsvRow -> a, src: CsvSource, cont: List[a] -> List[a]): List[a] =
+    def collectHelper(f: CsvRow -> CsvResult[a], src: CsvSource, cont: List[a] -> List[a]): List[a] =
         if (!hasNext(src))
             cont(Nil)
         else {
-            let x =  nextRow(src) |> f;
-            collectHelper(f, src, xs -> cont(x :: xs))
+            match nextRow(src) |> (Validation.validate << f) {
+                case Ok(x) => collectHelper(f, src, xs -> cont(x :: xs))
+                case Err(_) => cont(Nil)
+            }
         }
 
-    pub def collectOks(src: CsvSource, f: CsvRow -> Result[a, e]): List[a] =
-        collectOksHelper(f, src, xs -> xs)
 
-    def collectOksHelper(f: CsvRow -> Result[a,e], src: CsvSource, cont: List[a] -> List[a]): List[a] =
-            if (!hasNext(src))
-                cont(Nil)
-            else {
-                match nextRow(src) |> f {
-                    case Err(_) => collectOksHelper(f, src, xs -> cont(xs))
-                    case Ok(x) => collectOksHelper(f, src, xs -> cont(x :: xs))
-                }
 
-            }
-
-    pub def getStringByIndex(row: CsvRow, ix: Int32): Str =
+    pub def getStringByIndex(row: CsvRow, ix: Int32): CsvResult[Str] =
         let CsvRow(r1) = row;
-        native method flix.runtime.factimport.CsvRow.getStringByIndex(r1, ix) as Str
-
+        try {
+            let a = native method flix.runtime.factimport.CsvRow.getStringByIndex(r1, ix) as Str;
+            Validation.pure(a)
+        } catch {
+            case _: ##java.lang.NumberFormatException => Validation.error("getStringByIndex:" + Int32.toString(ix))
+            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getStringByIndex:" + Int32.toString(ix))
+        }
     ///
     /// TODO - Option or Result or Validation (aka CsvResult)?
     ///
@@ -126,8 +122,8 @@ namespace CsvImport {
         native method flix.runtime.factimport.CsvRow.getByteByIndex(r1, ix) as Int8
 
     pub def getInt8ByLabel(row: CsvRow, label: Str): Int8 =
-            let CsvRow(r1) = row;
-            native method flix.runtime.factimport.CsvRow.getByteByLabel(r1, label) as Int8
+        let CsvRow(r1) = row;
+        native method flix.runtime.factimport.CsvRow.getByteByLabel(r1, label) as Int8
 
     pub def getInt16ByIndex(row: CsvRow, ix: Int32): Int16 =
         let CsvRow(r1) = row;

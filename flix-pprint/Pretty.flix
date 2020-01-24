@@ -104,12 +104,12 @@ namespace Pretty {
         match sdoc {
             case SEmpty => cont()
             case SText(t,rest) => { 
-                StringBuilder.appendStr(sb, t);
+                StringBuilder.appendString(sb, t);
                 prettyPrintHelper(sb, rest, cont)
             }
             case SLine(x,rest) => { 
                 StringBuilder.appendLineSeparator(sb);
-                StringBuilder.appendStr(sb, x);
+                StringBuilder.appendString(sb, x);
                 prettyPrintHelper(sb, rest, cont)
             }
         }
