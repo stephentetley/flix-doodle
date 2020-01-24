@@ -45,7 +45,7 @@ namespace Validation {
         }
 
 
-    pub def ap(vf: Validation[t -> t1, e], va: Validation[t, e]): Validation[t, e1] = 
+    pub def ap(vf: Validation[t -> t1, e], va: Validation[t, e]): Validation[t1, e1] =
         match vf {
             case Okay(f) => fmap(f, va)
             case Error(xs) => match va {
