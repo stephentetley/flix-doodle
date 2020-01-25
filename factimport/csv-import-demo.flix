@@ -1,11 +1,20 @@
 
 
 pub def test01(): Unit =
-    let path = "e:/coding/flix/flix-doodle/fact-import/data/stations.csv";
+    let path = "e:/coding/flix/flix-doodle/factimport/data/stations.csv";
     let csvSource = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-    let xs: List[Str] = CsvImport.collect(csvSource, row -> CsvImport.getStringByLabel(row, "Name"));
-    let str: Str = Util.mkStringBy(x -> x, String.lineSeparator(), xs);
-    Console.printLine(str) 
+    match CsvImport.collect(csvSource, row -> CsvImport.getStringByLabel(row, "Name")) {
+        case Err(msgs) => {
+            let str = Util.mkStringBy(x -> x, "; ", msgs);
+            Console.printLine(str)
+        }
+        case Ok(xs) => {
+            let str: Str = Util.mkStringBy(x -> x, String.lineSeparator(), xs);
+            Console.printLine(str) 
+        }
+
+    }
+    
 
 
 type alias Station = { name: Str, gridref: Str }
@@ -24,8 +33,16 @@ pub def printStation(station: Station): Str =
     "name:${name1}, gridref:${gridref1}"
 
 pub def test02(): Unit =
-    let path = "e:/coding/flix/flix-doodle/fact-import/data/stations.csv";
+    let path = "e:/coding/flix/flix-doodle/factimport/data/stations.csv";
     let csvSource = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-    let xs: List[Station] = CsvImport.collect(csvSource, getStation);
-    let str: Str = Util.mkStringBy(printStation, String.lineSeparator(), xs);
-    Console.printLine(str) 
+    match CsvImport.collect(csvSource, getStation) {
+        case Err(msgs) => {
+            let str = Util.mkStringBy(x -> x, "; ", msgs);
+            Console.printLine(str)
+        }
+        case Ok(xs) => {
+            let str: Str = Util.mkStringBy(printStation, String.lineSeparator(), xs);
+            Console.printLine(str) 
+        }
+    }
+

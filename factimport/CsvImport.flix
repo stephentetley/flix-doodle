@@ -64,6 +64,7 @@ namespace CsvImport {
 
     ///
     /// Returns a new CsvSource.
+    /// TODO - handle file-not-found errors
     ///
     pub def newCsvSource(filepath: Str, format: CsvFormat, hasHeaders: Bool): CsvSource =
         let fmt = formatToInt(format);
@@ -79,17 +80,19 @@ namespace CsvImport {
         let csvRow = native method flix.runtime.factimport.CsvIterator.next(iterator);
         CsvRow(csvRow)
 
-    // Not properly implemented at the moment...
-    pub def collect(src: CsvSource, f: CsvRow -> CsvResult[a]): List[a] =
-        collectHelper(f, src, xs -> xs)
+    ///
+    /// Maybe should track row number...
+    ///
+    pub def collect(src: CsvSource, f: CsvRow -> CsvResult[a]): Result[List[a], List[Str]] =
+        collectHelper(f, src, msgs -> Err(msgs), xs -> Ok(xs))
 
-    def collectHelper(f: CsvRow -> CsvResult[a], src: CsvSource, cont: List[a] -> List[a]): List[a] =
+    def collectHelper(f: CsvRow -> CsvResult[a], src: CsvSource, fk: List[Str] -> Result[List[a], List[Str]], sk: List[a] -> Result[List[a], List[Str]]): Result[List[a], List[Str]] =
         if (!hasNext(src))
-            cont(Nil)
+            sk(Nil)
         else {
             match nextRow(src) |> (Validation.validate << f) {
-                case Ok(x) => collectHelper(f, src, xs -> cont(x :: xs))
-                case Err(_) => cont(Nil)
+                case Ok(x) => collectHelper(f, src, fk, xs -> sk(x :: xs))
+                case Err(xs) => fk(xs)
             }
         }
 
