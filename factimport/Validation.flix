@@ -108,4 +108,27 @@ namespace Validation {
     pub def pipeV2(v1: Validation[t1, e], v2: Validation[t2, e], f: (t1,t2) -> t3): Validation[t3, e] =
         liftV2(f, v1, v2)
 
+    pub def pipeV3(v1: Validation[t1, e], v2: Validation[t2, e], v3: Validation[t3, e], f: (t1,t2,t3) -> t4): Validation[t4, e] =
+        liftV3(f, v1, v2, v3)
+    
+    pub def pipeV4(v1: Validation[t1, e], v2: Validation[t2, e], v3: Validation[t3, e], v4: Validation[t4, e], f: (t1,t2,t3,t4) -> t5): Validation[t5, e] = 
+        liftV4(f, v1, v2, v3, v4)
+
+    pub def pipeV5(v1: Validation[t1, e], v2: Validation[t2, e], v3: Validation[t3, e], v4: Validation[t4, e], v5: Validation[t5, e], f: (t1,t2,t3,t4,t5) -> t6): Validation[t6, e] = 
+        liftV5(f, v1, v2, v3, v4, v5)
+
+    pub def pipeV6(v1: Validation[t1, e], v2: Validation[t2, e], v3: Validation[t3, e], v4: Validation[t4, e], v5: Validation[t5, e], v6: Validation[t6, e], f: (t1,t2,t3,t4,t5,t6) -> t7): Validation[t7, e] = 
+        liftV6(f, v1, v2, v3, v4, v5, v6)
+
+    pub def pipeV7(v1: Validation[t1, e], v2: Validation[t2, e], v3: Validation[t3, e], v4: Validation[t4, e], v5: Validation[t5, e], v6: Validation[t6, e], v7: Validation[t7, e], f: (t1,t2,t3,t4,t5,t6,t7) -> t8): Validation[t8, e] = 
+        liftV7(f, v1, v2, v3, v4, v5, v6, v7)
+
+    pub def pipeV8(v1: Validation[t1, e], v2: Validation[t2, e], v3: Validation[t3, e], v4: Validation[t4, e], v5: Validation[t5, e], v6: Validation[t6, e], v7: Validation[t7, e], v8: Validation[t8, e], f: (t1,t2,t3,t4,t5,t6,t7,t8) -> t9): Validation[t9, e] = 
+        liftV8(f, v1, v2, v3, v4, v5, v6, v7, v8)
+
+    pub def pipeV9(v1: Validation[t1, e], v2: Validation[t2, e], v3: Validation[t3, e], v4: Validation[t4, e], v5: Validation[t5, e], v6: Validation[t6, e], v7: Validation[t7, e], v8: Validation[t8, e], v9: Validation[t9, e], f: (t1,t2,t3,t4,t5,t6,t7,t8,t9) -> t10): Validation[t10, e] = 
+        liftV9(f, v1, v2, v3, v4, v5, v6, v7, v8, v9)
+
+    pub def pipeV10(v1: Validation[t1, e], v2: Validation[t2, e], v3: Validation[t3, e], v4: Validation[t4, e], v5: Validation[t5, e], v6: Validation[t6, e], v7: Validation[t7, e], v8: Validation[t8, e], v9: Validation[t9, e], v10: Validation[t10, e], f: (t1,t2,t3,t4,t5,t6,t7,t8,t9,t10) -> t11): Validation[t11, e] = 
+        liftV10(f, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)
 }
