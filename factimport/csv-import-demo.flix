@@ -45,3 +45,6 @@ pub def test02(): Unit =
             }
     }
 
+
+pub def temp01(x:Int32): (Int32, Int32) = (x, x)
+

@@ -97,6 +97,22 @@ namespace SQLiteImport {
             }
         }
 
+    pub def chooseAccum(f: (st, SQLiteRow) -> SQLiteResult[(st, Option[a])], state: st, src: SQLiteSource): Result[(st, List[a]), Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        chooseAccumHelper(f, state, src, 0, failk, (st,xs) -> Ok(st,xs))
+
+    def chooseAccumHelper(f: (st, SQLiteRow) -> SQLiteResult[(st, Option[a])], state: st, src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[(st, List[a]), Str], sk: (st, List[a]) -> Result[(st, List[a]), Str]): Result[(st, List[a]), Str] =
+        if (!next(src))
+            sk(state,Nil)
+        else {
+            let row = getRow(src);
+            match Validation.validate(f(state,row)) {
+                case Err(xs) => fk(n, xs)
+                case Ok((st1,None)) => chooseAccumHelper(f, st1, src, n+1, fk, (st,xs) -> sk(st,xs))
+                case Ok((st1,Some(x))) => chooseAccumHelper(f, st1, src, n+1, fk, (st,xs) -> sk(st, x :: xs))
+            }
+        }
+
     pub def getStringByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Str] =
         let SQLiteRow(r1) = row;
         try {
