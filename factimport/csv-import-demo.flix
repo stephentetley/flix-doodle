@@ -1,50 +1,53 @@
 
+rel Name(name: Str)
 
-pub def test01(): Unit =
+def makeName(name: Str): #{ Name } = 
+    Name(name).
+
+def getName(row: CsvRow): CsvResult[#{Name}] = 
+    Validation.fmap(makeName, CsvImport.getStringByLabel(row, "Name"))
+
+def fail1(msg: Str): #{Name} = 
+    Console.printLine(msg);
+    #{ }
+
+pub def test01(): #{Name} =
     let path = "e:/coding/flix/flix-doodle/factimport/data/stations.csv";
     match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-        case Err(msg) => Console.printLine(msg)
+        case Err(msg) => fail1(msg)
         case Ok(csvSource) => 
-            match CsvImport.collect(row -> CsvImport.getStringByLabel(row, "Name"), csvSource) {
-                case Err(msg) => Console.printLine(msg)
-                case Ok(xs) => {
-                    let str: Str = Util.mkStringBy(x -> x, String.lineSeparator(), xs);
-                    Console.printLine(str) 
-                }
+            match CsvImport.collect(getName, csvSource) {
+                case Err(msg) => fail1(msg)
+                case Ok(rel) => solve rel
             }
     }
     
 
 
-type alias Station = { name: Str, gridref: Str }
+// rel Station(name: Str, gridref: Str)
 
 
-pub def getStation (row: CsvRow): CsvResult[Station] = 
-    Validation.pipeV2(CsvImport.getStringByLabel(row, "Name"), 
-                        CsvImport.getStringByLabel(row, "Grid_Ref"), 
-                        (x,y) -> { name = x, gridref = y })
+// def getStation(row: CsvRow): CsvResult[#{Station}] = 
+//     Validation.pipeV2(CsvImport.getStringByLabel(row, "Name"), 
+//                         CsvImport.getStringByLabel(row, "Grid_Ref"), 
+//                         (x,y) -> Station(x, y).)
 
 
                 
-pub def printStation(station: Station): Str = 
-    let name1 = station.name;
-    let gridref1 = station.gridref;
-    "name:${name1}, gridref:${gridref1}"
+// pub def printStation(station: Station): Str = 
+//     let name1 = station.name;
+//     let gridref1 = station.gridref;
+//     "name:${name1}, gridref:${gridref1}"
 
-pub def test02(): Unit =
-    let path = "e:/coding/flix/flix-doodle/factimport/data/stations.csv";
-    match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-        case Err(msg) => Console.printLine(msg)
-        case Ok(csvSource) => 
-            match CsvImport.collect(getStation, csvSource) {
-                case Err(msg) => Console.printLine(msg)
-                case Ok(xs) => {
-                    let str: Str = Util.mkStringBy(printStation, String.lineSeparator(), xs);
-                    Console.printLine(str) 
-                }
-            }
-    }
+// pub def test02(): Unit =
+//     let path = "e:/coding/flix/flix-doodle/factimport/data/stations.csv";
+//     match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
+//         case Err(msg) => Console.printLine(msg)
+//         case Ok(csvSource) => 
+//             match CsvImport.collect(getStation, csvSource) {
+//                 case Err(msg) => Console.printLine(msg)
+//                 case Ok(rel) => solve rel            
+//             }
+//     }
 
-
-pub def temp01(x:Int32): (Int32, Int32) = (x, x)
 

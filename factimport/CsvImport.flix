@@ -87,17 +87,17 @@ namespace CsvImport {
     ///
     /// Track row number for errors.
     ///
-    pub def collect(f: CsvRow -> CsvResult[a], src: CsvSource): Result[List[a], Str] =
+    pub def collect(f: CsvRow -> CsvResult[rel], src: CsvSource): Result[rel, Str] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
-        collectHelper(f, src, 0, failk, xs -> Ok(xs))
+        collectHelper(f, src, 0, failk, rels -> Ok(rels))
 
-    def collectHelper(f: CsvRow -> CsvResult[a], src: CsvSource, n: Int32, fk: (Int32, List[Str]) -> Result[List[a], Str], sk: List[a] -> Result[List[a], Str]): Result[List[a], Str] =
+    def collectHelper(f: CsvRow -> CsvResult[rel], src: CsvSource, n: Int32, fk: (Int32, List[Str]) -> Result[rel, Str], sk: rel -> Result[rel, Str]): Result[rel, Str] =
         if (!hasNext(src))
-            sk(Nil)
+            sk(#{ })
         else {
             match nextRow(src) |> (Validation.validate << f) {
                 case Err(xs) => fk(n, xs)
-                case Ok(x) => collectHelper(f, src, n+1, fk, xs -> sk(x :: xs))
+                case Ok(x) => collectHelper(f, src, n+1, fk, rels -> sk(x <+> rels))
             }
         }
 
