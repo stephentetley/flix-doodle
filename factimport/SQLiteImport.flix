@@ -42,7 +42,11 @@ namespace SQLiteImport {
 
     def next(iterator: SQLiteSource): Bool =
         let SQLiteSource(rator1) = iterator;
-        native method flix.runtime.factimport.SQLiteIterator.next(rator1) as Bool
+        try {
+            native method flix.runtime.factimport.SQLiteIterator.next(rator1) as Bool
+        } catch {
+            case _: ##java.sql.SQLException => false
+        }
 
     def getRow(iterator: SQLiteSource): SQLiteRow =
         let SQLiteSource(rator1) = iterator;
@@ -58,8 +62,38 @@ namespace SQLiteImport {
             sk(Nil)
         else {
             match getRow(src) |> (Validation.validate << f) {
-                case Ok(x) => collectHelper(f, src, n+1, fk, xs -> sk(x :: xs))
                 case Err(xs) => fk(n, xs)
+                case Ok(x) => collectHelper(f, src, n+1, fk, xs -> sk(x :: xs))
+            }
+        }
+
+    pub def collectAccum(f: (st, SQLiteRow) -> SQLiteResult[(st, a)], state: st, src: SQLiteSource): Result[(st, List[a]), Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        collectAccumHelper(f, state, src, 0, failk, (st,xs) -> Ok(st,xs))
+
+    def collectAccumHelper(f: (st, SQLiteRow) -> SQLiteResult[(st, a)], state: st, src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[(st, List[a]), Str], sk: (st, List[a]) -> Result[(st, List[a]), Str]): Result[(st, List[a]), Str] =
+        if (!next(src))
+            sk(state, Nil)
+        else {
+            let row = getRow(src);
+            match Validation.validate(f(state, row)) {
+                case Err(xs) => fk(n, xs)
+                case Ok(st1, x) => collectAccumHelper(f, st1, src, n+1, fk, (st,xs) -> sk(st, x :: xs))
+            }
+        }
+
+    pub def choose(f: SQLiteRow -> SQLiteResult[Option[a]], src: SQLiteSource): Result[List[a], Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        chooseHelper(f, src, 0, failk, xs -> Ok(xs))
+
+    def chooseHelper(f: SQLiteRow -> SQLiteResult[Option[a]], src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[List[a], Str], sk: List[a] -> Result[List[a], Str]): Result[List[a], Str] =
+        if (!next(src))
+            sk(Nil)
+        else {
+            match getRow(src) |> (Validation.validate << f) {
+                case Err(xs) => fk(n, xs)
+                case Ok(None) => chooseHelper(f, src, n+1, fk, xs -> sk(xs))
+                case Ok(Some(x)) => chooseHelper(f, src, n+1, fk, xs -> sk(x :: xs))
             }
         }
 

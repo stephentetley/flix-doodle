@@ -96,16 +96,27 @@ namespace CsvImport {
             sk(Nil)
         else {
             match nextRow(src) |> (Validation.validate << f) {
-                case Ok(x) => collectHelper(f, src, n+1, fk, xs -> sk(x :: xs))
                 case Err(xs) => fk(n, xs)
+                case Ok(x) => collectHelper(f, src, n+1, fk, xs -> sk(x :: xs))
             }
         }
 
-    // pub def collectAccum(src: CsvSource, f: (st, CsvRow) -> CsvResult[(st, a)]): Result[List[a], List[Str]] =
-    //        collectAccumHelper(f, src, 0, (_,msgs) -> Err(msgs), xs -> Ok(xs))
+    pub def collectAccum(f: (st, CsvRow) -> CsvResult[(st, a)], state: st, src: CsvSource): Result[(st, List[a]), Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        collectAccumHelper(f, state, src, 0, failk, (st, xs) -> Ok(st, xs))
 
+    def collectAccumHelper(f: (st, CsvRow) -> CsvResult[(st, a)], state: st, src: CsvSource, n: Int32, fk: (Int32, List[Str]) -> Result[(st, List[a]), Str], sk: (st, List[a]) -> Result[(st, List[a]), Str]): Result[(st, List[a]), Str] =
+        if (!hasNext(src))
+            sk(state, Nil)
+        else {
+            let row = nextRow(src);
+            match Validation.validate(f(state, row)) {
+                case Err(xs) => fk(n, xs)
+                case Ok(st1, x) => collectAccumHelper(f, st1, src, n+1, fk, (st, xs) -> sk(st, x :: xs))
+            }
+        }
 
-    pub def choose(src: CsvSource, f: CsvRow -> CsvResult[Option[a]]): Result[List[a], Str] =
+    pub def choose(f: CsvRow -> CsvResult[Option[a]], src: CsvSource): Result[List[a], Str] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         chooseHelper(f, src, 0, failk, xs -> Ok(xs))
 
@@ -115,13 +126,10 @@ namespace CsvImport {
         else {
             match nextRow(src) |> (Validation.validate << f) {
                 case Err(xs) => fk(n, xs)
-                case Ok(x) => match x {
-                    case Some(x1) => chooseHelper(f, src, n+1, fk, xs -> sk(x1 :: xs))
-                    case None => chooseHelper(f, src, n+1, fk, xs -> sk(xs))
-                }
+                case Ok(None) => chooseHelper(f, src, n+1, fk, xs -> sk(xs))
+                case Ok(Some(x)) => chooseHelper(f, src, n+1, fk, xs -> sk(x :: xs))
             }
         }
-
 
     pub def getStringByIndex(row: CsvRow, ix: Int32): CsvResult[Str] =
         let CsvRow(r1) = row;
