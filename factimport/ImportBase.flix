@@ -40,4 +40,10 @@ namespace ImportBase {
                     toListHelper(l, acc1, cont))
         }
 
+    pub def collectErrors(line:Int32, errs: List[Str]): Str =
+        let sb = StringBuilder.new();
+        StringBuilder.appendLine(sb, "${Int32.toString(line)}| Errors:");
+        List.iter(StringBuilder.appendLine(sb), errs);
+        StringBuilder.toString(sb)
+
 }

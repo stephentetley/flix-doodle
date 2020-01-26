@@ -64,12 +64,16 @@ namespace CsvImport {
 
     ///
     /// Returns a new CsvSource.
-    /// TODO - handle file-not-found errors
     ///
-    pub def newCsvSource(filepath: Str, format: CsvFormat, hasHeaders: Bool): CsvSource =
+    pub def newCsvSource(filepath: Str, format: CsvFormat, hasHeaders: Bool): Result[CsvSource, Str] =
         let fmt = formatToInt(format);
-        let iterator = native new flix.runtime.factimport.CsvIterator(filepath, fmt, hasHeaders);
-        CsvSource(iterator)
+        try {
+            let iterator = native new flix.runtime.factimport.CsvIterator(filepath, fmt, hasHeaders);
+            CsvSource(iterator) |> Ok
+        } catch {
+            case _: ##java.io.FileNotFoundException => Err("newCsvSource - file not found")
+            case _: ##java.io.IOException => Err("newCsvSource - io exception")
+        }
 
     def hasNext(src: CsvSource): Bool =
         let CsvSource(iterator) = src;
@@ -81,21 +85,42 @@ namespace CsvImport {
         CsvRow(csvRow)
 
     ///
-    /// Maybe should track row number...
+    /// Track row number for errors.
     ///
-    pub def collect(src: CsvSource, f: CsvRow -> CsvResult[a]): Result[List[a], List[Str]] =
-        collectHelper(f, src, msgs -> Err(msgs), xs -> Ok(xs))
+    pub def collect(f: CsvRow -> CsvResult[a], src: CsvSource): Result[List[a], Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        collectHelper(f, src, 0, failk, xs -> Ok(xs))
 
-    def collectHelper(f: CsvRow -> CsvResult[a], src: CsvSource, fk: List[Str] -> Result[List[a], List[Str]], sk: List[a] -> Result[List[a], List[Str]]): Result[List[a], List[Str]] =
+    def collectHelper(f: CsvRow -> CsvResult[a], src: CsvSource, n: Int32, fk: (Int32, List[Str]) -> Result[List[a], Str], sk: List[a] -> Result[List[a], Str]): Result[List[a], Str] =
         if (!hasNext(src))
             sk(Nil)
         else {
             match nextRow(src) |> (Validation.validate << f) {
-                case Ok(x) => collectHelper(f, src, fk, xs -> sk(x :: xs))
-                case Err(xs) => fk(xs)
+                case Ok(x) => collectHelper(f, src, n+1, fk, xs -> sk(x :: xs))
+                case Err(xs) => fk(n, xs)
             }
         }
 
+    // pub def collectAccum(src: CsvSource, f: (st, CsvRow) -> CsvResult[(st, a)]): Result[List[a], List[Str]] =
+    //        collectAccumHelper(f, src, 0, (_,msgs) -> Err(msgs), xs -> Ok(xs))
+
+
+    pub def choose(src: CsvSource, f: CsvRow -> CsvResult[Option[a]]): Result[List[a], Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        chooseHelper(f, src, 0, failk, xs -> Ok(xs))
+
+    def chooseHelper(f: CsvRow -> CsvResult[Option[a]], src: CsvSource, n: Int32, fk: (Int32, List[Str]) -> Result[List[a], Str], sk: List[a] -> Result[List[a], Str]): Result[List[a], Str] =
+        if (!hasNext(src))
+            sk(Nil)
+        else {
+            match nextRow(src) |> (Validation.validate << f) {
+                case Err(xs) => fk(n, xs)
+                case Ok(x) => match x {
+                    case Some(x1) => chooseHelper(f, src, n+1, fk, xs -> sk(x1 :: xs))
+                    case None => chooseHelper(f, src, n+1, fk, xs -> sk(xs))
+                }
+            }
+        }
 
 
     pub def getStringByIndex(row: CsvRow, ix: Int32): CsvResult[Str] =

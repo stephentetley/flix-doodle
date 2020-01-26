@@ -2,17 +2,16 @@
 
 pub def test01(): Unit =
     let path = "e:/coding/flix/flix-doodle/factimport/data/stations.csv";
-    let csvSource = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-    match CsvImport.collect(csvSource, row -> CsvImport.getStringByLabel(row, "Name")) {
-        case Err(msgs) => {
-            let str = Util.mkStringBy(x -> x, "; ", msgs);
-            Console.printLine(str)
-        }
-        case Ok(xs) => {
-            let str: Str = Util.mkStringBy(x -> x, String.lineSeparator(), xs);
-            Console.printLine(str) 
-        }
-
+    match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
+        case Err(msg) => Console.printLine(msg)
+        case Ok(csvSource) => 
+            match CsvImport.collect(row -> CsvImport.getStringByLabel(row, "Name"), csvSource) {
+                case Err(msg) => Console.printLine(msg)
+                case Ok(xs) => {
+                    let str: Str = Util.mkStringBy(x -> x, String.lineSeparator(), xs);
+                    Console.printLine(str) 
+                }
+            }
     }
     
 
@@ -34,15 +33,15 @@ pub def printStation(station: Station): Str =
 
 pub def test02(): Unit =
     let path = "e:/coding/flix/flix-doodle/factimport/data/stations.csv";
-    let csvSource = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-    match CsvImport.collect(csvSource, getStation) {
-        case Err(msgs) => {
-            let str = Util.mkStringBy(x -> x, "; ", msgs);
-            Console.printLine(str)
-        }
-        case Ok(xs) => {
-            let str: Str = Util.mkStringBy(printStation, String.lineSeparator(), xs);
-            Console.printLine(str) 
-        }
+    match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
+        case Err(msg) => Console.printLine(msg)
+        case Ok(csvSource) => 
+            match CsvImport.collect(getStation, csvSource) {
+                case Err(msg) => Console.printLine(msg)
+                case Ok(xs) => {
+                    let str: Str = Util.mkStringBy(printStation, String.lineSeparator(), xs);
+                    Console.printLine(str) 
+                }
+            }
     }
 

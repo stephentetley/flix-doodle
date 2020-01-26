@@ -22,8 +22,6 @@ enum Validation[t, e] {
 
 namespace Validation {
 
-
-
     pub def pure(x: t): Validation[t, e] = Okay(x)
     
     pub def error(err: e): Validation[t, e] = Error(ImportBase.singleton(err))

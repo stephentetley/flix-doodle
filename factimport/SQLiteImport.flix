@@ -19,41 +19,48 @@
 ///
 opaque type SQLiteRow = ##flix.runtime.factimport.SQLiteRow
 
+///
+/// Represents a SQLite iterator.
+///
+opaque type SQLiteSource = ##flix.runtime.factimport.SQLiteIterator
+
 type alias SQLiteResult[t] = Validation[t, Str]
 
 namespace SQLiteImport {
 
     ///
-    /// Represents a SQLite iterator.
+    /// Returns a new SQLite reader.
     ///
-    opaque type SQLiteIterator = ##flix.runtime.factimport.SQLiteIterator
+    pub def newSQLiteSource(filepath: Str, query: Str): Result[SQLiteSource, Str] =
+        try {
+            let iterator = native new flix.runtime.factimport.SQLiteIterator(filepath, query);
+            SQLiteSource(iterator) |> Ok
+        } catch {
+            case _: ##java.sql.SQLException => Err("newSQLiteSource - file not found")
+            case _: ##java.io.IOException => Err("newSQLiteSource - io exception")
+        }
 
-    ///
-    /// Returns a new CSVReader.
-    ///
-    def newSQLiteIterator(filepath: Str, query: Str): SQLiteIterator =
-        let iterator = native new flix.runtime.factimport.SQLiteIterator(filepath, query);
-        SQLiteIterator(iterator)
-
-    def next(iterator: SQLiteIterator): Bool =
-        let SQLiteIterator(rator1) = iterator;
+    def next(iterator: SQLiteSource): Bool =
+        let SQLiteSource(rator1) = iterator;
         native method flix.runtime.factimport.SQLiteIterator.next(rator1) as Bool
 
-    def getRow(iterator: SQLiteIterator): SQLiteRow =
-        let SQLiteIterator(rator1) = iterator;
+    def getRow(iterator: SQLiteSource): SQLiteRow =
+        let SQLiteSource(rator1) = iterator;
         let row = native method flix.runtime.factimport.SQLiteIterator.getRow(rator1);
         SQLiteRow(row)
 
-    pub def collect(f: SQLiteRow -> a, filepath: Str, query: Str): List[a] =
-        let iterator = newSQLiteIterator(filepath, query);
-        collectHelper(f, iterator, xs -> xs)
+    pub def collect(f: SQLiteRow -> SQLiteResult[a], src: SQLiteSource): Result[List[a], Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        collectHelper(f, src, 0, failk, xs -> Ok(xs))
 
-    def collectHelper(f: SQLiteRow -> a, iterator: SQLiteIterator, cont: List[a] -> List[a]): List[a] =
-        if (!next(iterator))
-            cont(Nil)
+    def collectHelper(f: SQLiteRow -> SQLiteResult[a], src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[List[a], Str], sk: List[a] -> Result[List[a], Str]): Result[List[a], Str] =
+        if (!next(src))
+            sk(Nil)
         else {
-            let x =  getRow(iterator) |> f;
-            collectHelper(f, iterator, xs -> cont(x :: xs))
+            match getRow(src) |> (Validation.validate << f) {
+                case Ok(x) => collectHelper(f, src, n+1, fk, xs -> sk(x :: xs))
+                case Err(xs) => fk(n, xs)
+            }
         }
 
     pub def getStringByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Str] =
