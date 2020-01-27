@@ -33,8 +33,7 @@ namespace ImportBase {
 
     pub def append(a: JoinList[a], b: JoinList[a]): JoinList[a] = Join(a,b)
 
-    pub def toList(a: JoinList[a]): List[a] =
-            toListHelper(a, Nil, xs -> xs)
+    pub def toList(a: JoinList[a]): List[a] = toListHelper(a, Nil, xs -> xs)
 
     def toListHelper(xs: JoinList[a], acc:List[a], cont: List[a] -> List[a]): List[a] =
         match xs {

@@ -29,6 +29,34 @@ enum Html {
     
 namespace HtmlDoc {
     
+    pub def primText(str: Str): HtmlElement = HtmlText(str)
+
     pub def attr(name: Str, value: Str): HtmlAttr = HtmlAttr(name, value)
 
+    pub def tag(name: Str, attrs: List[HtmlAttr], content: Html): HtmlElement = 
+        HtmlTag(name, attrs, content)
+
+    pub def append(x: Html, y: Html): Html = match (x, y) {
+        case (Html(xs), Html(ys)) => Html(List.append(xs, ys))
+    }
+
+    pub def body(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("body", attrs, content)
+
+    pub def h1(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("h1", attrs, content)
+    pub def h2(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("h2", attrs, content)
+    pub def h3(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("h3", attrs, content)
+    pub def h4(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("h4", attrs, content)
+    pub def h5(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("h5", attrs, content)
+    pub def h6(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("h6", attrs, content)
+
+    pub def table(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("table", attrs, content)
+
+    pub def tr(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("tr", attrs, content)
+
+    pub def td(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("td", attrs, content)
+ 
+    pub def ol(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("ol", attrs, content)
+    pub def ul(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("ul", attrs, content)
+    pub def li(attrs: List[HtmlAttr], content: Html): HtmlElement = tag("li", attrs, content)
+    
 }
