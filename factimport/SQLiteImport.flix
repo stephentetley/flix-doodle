@@ -67,18 +67,33 @@ namespace SQLiteImport {
             }
         }
 
-    pub def collectAccum(f: (st, SQLiteRow) -> SQLiteResult[(st, reln)], state: st, src: SQLiteSource): Result[(st, reln), Str] =
+    pub def collectWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln], src: SQLiteSource): Result[reln, Str] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
-        collectAccumHelper(f, state, src, 0, failk, (st,relns) -> Ok(st,relns))
+        collectWithCountHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def collectAccumHelper(f: (st, SQLiteRow) -> SQLiteResult[(st, reln)], state: st, src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[(st, reln), Str], sk: (st, reln) -> Result[(st, reln), Str]): Result[(st, reln), Str] =
+    def collectWithCountHelper(f: (SQLiteRow, Int32) -> SQLiteResult[reln], src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+        if (!next(src))
+            sk(#{ })
+        else {
+            let row = getRow(src);
+            match Validation.validate(f(row, n)) {
+                case Err(xs) => fk(n, xs)
+                case Ok(x) => collectWithCountHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
+            }
+        }
+
+    pub def collectAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)], state: st, src: SQLiteSource): Result[(reln, st), Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        collectAccumHelper(f, state, src, 0, failk, (relns, st) -> Ok(relns, st))
+
+    def collectAccumHelper(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)], state: st, src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[(reln, st), Str], sk: (reln, st) -> Result[(reln, st), Str]): Result[(reln, st), Str] =
         if (!next(src))
             sk(state, #{ })
         else {
             let row = getRow(src);
-            match Validation.validate(f(state, row)) {
+            match Validation.validate(f(row, state)) {
                 case Err(xs) => fk(n, xs)
-                case Ok(st1, x) => collectAccumHelper(f, st1, src, n+1, fk, (st,relns) -> sk(st, x <+> relns))
+                case Ok(st1, x) => collectAccumHelper(f, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
             }
         }
 
@@ -97,19 +112,35 @@ namespace SQLiteImport {
             }
         }
 
-    pub def chooseAccum(f: (st, SQLiteRow) -> SQLiteResult[(st, Option[reln])], state: st, src: SQLiteSource): Result[(st, reln), Str] =
+    pub def chooseWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[Option[reln]], src: SQLiteSource): Result[reln, Str] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
-        chooseAccumHelper(f, state, src, 0, failk, (st,relns) -> Ok(st,relns))
+        chooseWithCountHelper(f, src, 0, 0, failk, relns -> Ok(relns))
 
-    def chooseAccumHelper(f: (st, SQLiteRow) -> SQLiteResult[(st, Option[reln])], state: st, src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[(st, reln), Str], sk: (st, reln) -> Result[(st, reln), Str]): Result[(st, reln), Str] =
+    def chooseWithCountHelper(f: (SQLiteRow, Int32) -> SQLiteResult[Option[reln]], src: SQLiteSource, rownum: Int32, count: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+        if (!next(src))
+            sk(#{ })
+        else {
+            let row = getRow(src);
+            match Validation.validate(f(row, count)) {
+                case Err(xs) => fk(rownum, xs)
+                case Ok(None) => chooseWithCountHelper(f, src, rownum+1, count, fk, relns -> sk(relns))
+                case Ok(Some(x)) => chooseWithCountHelper(f, src, rownum+1, count+1, fk, relns -> sk(x <+> relns))
+            }
+        }
+
+    pub def chooseAccum(f: (SQLiteRow, st) -> SQLiteResult[(Option[reln], st)], state: st, src: SQLiteSource): Result[(reln, st), Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        chooseAccumHelper(f, state, src, 0, failk, (relns, st) -> Ok(relns, st))
+
+    def chooseAccumHelper(f: (SQLiteRow, st) -> SQLiteResult[(Option[reln], st)], state: st, src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[(reln, st), Str], sk: (reln, st) -> Result[(reln, st), Str]): Result[(reln, st), Str] =
         if (!next(src))
             sk(state, #{ })
         else {
             let row = getRow(src);
-            match Validation.validate(f(state,row)) {
+            match Validation.validate(f(row, state)) {
                 case Err(xs) => fk(n, xs)
-                case Ok((st1,None)) => chooseAccumHelper(f, st1, src, n+1, fk, (st,relns) -> sk(st,relns))
-                case Ok((st1,Some(x))) => chooseAccumHelper(f, st1, src, n+1, fk, (st,relns) -> sk(st, x <+> relns))
+                case Ok((None, st1)) => chooseAccumHelper(f, st1, src, n+1, fk, (relns, st) -> sk(relns, st))
+                case Ok((Some(x), st1)) => chooseAccumHelper(f, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
             }
         }
 

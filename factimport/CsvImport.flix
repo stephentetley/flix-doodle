@@ -101,18 +101,33 @@ namespace CsvImport {
             }
         }
 
-    pub def collectAccum(f: (st, CsvRow) -> CsvResult[(st, reln)], state: st, src: CsvSource): Result[(st, reln), Str] =
+    pub def collectWithCount(f: (CsvRow, Int32) -> CsvResult[reln], src: CsvSource): Result[reln, Str] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
-        collectAccumHelper(f, state, src, 0, failk, (st, relns) -> Ok(st, relns))
+        collectWithCountHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def collectAccumHelper(f: (st, CsvRow) -> CsvResult[(st, reln)], state: st, src: CsvSource, n: Int32, fk: (Int32, List[Str]) -> Result[(st, reln), Str], sk: (st, reln) -> Result[(st, reln), Str]): Result[(st, reln), Str] =
+    def collectWithCountHelper(f: (CsvRow, Int32) -> CsvResult[reln], src: CsvSource, n: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: rel -> Result[reln, Str]): Result[reln, Str] =
+        if (!hasNext(src))
+            sk(#{ })
+        else {
+            let row = nextRow(src);
+            match Validation.validate(f(row, n)) {
+                case Err(xs) => fk(n, xs)
+                case Ok(x) => collectWithCountHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
+            }
+        }
+
+    pub def collectAccum(f: (CsvRow, st) -> CsvResult[(reln, st)], state: st, src: CsvSource): Result[(reln, st), Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        collectAccumHelper(f, state, src, 0, failk, (relns, st) -> Ok(relns, st))
+
+    def collectAccumHelper(f: (CsvRow, st) -> CsvResult[(reln, st)], state: st, src: CsvSource, n: Int32, fk: (Int32, List[Str]) -> Result[(reln, st), Str], sk: (reln, st) -> Result[(reln, st), Str]): Result[(reln, st), Str] =
         if (!hasNext(src))
             sk(state, #{ })
         else {
             let row = nextRow(src);
-            match Validation.validate(f(state, row)) {
+            match Validation.validate(f(row, state)) {
                 case Err(xs) => fk(n, xs)
-                case Ok(st1, x) => collectAccumHelper(f, st1, src, n+1, fk, (st, relns) -> sk(st, x <+> relns))
+                case Ok(x, st1) => collectAccumHelper(f, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
             }
         }
 
@@ -131,19 +146,35 @@ namespace CsvImport {
             }
         }
 
-    pub def chooseAccum(f: (st,CsvRow) -> CsvResult[(st, Option[reln])], state: st, src: CsvSource): Result[(st, reln), Str] =
+    pub def chooseWithCount(f: (CsvRow,Int32) -> CsvResult[Option[reln]], src: CsvSource): Result[reln, Str] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
-        chooseAccumHelper(f, state, src, 0, failk, (st,relns) -> Ok(st,relns))
+        chooseWithCountHelper(f, src, 0, 0, failk, relns -> Ok(relns))
 
-    def chooseAccumHelper(f: (st,CsvRow) -> CsvResult[(st, Option[reln])], state: st, src: CsvSource, n: Int32, fk: (Int32, List[Str]) -> Result[(st, reln), Str], sk: (st, reln) -> Result[(st, reln), Str]): Result[(st, reln), Str] =
+    def chooseWithCountHelper(f: (CsvRow,Int32)-> CsvResult[Option[reln]], src: CsvSource, rownum: Int32, count: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+        if (!hasNext(src))
+            sk(#{ })
+        else {
+            let row = nextRow(src);
+            match Validation.validate(f(row, count)) {
+                case Err(xs) => fk(rownum, xs)
+                case Ok(None) => chooseWithCountHelper(f, src, rownum+1, count, fk, relns -> sk(relns))
+                case Ok(Some(x)) => chooseWithCountHelper(f, src, rownum+1, count+1, fk, relns -> sk(x <+> relns))
+            }
+        }
+
+    pub def chooseAccum(f: (CsvRow, st) -> CsvResult[(Option[reln], st)], state: st, src: CsvSource): Result[(reln, st), Str] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        chooseAccumHelper(f, state, src, 0, failk, (relns, st) -> Ok(relns, st))
+
+    def chooseAccumHelper(f: (CsvRow, st) -> CsvResult[(Option[reln], st)], state: st, src: CsvSource, n: Int32, fk: (Int32, List[Str]) -> Result[(reln, st), Str], sk: (reln, st) -> Result[(reln, st), Str]): Result[(reln, st), Str] =
         if (!hasNext(src))
             sk(state, #{ })
         else {
             let row = nextRow(src);
-            match Validation.validate(f(state, row)) {
+            match Validation.validate(f(row, state)) {
                 case Err(xs) => fk(n, xs)
-                case Ok((st1,None)) => chooseAccumHelper(f, st1, src, n+1, fk, (st,relns) -> sk(st,relns))
-                case Ok((st1,Some(x))) => chooseAccumHelper(f, st1, src, n+1, fk, (st,relns) -> sk(st,x <+> relns))
+                case Ok((None, st1)) => chooseAccumHelper(f, st1, src, n+1, fk, (relns, st) -> sk(relns, st))
+                case Ok((Some(x), st1)) => chooseAccumHelper(f, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
             }
         }
 

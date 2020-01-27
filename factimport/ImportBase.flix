@@ -24,6 +24,11 @@ enum JoinList[a] {
 
 namespace ImportBase {
 
+    def listIter(f: a -> Unit, xs: List[a]): Unit = match xs {
+        case Nil => ()
+        case x :: rs => { f(x); listIter(f, rs) }
+    }
+
     pub def singleton(x: a): JoinList[a] = One(x)
 
     pub def append(a: JoinList[a], b: JoinList[a]): JoinList[a] = Join(a,b)
@@ -43,7 +48,7 @@ namespace ImportBase {
     pub def collectErrors(line:Int32, errs: List[Str]): Str =
         let sb = StringBuilder.new();
         StringBuilder.appendLine(sb, "${Int32.toString(line)}| Errors:");
-        List.iter(StringBuilder.appendLine(sb), errs);
+        listIter(StringBuilder.appendLine(sb), errs);
         StringBuilder.toString(sb)
 
 }
