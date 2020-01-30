@@ -19,11 +19,11 @@ package flix.runtime.factimport;
 import java.io.*;
 import java.util.Scanner;
 
-public class FileLineIterator {
+public class LinesIterator {
 
     private Scanner scanner;
 
-    public FileLineIterator(String filepath) throws Exception {
+    public LinesIterator(String filepath) throws Exception {
         this.scanner = new Scanner(new File(filepath));
     }
 

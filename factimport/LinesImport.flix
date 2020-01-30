@@ -14,46 +14,42 @@
  * limitations under the License.
  */
 
-///
-/// Represents a Text line.
-///
-opaque type FileLine = Str
+
 
 ///
-/// Represents a FileLine source (internally an iterator on a text file).
+/// Represents a source of text lines (internally an iterator on a text file).
 ///
-opaque type FileLineSource = ##flix.runtime.factimport.FileLineIterator
+opaque type LinesSource = ##flix.runtime.factimport.LinesIterator
 
-type alias FileLineResult[t] = Validation[t, Str]
+type alias LineResult[t] = Validation[t, Str]
 
-namespace FileLineImport {
+namespace LinesImport {
 
-    pub def newFileLineSource(filepath: Str): Result[FileLineSource, Str] =
+    pub def newLinesSource(filepath: Str): Result[LinesSource, Str] =
         try {
-            let iterator = native new flix.runtime.factimport.FileLineIterator(filepath);
-            FileLineSource(iterator) |> Ok
+            let iterator = native new flix.runtime.factimport.LinesIterator(filepath);
+            LinesSource(iterator) |> Ok
         } catch {
             case _: ##java.io.FileNotFoundException => Err("newTextLineSource - file not found")
             case _: ##java.io.IOException => Err("newTextLineSource - io exception")
         }
 
-    def hasNext(src: FileLineSource): Bool =
-        let FileLineSource(iterator) = src;
-        native method flix.runtime.factimport.FileLineIterator.hasNext(iterator) as Bool
+    def hasNext(src: LinesSource): Bool =
+        let LinesSource(iterator) = src;
+        native method flix.runtime.factimport.LinesIterator.hasNext(iterator) as Bool
 
-    def nextRow(src: FileLineSource): FileLine =
-        let FileLineSource(iterator) = src;
-        let textline = native method flix.runtime.factimport.FileLineIterator.next(iterator) as Str;
-        FileLine(textline)
+    def nextRow(src: LinesSource): Str =
+        let LinesSource(iterator) = src;
+        native method flix.runtime.factimport.LinesIterator.next(iterator) as Str
 
     ///
     /// Track line number for errors.
     ///
-    pub def collect(f: FileLine -> FileLineResult[reln], src: FileLineSource): Result[reln, Str] =
+    pub def collect(f: Str -> LineResult[reln], src: LinesSource): Result[reln, Str] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def collectHelper(f: FileLine -> FileLineResult[reln], src: FileLineSource, n: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+    def collectHelper(f: Str -> LineResult[reln], src: LinesSource, n: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
         if (!hasNext(src))
             sk(#{ })
         else {
@@ -62,4 +58,8 @@ namespace FileLineImport {
                 case Ok(x) => collectHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
             }
         }
+
+    pub def nonempty(s: Str): LineResult[Str] =
+        if (String.length(s) > 0) Validation.pure(s) else Validation.error("nonempty")
+
 }
