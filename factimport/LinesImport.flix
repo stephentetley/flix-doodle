@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-
-
 ///
 /// Represents a source of text lines (internally an iterator on a text file).
 ///
 opaque type LinesSource = ##flix.runtime.factimport.LinesIterator
 
-type alias LineResult[t] = Validation[t, Str]
+type alias LineResult[t] = Validation[t, String]
 
 namespace LinesImport {
 
-    pub def newLinesSource(filepath: Str): Result[LinesSource, Str] =
+    pub def newLinesSource(filepath: String): Result[LinesSource, String] =
         try {
-            let iterator = native new flix.runtime.factimport.LinesIterator(filepath);
+            import new flix.runtime.factimport.LinesIterator(String) as newLinesIterator;
+            let iterator = newLinesIterator(filepath);
             LinesSource(iterator) |> Ok
         } catch {
             case _: ##java.io.FileNotFoundException => Err("newTextLineSource - file not found")
@@ -36,20 +35,22 @@ namespace LinesImport {
 
     def hasNext(src: LinesSource): Bool =
         let LinesSource(iterator) = src;
-        native method flix.runtime.factimport.LinesIterator.hasNext(iterator) as Bool
+        import flix.runtime.factimport.LinesIterator.hasNext();
+        iterator.hasNext()
 
-    def nextRow(src: LinesSource): Str =
+    def nextRow(src: LinesSource): String =
         let LinesSource(iterator) = src;
-        native method flix.runtime.factimport.LinesIterator.next(iterator) as Str
+        import flix.runtime.factimport.LinesIterator.next();
+        iterator.next()
 
     ///
     /// Track line number for errors.
     ///
-    pub def collect(f: Str -> LineResult[reln], src: LinesSource): Result[reln, Str] =
+    pub def collect(f: Str -> LineResult[reln], src: LinesSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def collectHelper(f: Str -> LineResult[reln], src: LinesSource, n: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+    def collectHelper(f: String -> LineResult[reln], src: LinesSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
         if (!hasNext(src))
             sk(#{ })
         else {
@@ -59,7 +60,7 @@ namespace LinesImport {
             }
         }
 
-    pub def nonempty(s: Str): LineResult[Str] =
+    pub def nonempty(s: String): LineResult[Str] =
         if (String.length(s) > 0) Validation.pure(s) else Validation.error("nonempty")
 
 }

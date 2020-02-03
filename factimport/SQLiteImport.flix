@@ -24,16 +24,17 @@ opaque type SQLiteRow = ##flix.runtime.factimport.SQLiteRow
 ///
 opaque type SQLiteSource = ##flix.runtime.factimport.SQLiteIterator
 
-type alias SQLiteResult[t] = Validation[t, Str]
+type alias SQLiteResult[t] = Validation[t, String]
 
 namespace SQLiteImport {
 
     ///
     /// Returns a new SQLite reader.
     ///
-    pub def newSQLiteSource(filepath: Str, query: Str): Result[SQLiteSource, Str] =
+    pub def newSQLiteSource(filepath: String, query: String): Result[SQLiteSource, String] =
         try {
-            let iterator = native new flix.runtime.factimport.SQLiteIterator(filepath, query);
+            import new flix.runtime.factimport.SQLiteIterator(String, String) as newSQLiteIterator;
+            let iterator = newSQLiteIterator(filepath, query);
             SQLiteSource(iterator) |> Ok
         } catch {
             case _: ##java.sql.SQLException => Err("newSQLiteSource - file not found")
@@ -43,21 +44,23 @@ namespace SQLiteImport {
     def next(iterator: SQLiteSource): Bool =
         let SQLiteSource(rator1) = iterator;
         try {
-            native method flix.runtime.factimport.SQLiteIterator.next(rator1) as Bool
+            import flix.runtime.factimport.SQLiteIterator.next();
+            rator1.next()
         } catch {
             case _: ##java.sql.SQLException => false
         }
 
     def getRow(iterator: SQLiteSource): SQLiteRow =
         let SQLiteSource(rator1) = iterator;
-        let row = native method flix.runtime.factimport.SQLiteIterator.getRow(rator1);
+        import flix.runtime.factimport.SQLiteIterator.getRow();
+        let row = rator1.getRow();
         SQLiteRow(row)
 
-    pub def collect(f: SQLiteRow -> SQLiteResult[reln], src: SQLiteSource): Result[reln, Str] =
+    pub def collect(f: SQLiteRow -> SQLiteResult[reln], src: SQLiteSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def collectHelper(f: SQLiteRow -> SQLiteResult[reln], src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+    def collectHelper(f: SQLiteRow -> SQLiteResult[reln], src: SQLiteSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
         if (!next(src))
             sk(#{ })
         else {
@@ -67,11 +70,11 @@ namespace SQLiteImport {
             }
         }
 
-    pub def collectWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln], src: SQLiteSource): Result[reln, Str] =
+    pub def collectWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln], src: SQLiteSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectWithCountHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def collectWithCountHelper(f: (SQLiteRow, Int32) -> SQLiteResult[reln], src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+    def collectWithCountHelper(f: (SQLiteRow, Int32) -> SQLiteResult[reln], src: SQLiteSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
         if (!next(src))
             sk(#{ })
         else {
@@ -82,11 +85,11 @@ namespace SQLiteImport {
             }
         }
 
-    pub def collectAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)], state: st, src: SQLiteSource): Result[(reln, st), Str] =
+    pub def collectAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)], state: st, src: SQLiteSource): Result[(reln, st), String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectAccumHelper(f, state, src, 0, failk, (relns, st) -> Ok(relns, st))
 
-    def collectAccumHelper(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)], state: st, src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[(reln, st), Str], sk: (reln, st) -> Result[(reln, st), Str]): Result[(reln, st), Str] =
+    def collectAccumHelper(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)], state: st, src: SQLiteSource, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] =
         if (!next(src))
             sk(state, #{ })
         else {
@@ -97,11 +100,11 @@ namespace SQLiteImport {
             }
         }
 
-    pub def choose(f: SQLiteRow -> SQLiteResult[Option[reln]], src: SQLiteSource): Result[reln, Str] =
+    pub def choose(f: SQLiteRow -> SQLiteResult[Option[reln]], src: SQLiteSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         chooseHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def chooseHelper(f: SQLiteRow -> SQLiteResult[Option[reln]], src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+    def chooseHelper(f: SQLiteRow -> SQLiteResult[Option[reln]], src: SQLiteSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
         if (!next(src))
             sk(#{ })
         else {
@@ -112,11 +115,11 @@ namespace SQLiteImport {
             }
         }
 
-    pub def chooseWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[Option[reln]], src: SQLiteSource): Result[reln, Str] =
+    pub def chooseWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[Option[reln]], src: SQLiteSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         chooseWithCountHelper(f, src, 0, 0, failk, relns -> Ok(relns))
 
-    def chooseWithCountHelper(f: (SQLiteRow, Int32) -> SQLiteResult[Option[reln]], src: SQLiteSource, rownum: Int32, count: Int32, fk: (Int32, List[Str]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+    def chooseWithCountHelper(f: (SQLiteRow, Int32) -> SQLiteResult[Option[reln]], src: SQLiteSource, rownum: Int32, count: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
         if (!next(src))
             sk(#{ })
         else {
@@ -128,11 +131,11 @@ namespace SQLiteImport {
             }
         }
 
-    pub def chooseAccum(f: (SQLiteRow, st) -> SQLiteResult[(Option[reln], st)], state: st, src: SQLiteSource): Result[(reln, st), Str] =
+    pub def chooseAccum(f: (SQLiteRow, st) -> SQLiteResult[(Option[reln], st)], state: st, src: SQLiteSource): Result[(reln, st), String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         chooseAccumHelper(f, state, src, 0, failk, (relns, st) -> Ok(relns, st))
 
-    def chooseAccumHelper(f: (SQLiteRow, st) -> SQLiteResult[(Option[reln], st)], state: st, src: SQLiteSource, n: Int32, fk: (Int32, List[Str]) -> Result[(reln, st), Str], sk: (reln, st) -> Result[(reln, st), Str]): Result[(reln, st), Str] =
+    def chooseAccumHelper(f: (SQLiteRow, st) -> SQLiteResult[(Option[reln], st)], state: st, src: SQLiteSource, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] =
         if (!next(src))
             sk(state, #{ })
         else {
@@ -144,19 +147,21 @@ namespace SQLiteImport {
             }
         }
 
-    pub def getStringByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Str] =
+    pub def getStringByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[String] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getStringByIndex(r1, ix) as Str;
+            import flix.runtime.factimport.SQLiteRow.getStringByIndex(Int32);
+            let a = r1.getStringByIndex(ix);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.IllegalArgumentException => Validation.fatal("getStringByIndex: " + Int32.toString(ix))
         }
 
-    pub def getStringByLabel(row: SQLiteRow, label: Str): SQLiteResult[Str] =
+    pub def getStringByLabel(row: SQLiteRow, label: String): SQLiteResult[String] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getStringByLabel(r1, label) as Str;
+            import flix.runtime.factimport.SQLiteRow.getStringByLabel(String);
+            let a = r1.getStringByLabel(label);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.IllegalArgumentException => Validation.fatal("getStringByLabel: " + label)
@@ -165,17 +170,19 @@ namespace SQLiteImport {
     pub def getInt8ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int8] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getByteByIndex(r1, ix) as Int8;
+            import flix.runtime.factimport.SQLiteRow.getByteByIndex(Int32);
+            let a = r1.getByteByIndex(ix);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getInt8ByIndex: " + Int32.toString(ix))
             case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt8ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getInt8ByLabel(row: SQLiteRow, label: Str): SQLiteResult[Int8] =
+    pub def getInt8ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int8] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getByteByLabel(r1, label) as Int8;
+            import flix.runtime.factimport.SQLiteRow.getByteByLabel(String);
+            let a = r1.getByteByLabel(label);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getInt8ByLabel: " + label)
@@ -185,17 +192,19 @@ namespace SQLiteImport {
     pub def getInt16ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int16] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getShortByIndex(r1, ix) as Int16;
+            import flix.runtime.factimport.SQLiteRow.getShortByIndex(Int32);
+            let a = r1.getShortByIndex(ix);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getInt16ByIndex: " + Int32.toString(ix))
             case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt16ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getInt16ByLabel(row: SQLiteRow, label: Str): SQLiteResult[Int16] =
+    pub def getInt16ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int16] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getShortByLabel(r1, label) as Int16;
+            import flix.runtime.factimport.SQLiteRow.getShortByLabel(String);
+            let a = r1.getShortByLabel(label);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getInt16ByLabel: " + label)
@@ -205,17 +214,19 @@ namespace SQLiteImport {
     pub def getInt32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int32] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getIntByIndex(r1, ix) as Int32;
+            import flix.runtime.factimport.SQLiteRow.getIntByIndex(Int32);
+            let a = r1.getIntByIndex(ix);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getInt32ByIndex: " + Int32.toString(ix))
             case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt32ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getInt32ByLabel(row: SQLiteRow, label: Str): SQLiteResult[Int32] =
+    pub def getInt32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int32] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getIntByLabel(r1, label) as Int32;
+            import flix.runtime.factimport.SQLiteRow.getIntByLabel(String);
+            let a = r1.getIntByLabel(label);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getInt32ByLabel: " + label)
@@ -225,17 +236,19 @@ namespace SQLiteImport {
     pub def getInt64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int64] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getLongByIndex(r1, ix) as Int64;
+            import flix.runtime.factimport.SQLiteRow.getLongByIndex(Int32);
+            let a = r1.getLongByIndex(ix);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getInt64ByIndex: " + Int32.toString(ix))
             case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt64ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getInt64ByLabel(row: SQLiteRow, label: Str): SQLiteResult[Int64] =
+    pub def getInt64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int64] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getLongByLabel(r1, label) as Int64;
+            import flix.runtime.factimport.SQLiteRow.getLongByLabel(String);
+            let a = r1.getLongByLabel(label);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getInt64ByLabel: " + label)
@@ -245,17 +258,19 @@ namespace SQLiteImport {
     pub def getFloat32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float32] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getFloatByIndex(r1, ix) as Float32;
+            import flix.runtime.factimport.SQLiteRow.getFloatByIndex(Int32);
+            let a = r1.getFloatByIndex(ix);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getFloat32ByIndex: " + Int32.toString(ix))
             case _: ##java.lang.IllegalArgumentException => Validation.fatal("getFloat32ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getFloat32ByLabel(row: SQLiteRow, label: Str): SQLiteResult[Float32] =
+    pub def getFloat32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float32] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getFloatByLabel(r1, label) as Float32;
+            import flix.runtime.factimport.SQLiteRow.getFloatByLabel(String);
+            let a = r1.getFloatByLabel(label);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getFloat32ByLabel: " + label)
@@ -265,17 +280,19 @@ namespace SQLiteImport {
     pub def getFloat64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float64] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getDoubleByIndex(r1, ix) as Float64;
+            import flix.runtime.factimport.SQLiteRow.getDoubleByIndex(Int32);
+            let a = r1.getDoubleByIndex(ix);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getFloat64ByIndex: " + Int32.toString(ix))
             case _: ##java.lang.IllegalArgumentException => Validation.fatal("getFloat64ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getFloat64ByLabel(row: SQLiteRow, label: Str): SQLiteResult[Float64] =
+    pub def getFloat64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float64] =
         let SQLiteRow(r1) = row;
         try {
-            let a = native method flix.runtime.factimport.SQLiteRow.getDoubleByLabel(r1, label) as Float64;
+            import flix.runtime.factimport.SQLiteRow.getDoubleByLabel(String);
+            let a = r1.getDoubleByLabel(label);
             Validation.pure(a)
         } catch {
             case _: ##java.lang.NumberFormatException => Validation.error("getFloat64ByLabel: " + label)
