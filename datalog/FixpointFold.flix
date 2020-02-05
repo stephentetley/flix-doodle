@@ -1,5 +1,3 @@
-//  :load e:/coding/flix/flix-doodle/_thirdparty/fixpoint-fold.flix
-
 rel Book(name: String)
 
 def count[a](_: a, acc:Int32): Int32 = acc + 1
