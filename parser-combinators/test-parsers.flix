@@ -199,6 +199,13 @@ def int3202(): Result[List[Int32], String] =
 
 
 @test
+def float3201(): Result[List[Float32], String] = 
+    let parser = StringParser.sepBy(StringParser.float32(), StringParser.comma());
+    StringParser.run(parser, "-1.0,0.0,1000.1,999.0003,3.007,-10.9,99.67543,6.0")
+
+
+
+@test
 def bounded01(): Result[(String, String), String] = 
     let token = StringParser.lexeme(StringParser.string("1234567"));
     let parser = StringParser.pipe2(
@@ -206,6 +213,18 @@ def bounded01(): Result[(String, String), String] =
                     StringParser.restOfInput(),
                     (x,y) -> (x,y));
     StringParser.run(parser, "1234567     rest")
+
+
+
+/// temp
+
+@test
+def temp01(): Float64 = 
+    Float64.fromString("2000.01") |> x -> Result.getWithDefault(x, 0.0f64)
+
+@test
+def temp02(): Float64 = 
+    Float64.fromString("2000") |> x -> Result.getWithDefault(x, 0.0f64)
 
 
 /// temp

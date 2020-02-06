@@ -125,8 +125,41 @@ namespace StringParser {
     pub def pipe2(p1: Parser[a], p2: Parser[b], f: (a,b) -> ans): Parser[ans] = 
         liftM2(f, p1, p2)
 
-    pub def pair2(p1: Parser[a], p2: Parser[b]): Parser[(a,b)] = 
-        liftM2((x,y) -> (x,y), p1, p2)
+    pub def pipe3(p1: Parser[a], p2: Parser[b], p3: Parser[c], f: (a,b,c) -> ans): Parser[ans] = 
+        liftM3(f, p1, p2, p3)
+
+    pub def pipe4(p1: Parser[a], p2: Parser[b], p3: Parser[c], p4: Parser[d], f: (a,b,c,d) -> ans): Parser[ans] = 
+        liftM4(f, p1, p2, p3, p4)
+
+    pub def pipe5(p1: Parser[a], p2: Parser[b], p3: Parser[c], p4: Parser[d], p5: Parser[e], f: (a,b,c,d,e) -> ans): Parser[ans] = 
+        liftM5(f, p1, p2, p3, p4, p5)
+
+    pub def tuple2(p1: Parser[a], p2: Parser[b]): Parser[(a,b)] = 
+        pipe2(p1, p2, (a,b) -> (a,b))
+
+    pub def tuple3(p1: Parser[a], p2: Parser[b], p3: Parser[c]): Parser[(a,b,c)] = 
+        pipe3(p1, p2, p3, (a,b,c) -> (a,b,c))
+
+    pub def tuple4(p1: Parser[a], p2: Parser[b], p3: Parser[c], p4: Parser[d]): Parser[(a,b,c,d)] = 
+        pipe4(p1, p2, p3, p4, (a,b,c,d) -> (a,b,c,d))
+
+    pub def tuple5(p1: Parser[a], p2: Parser[b], p3: Parser[c], p4: Parser[d], p5: Parser[d]): Parser[(a,b,c,d,e)] = 
+        pipe5(p1, p2, p3, p4, p5, (a,b,c,d, e) -> (a,b,c,d,e))
+
+
+    pub def string2(p1: Parser[String], p2: Parser[String]): Parser[String] = 
+        pipe2(p1, p2, (a,b) -> a + b)
+
+    pub def string3(p1: Parser[String], p2: Parser[String], p3: Parser[String]): Parser[String] = 
+        pipe3(p1, p2, p3, (a,b,c) -> a + b + c)
+
+    pub def string4(p1: Parser[String], p2: Parser[String], p3: Parser[String], p4: Parser[String]): Parser[String] = 
+        pipe4(p1, p2, p3, p4, (a,b,c,d) -> a + b + c + d)
+
+    pub def string5(p1: Parser[String], p2: Parser[String], p3: Parser[String], p4: Parser[String], p5: Parser[String]): Parser[String] = 
+        pipe5(p1, p2, p3, p4, p5, (a,b,c,d, e) -> a + b + c + d + e)
+
+    // TODO `strings`
 
     pub def seqLeft(pa: Parser[a], pb: Parser[b]): Parser[a] =
         bind(pa, a -> bind(pb, _ -> return(a)))
@@ -402,11 +435,11 @@ namespace StringParser {
     def sign(): Parser[String] = 
         option("", alt(string("+"), string("-")))
 
-    def digits(): Parser[String] = 
+    def digitString(): Parser[String] = 
         many1(digit()) |> fmap(List.toString)
 
     def intString(): Parser[String] = 
-        liftM2((x,y) -> x + y, sign(), digits())
+        liftM2((x,y) -> x + y, sign(), digitString())
 
     def primInt8(): Parser[Int8] =
         bind(intString(), v1 -> match Int8.fromString(v1) {
@@ -448,4 +481,27 @@ namespace StringParser {
 
     pub def bigInt(): Parser[BigInt] = lexeme(primBigInt())
     
+    def floatString(): Parser[String] = 
+        string4( 
+            sign(), 
+            intString(),
+            string("."),
+            intString())
+    
+    def primFloat32(): Parser[Float32] =
+        bind(floatString(), v1 -> match Float32.fromString(v1) {
+            case Err(_) => throwError("float32")
+            case Ok(i) => return(i)
+        })
+
+    pub def float32(): Parser[Float32] = lexeme(primFloat32())
+    
+    def primFloat64(): Parser[Float64] =
+        bind(floatString(), v1 -> match Float64.fromString(v1) {
+            case Err(_) => throwError("float64")
+            case Ok(i) => return(i)
+        })
+
+    pub def float64(): Parser[Float64] = lexeme(primFloat64())    
+
 }
