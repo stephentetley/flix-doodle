@@ -463,6 +463,7 @@ namespace Array2 {
             else 
                 existsHelper(f, a, i+1)
         }
+        
     ///
     /// Returns `true` if and only if all elements in `a` satisfy the predicate `f`.
     ///

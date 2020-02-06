@@ -1,6 +1,3 @@
-
-
-
 @test
 def fail01() : Result[Unit, Str] = 
     StringParser.run(StringParser.fail(), "")
@@ -125,7 +122,7 @@ def sepEndBy103(): Result[List[Char], Str] =
 @test
 def choice01(): Result[Char, Str] = 
     let parser = 
-        StringParser.choice(StringParser.digit() :: StringParser.char('#') :: Nil);
+        StringParser.choice([StringParser.digit(), StringParser.char('#')]);
     StringParser.run(parser, "#") 
 
 @test
@@ -199,6 +196,56 @@ def tempReadInt3201(): Result[Int32, Str] = Int32.fromString("-1")
 def int3202(): Result[List[Int32], Str] = 
     let parser = StringParser.sepBy(StringParser.int32(), StringParser.comma());
     StringParser.run(parser, "-1,0,1000,999,3,-10,99,6")
+
+
+@test
+def bounded01(): Result[(String, String), String] = 
+    let token = StringParser.lexeme(StringParser.string("1234567"));
+    let parser = StringParser.pipe2(
+                    StringParser.bounded(token, 10), 
+                    StringParser.restOfInput(),
+                    (x,y) -> (x,y));
+    StringParser.run(parser, "1234567     rest")
+
+
+/// temp
+
+def prefix(): StringParser.Parser[String] = 
+    StringParser.manyChars(StringParser.oneOf([ ' ', '|', '-' ]))
+
+@test
+def prefix01(): Result[String, String] = 
+    StringParser.run(prefix(), "   |       |---   ")
+
+def path(): StringParser.Parser[String] = 
+    let rest = StringParser.choice([
+                    StringParser.upper(), 
+                    StringParser.digit(), 
+                    StringParser.char('-')]);
+    StringParser.manyChars2(StringParser.upper(), rest)
+
+@test
+def path01(): Result[String, String] = 
+    StringParser.run(path(), "YWS-C-DMA-F651")
+
+def description1(): StringParser.Parser[String] = 
+    StringParser.many1Chars(StringParser.anyChar())
+
+@test
+def description101(): Result[String, String] = 
+    StringParser.run(description1(), "North Station")
+
+def description(): StringParser.Parser[String] = 
+    StringParser.fmap(
+        String.trim, 
+        StringParser.bounded(description1(), 40))
+
+@test
+def description01(): Result[String, String] = 
+    StringParser.run(description(), "South Station                               ")
+
+
+
 
 
 

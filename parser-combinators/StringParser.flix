@@ -60,7 +60,7 @@ namespace StringParser {
                 bind(p3, v3 -> return(f(v1, v2, v3)))))
 
     pub def liftM4(f: (a, b, c, d) -> ans, p1: Parser[a], p2: Parser[b], p3: Parser[c], p4: Parser[d]): Parser[ans] = 
-        bind(p1, v1 -> 
+        bind(p1, v1 ->
             bind(p2, v2 -> 
                 bind(p3, v3 -> 
                     bind(p4, v4 -> return(f(v1, v2, v3, v4))))))
@@ -78,6 +78,15 @@ namespace StringParser {
             case Err(msg) => Err(msg)
             case Ok((a, _)) => Ok(a)
         }
+        
+    pub def position(): Parser[Int32] =
+        Parser((_, pos) -> Ok(pos, pos))
+
+    pub def bounded(p: Parser[a], length: Int32): Parser[a] = 
+        Parser((inp, pos) -> match Util.trySlice(0, pos+length, inp) {
+            case None => Err("bounded")
+            case Some(s) => apply1(p, s, pos)
+        })
 
     pub def throwError(msg: Str): Parser[ans] = 
         Parser((_,_) -> Err(msg))
@@ -111,6 +120,13 @@ namespace StringParser {
 
     pub def ap(pf: Parser[a -> b], pa: Parser[a]): Parser[b] =
         bind(pf, f -> bind(pa, a -> return(f(a))))
+
+
+    pub def pipe2(p1: Parser[a], p2: Parser[b], f: (a,b) -> ans): Parser[ans] = 
+        liftM2(f, p1, p2)
+
+    pub def pair2(p1: Parser[a], p2: Parser[b]): Parser[(a,b)] = 
+        liftM2((x,y) -> (x,y), p1, p2)
 
     pub def seqLeft(pa: Parser[a], pb: Parser[b]): Parser[a] =
         bind(pa, a -> bind(pb, _ -> return(a)))
@@ -211,12 +227,14 @@ namespace StringParser {
             }
         })
 
-    pub def choice(ps: List[Parser[ans]]): Parser[ans] = 
+    pub def choice(ps: Array[Parser[ans]]): Parser[ans] = choiceHelper(Array.toList(ps))
+
+    def choiceHelper(ps: List[Parser[ans]]): Parser[ans] = 
         Parser((inp, pos) -> match ps {
                 case Nil => Err("choice")
                 case p :: rs =>  match apply1(p, inp, pos) {
                     case Ok(a, pos1) => Ok(a, pos1)
-                    case Err(_) => apply1(choice(rs), inp, pos)
+                    case Err(_) => apply1(choiceHelper(rs), inp, pos)
                 }
             })
 
@@ -244,6 +262,16 @@ namespace StringParser {
                 case Ok(a, pos1) => manyTillHelper(p, end, inp, pos1, (xs,posk) -> sk(a :: xs, posk), fk)
             }
         }
+
+    pub def manyChars(p: Parser[Char]): Parser[String] = 
+        fmap(Util.makeString, many(p))
+
+    pub def manyChars2(p1: Parser[Char], p2: Parser[Char]): Parser[String] = 
+        bind(p1, c -> bind(many(p2), cs -> return(Util.makeString(c :: cs))))
+
+
+    pub def many1Chars(p: Parser[Char]): Parser[String] = 
+        fmap(Util.makeString, many1(p))
 
     // TODO chain combinators
     pub def chainl1(p: Parser[a], op: Parser[(a, a) -> a]): Parser[a] = 
@@ -275,6 +303,14 @@ namespace StringParser {
     pub def eof() : Parser[Unit] = 
         Parser((inp, pos) -> if (pos >= String.length(inp)) Ok((), pos) else Err("eof"))
 
+    pub def restOfInput(): Parser[String] = 
+        Parser((inp, pos) -> 
+            let end = String.length(inp) - 1;
+            match Util.trySlice(pos, end, inp) {
+                case None => Ok("", end)
+                case Some(s) => Ok(s, end)
+            })
+
     pub def notFollowedBy(p: Parser[ans]): Parser[Unit] = 
         Parser((inp, pos) -> match apply1(p, inp, pos) {
             case Err(_) => Ok((), pos)
@@ -283,18 +319,22 @@ namespace StringParser {
 
 
     pub def oneOf(cs: Array[Char]): Parser[Char] = 
-        satisfy(ch -> Array.memberOf(ch, cs)) |> swapError("oneOf")
+        satisfy(ch -> Util.arrayMemberOf(ch, cs)) |> swapError("oneOf")
 
     pub def noneOf(cs: Array[Char]): Parser[Char] = 
-        satisfy(ch -> !Array.memberOf(ch, cs)) |> swapError("noneOf")
+        satisfy(ch -> !Util.arrayMemberOf(ch, cs)) |> swapError("noneOf")
 
     pub def char(c: Char): Parser[Char] = 
         satisfy(ch -> ch == c) |> swapError("char")
     
-    pub def horizon(i: Int): Parser[Str] = 
-        Parser((inp, pos) -> match Util.trySlice(pos, pos+i, inp) {
+
+    /// 
+    /// Returns a string of the next `n` characters from the current position.
+    ///
+    pub def horizon(n: Int): Parser[Str] = 
+        Parser((inp, pos) -> match Util.trySlice(pos, pos+n, inp) {
                 case None => Err("horizon")
-                case Some(s) => Ok(s, pos+i)
+                case Some(s) => Ok(s, pos+n)
             })
 
     pub def string(needle: Str): Parser[Str] = 
