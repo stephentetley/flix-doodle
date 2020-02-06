@@ -19,7 +19,7 @@
 ///
 pub enum JoinString {
     case Empty,
-    case Text(Str),
+    case Text(String),
     case Char(Char),
     case Join(JoinString, JoinString)
 }
@@ -28,7 +28,7 @@ namespace JoinString {
 
     pub def new() : JoinString = Empty
 
-    pub def toString(js: JoinString): Str = 
+    pub def toString(js: JoinString): String = 
         let sb = StringBuilder.new();
         toStringHelper(sb, js);
         StringBuilder.toString(sb)
@@ -49,7 +49,7 @@ namespace JoinString {
         case (_, _) => Join(j1,j2) 
     }
 
-    pub def appendString(j1: JoinString, s: Str): JoinString = append(j1, Text(s))
+    pub def appendString(j1: JoinString, s: String): JoinString = append(j1, Text(s))
 
     pub def appendChar(j1: JoinString, c: Char): JoinString = append(j1, Char(c))
 

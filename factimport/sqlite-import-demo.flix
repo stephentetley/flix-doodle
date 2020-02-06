@@ -1,8 +1,8 @@
-def fail1(msg: Str): reln = 
+def fail1(msg: String): reln = 
     Console.printLine(msg);
     #{ }
 
-rel Lang(name: Str, year: Int32)
+rel Lang(name: String, year: Int32)
 
 def getLang (row: SQLiteRow): SQLiteResult[#{Lang}] = 
     Validation.pipeV2(

@@ -1,19 +1,19 @@
-def fail1(msg: Str): reln = 
+def fail1(msg: String): reln = 
     Console.printLine(msg);
     #{ }
 
 
-rel Colour(name: Str)
+rel Colour(name: String)
 
-def makeColour(name: Str): #{ Colour } = 
+def makeColour(name: String): #{ Colour } = 
     Colour(name).
 
-def getColour(line: Str): LineResult[#{Colour}] = 
+def getColour(line: String): LineResult[#{ Colour }] = 
     Validation.fmap(makeColour, LinesImport.nonempty(line))
 
 
 
-pub def test01(): #{Colour} =
+pub def test01(): #{ Colour } =
     let path = "e:/coding/flix/flix-doodle/factimport/data/colours.txt";
     match LinesImport.newLinesSource(path) {
         case Err(msg) => fail1(msg)

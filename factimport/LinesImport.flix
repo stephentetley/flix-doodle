@@ -46,7 +46,7 @@ namespace LinesImport {
     ///
     /// Track line number for errors.
     ///
-    pub def collect(f: Str -> LineResult[reln], src: LinesSource): Result[reln, String] =
+    pub def collect(f: String -> LineResult[reln], src: LinesSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectHelper(f, src, 0, failk, relns -> Ok(relns))
 
@@ -60,7 +60,7 @@ namespace LinesImport {
             }
         }
 
-    pub def nonempty(s: String): LineResult[Str] =
+    pub def nonempty(s: String): LineResult[String] =
         if (String.length(s) > 0) Validation.pure(s) else Validation.error("nonempty")
 
 }

@@ -1,6 +1,6 @@
 // Declare relations
-rel Dummy(name: Str, whatever:Str, intval: Int32)
-rel IsZero(name: Str)
+rel Dummy(name: String, whatever: String, intval: Int32)
+rel IsZero(name: String)
 
 def getFacts[r](): #{ Dummy | r } = #{
     Dummy("a", "blue", 0).

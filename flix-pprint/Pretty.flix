@@ -18,7 +18,7 @@ namespace Pretty {
 
     pub enum Doc {
         case Empty,
-        case Text(Str),
+        case Text(String),
         case Line(Bool),
         case Cat(Doc,Doc),
         case Nest(Int32,Doc),
@@ -29,11 +29,11 @@ namespace Pretty {
 
     enum SimpleDoc {
         case SEmpty,
-        case SText(Str, SimpleDoc),
-        case SLine(Str, SimpleDoc)
+        case SText(String, SimpleDoc),
+        case SLine(String, SimpleDoc)
     }
 
-    def extend(s: Str, n: Int32): Str = 
+    def extend(s: String, n: Int32): String = 
         s + String.repeat(" ", n)
 
 
@@ -59,7 +59,7 @@ namespace Pretty {
     def layout (width: Int32, doc: Doc): SimpleDoc = 
         layoutBest(width, 0, ("",doc) :: Nil, false, identity, _ -> SEmpty)
 
-    def layoutBest(width: Int32, col: Int32, docs: List[(Str, Doc)], alternate: Bool, sk: SimpleDoc -> SimpleDoc, fk: Unit -> SimpleDoc): SimpleDoc = 
+    def layoutBest(width: Int32, col: Int32, docs: List[(String, Doc)], alternate: Bool, sk: SimpleDoc -> SimpleDoc, fk: Unit -> SimpleDoc): SimpleDoc = 
         match docs {
             case Nil => sk(SEmpty)
             case (_, Empty) :: rs => layoutBest(width, col, rs, alternate, sk, fk)
@@ -86,7 +86,7 @@ namespace Pretty {
                 layoutBest(width, col, (iz, fn(String.length(iz))) :: rs, alternate, sk, fk)
         }
 
-    def isTooBig(text: Str, col: Int32, width: Int32) : Bool = 
+    def isTooBig(text: String, col: Int32, width: Int32) : Bool = 
         col + String.length(text) > width
 
 
@@ -94,7 +94,7 @@ namespace Pretty {
     /// Pretty print the document to a string.
     /// Lines are terminated with the operating systems default line terminator.
     ///
-    pub def prettyPrint(width: Int32, doc: Doc) : Str = 
+    pub def prettyPrint(width: Int32, doc: Doc) : String = 
         let sb = StringBuilder.new();
         let simpleDoc = layout(width, doc);
         prettyPrintHelper(sb, simpleDoc, identity);
@@ -133,7 +133,7 @@ namespace Pretty {
     /// Generate the document containing the literal string `s`.
     /// The input text should not contain newline characters.
     ///
-    pub def text(s: Str): Doc = Text(s)
+    pub def text(s: String): Doc = Text(s)
 
     ///
     /// Undocumented - used by `align`.
@@ -357,7 +357,7 @@ namespace Pretty {
     ///
     pub def bigInt(i: BigInt): Doc = BigInt.toString(i) |> text
 
-    pub def repeatString(s: Str, n: Int32): Doc = 
+    pub def repeatString(s: String, n: Int32): Doc = 
         String.repeat(s, n) |> text
 
     pub def repeat(d: Doc, n: Int32): Doc = 

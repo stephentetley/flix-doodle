@@ -1,11 +1,11 @@
-def fail1(msg: Str): reln = 
+def fail1(msg: String): reln = 
     Console.printLine(msg);
     #{ }
 
 
-rel Name(name: Str)
+rel Name(name: String)
 
-def makeName(name: Str): #{ Name } = 
+def makeName(name: String): #{ Name } = 
     Name(name).
 
 def getName(row: CsvRow): CsvResult[#{Name}] = 
@@ -26,7 +26,7 @@ pub def test01(): #{Name} =
     
 
 
-rel Station(name: Str, gridref: Str)
+rel Station(name: String, gridref: String)
 
 
 def getStation(row: CsvRow): CsvResult[#{Station}] = 

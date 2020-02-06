@@ -1,6 +1,6 @@
-rel Child(x: Str)
-rel Boy(x: Str)
-rel Girl(x: Str)
+rel Child(x: String)
+rel Boy(x: String)
+rel Girl(x: String)
 
 @test
 def test01(): #{ Child, Boy, Girl } = solve #{

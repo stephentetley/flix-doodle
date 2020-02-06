@@ -2,9 +2,9 @@
 // The iteration procedure `getFacts` is polymorphic
 
 // Declare a relation
-rel Dummy(name: Str)
+rel Dummy(name: String)
 
-def makeDummy(name: Str): #{ Dummy } = 
+def makeDummy(name: String): #{ Dummy } = 
     Dummy(name).
 
 def getFacts(f: a -> t , xs: List[a]): t = 

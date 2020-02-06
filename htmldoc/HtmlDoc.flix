@@ -15,12 +15,12 @@
  */
 
 enum HtmlElement {
-    case HtmlText(Str),
-    case HtmlTag(Str, List[HtmlAttr], Html)
+    case HtmlText(String),
+    case HtmlTag(String, List[HtmlAttr], Html)
 }
 
 enum HtmlAttr {
-    case HtmlAttr(Str, Str)
+    case HtmlAttr(String, String)
 }
 
 enum Html {
@@ -29,11 +29,11 @@ enum Html {
     
 namespace HtmlDoc {
     
-    pub def primText(str: Str): HtmlElement = HtmlText(str)
+    pub def primText(s: String): HtmlElement = HtmlText(s)
 
-    pub def attr(name: Str, value: Str): HtmlAttr = HtmlAttr(name, value)
+    pub def attr(name: String, value: String): HtmlAttr = HtmlAttr(name, value)
 
-    pub def tag(name: Str, attrs: List[HtmlAttr], content: Html): HtmlElement = 
+    pub def tag(name: String, attrs: List[HtmlAttr], content: Html): HtmlElement = 
         HtmlTag(name, attrs, content)
 
     pub def append(x: Html, y: Html): Html = match (x, y) {

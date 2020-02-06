@@ -90,11 +90,11 @@ namespace CsvImport {
     ///
     /// Track row number for errors.
     ///
-    pub def collect(f: CsvRow -> CsvResult[reln], src: CsvSource): Result[reln, Str] =
+    pub def collect(f: CsvRow -> CsvResult[reln], src: CsvSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def collectHelper(f: CsvRow -> CsvResult[reln], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, Str], sk: rel -> Result[reln, Str]): Result[reln, Str] =
+    def collectHelper(f: CsvRow -> CsvResult[reln], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] =
         if (!hasNext(src))
             sk(#{ })
         else {
@@ -104,11 +104,11 @@ namespace CsvImport {
             }
         }
 
-    pub def collectWithCount(f: (CsvRow, Int32) -> CsvResult[reln], src: CsvSource): Result[reln, Str] =
+    pub def collectWithCount(f: (CsvRow, Int32) -> CsvResult[reln], src: CsvSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectWithCountHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def collectWithCountHelper(f: (CsvRow, Int32) -> CsvResult[reln], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, Str], sk: rel -> Result[reln, Str]): Result[reln, Str] =
+    def collectWithCountHelper(f: (CsvRow, Int32) -> CsvResult[reln], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] =
         if (!hasNext(src))
             sk(#{ })
         else {
@@ -119,11 +119,11 @@ namespace CsvImport {
             }
         }
 
-    pub def collectAccum(f: (CsvRow, st) -> CsvResult[(reln, st)], state: st, src: CsvSource): Result[(reln, st), Str] =
+    pub def collectAccum(f: (CsvRow, st) -> CsvResult[(reln, st)], state: st, src: CsvSource): Result[(reln, st), String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectAccumHelper(f, state, src, 0, failk, (relns, st) -> Ok(relns, st))
 
-    def collectAccumHelper(f: (CsvRow, st) -> CsvResult[(reln, st)], state: st, src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), Str], sk: (reln, st) -> Result[(reln, st), Str]): Result[(reln, st), Str] =
+    def collectAccumHelper(f: (CsvRow, st) -> CsvResult[(reln, st)], state: st, src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] =
         if (!hasNext(src))
             sk(state, #{ })
         else {
@@ -134,11 +134,11 @@ namespace CsvImport {
             }
         }
 
-    pub def choose(f: CsvRow -> CsvResult[Option[reln]], src: CsvSource): Result[reln, Str] =
+    pub def choose(f: CsvRow -> CsvResult[Option[reln]], src: CsvSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         chooseHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def chooseHelper(f: CsvRow -> CsvResult[Option[reln]], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+    def chooseHelper(f: CsvRow -> CsvResult[Option[reln]], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
         if (!hasNext(src))
             sk(#{ })
         else {
@@ -149,11 +149,11 @@ namespace CsvImport {
             }
         }
 
-    pub def chooseWithCount(f: (CsvRow,Int32) -> CsvResult[Option[reln]], src: CsvSource): Result[reln, Str] =
+    pub def chooseWithCount(f: (CsvRow,Int32) -> CsvResult[Option[reln]], src: CsvSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         chooseWithCountHelper(f, src, 0, 0, failk, relns -> Ok(relns))
 
-    def chooseWithCountHelper(f: (CsvRow,Int32)-> CsvResult[Option[reln]], src: CsvSource, rownum: Int32, count: Int32, fk: (Int32, List[String]) -> Result[reln, Str], sk: reln -> Result[reln, Str]): Result[reln, Str] =
+    def chooseWithCountHelper(f: (CsvRow,Int32)-> CsvResult[Option[reln]], src: CsvSource, rownum: Int32, count: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
         if (!hasNext(src))
             sk(#{ })
         else {
@@ -165,11 +165,11 @@ namespace CsvImport {
             }
         }
 
-    pub def chooseAccum(f: (CsvRow, st) -> CsvResult[(Option[reln], st)], state: st, src: CsvSource): Result[(reln, st), Str] =
+    pub def chooseAccum(f: (CsvRow, st) -> CsvResult[(Option[reln], st)], state: st, src: CsvSource): Result[(reln, st), String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         chooseAccumHelper(f, state, src, 0, failk, (relns, st) -> Ok(relns, st))
 
-    def chooseAccumHelper(f: (CsvRow, st) -> CsvResult[(Option[reln], st)], state: st, src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), Str], sk: (reln, st) -> Result[(reln, st), Str]): Result[(reln, st), Str] =
+    def chooseAccumHelper(f: (CsvRow, st) -> CsvResult[(Option[reln], st)], state: st, src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] =
         if (!hasNext(src))
             sk(state, #{ })
         else {

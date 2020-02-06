@@ -1,11 +1,11 @@
 
-def node(name: Str, kids: Array[Pretty.Doc]): Pretty.Doc = 
+def node(name: String, kids: Array[Pretty.Doc]): Pretty.Doc = 
     match Array.toList(kids) {
         case Nil => Pretty.brackets(Pretty.text(name))
         case ks => Pretty.hang(4, Pretty.brackets(Pretty.vlinebreak(Pretty.text(name), Pretty.vcat(ks))))
     }
 
-def tree1() : Pretty.Doc = 
+def tree1(): Pretty.Doc = 
     node("factx-fsharp",
         [ node("src",
             [ node("bin", [])
@@ -23,5 +23,5 @@ def tree1() : Pretty.Doc =
             ])
         ])
 
-pub def demo01() : Str = 
+pub def demo01(): String = 
     Pretty.prettyPrint(99, tree1())
