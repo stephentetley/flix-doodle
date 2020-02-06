@@ -21,18 +21,18 @@ namespace StringParser {
     
     type alias SrcPos = Int32
 
-    type alias ErrMsg = Str
+    type alias ErrMsg = String
 
 
     pub enum Parser[ans] {
-        case Parser((Str, SrcPos) -> Result[(ans, SrcPos), ErrMsg])
+        case Parser((String, SrcPos) -> Result[(ans, SrcPos), ErrMsg])
     }
 
     pub def fail() : Parser[ans] = Parser((_,_) -> Err("fail"))
 
     pub def return(x: ans): Parser[ans] = Parser((_, pos) -> Ok(x, pos))
 
-    def apply1(parser: Parser[ans], inp: Str, pos: SrcPos): Result[(ans, SrcPos), ErrMsg] = 
+    def apply1(parser: Parser[ans], inp: String, pos: SrcPos): Result[(ans, SrcPos), ErrMsg] = 
         let Parser(f) = parser;
         f(inp, pos)
         
@@ -72,7 +72,7 @@ namespace StringParser {
                     bind(p4, v4 -> 
                         bind(p5, v5 -> return(f(v1, v2, v3, v4, v5)))))))
 
-    pub def run(parser: Parser[a], input: Str): Result[a, ErrMsg] = 
+    pub def run(parser: Parser[a], input: String): Result[a, ErrMsg] = 
         let Parser(f) = parser;
         match f(input, 0) {
             case Err(msg) => Err(msg)
@@ -83,15 +83,15 @@ namespace StringParser {
         Parser((_, pos) -> Ok(pos, pos))
 
     pub def bounded(p: Parser[a], length: Int32): Parser[a] = 
-        Parser((inp, pos) -> match Util.trySlice(0, pos+length, inp) {
+        Parser((inp, pos) -> match Internal.trySlice(0, pos+length, inp) {
             case None => Err("bounded")
             case Some(s) => apply1(p, s, pos)
         })
 
-    pub def throwError(msg: Str): Parser[ans] = 
+    pub def throwError(msg: String): Parser[ans] = 
         Parser((_,_) -> Err(msg))
 
-    pub def swapError(msg: Str, p: Parser[ans]): Parser[ans] = 
+    pub def swapError(msg: String, p: Parser[ans]): Parser[ans] = 
         Parser((inp, pos) -> match apply1(p, inp, pos) { 
                 case Err(_) => Err(msg)
                 case Ok(ans, pos1) => Ok(ans, pos1)
@@ -143,7 +143,7 @@ namespace StringParser {
 
     type alias ListAnswer[ans] = Result[(List[ans], SrcPos), ErrMsg]
 
-    def countHelper(i: Int32, p: Parser[ans], inp: Str, pos: SrcPos, fk: Unit -> ListAnswer[ans], sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
+    def countHelper(i: Int32, p: Parser[ans], inp: String, pos: SrcPos, fk: Unit -> ListAnswer[ans], sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
         if (i <= 0)
             sk(Nil, pos)
         else 
@@ -165,7 +165,7 @@ namespace StringParser {
             bind(many(p), vs -> return(v1 :: vs))) |> swapError("many1")
 
 
-    def manyHelper(p: Parser[ans], inp: Str, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
+    def manyHelper(p: Parser[ans], inp: String, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
         match apply1(p, inp, pos) {
             case Err(_) => sk(Nil, pos)
             case Ok(a, pos1) => manyHelper(p, inp, pos1, (xs,posk) -> sk(a :: xs, posk))
@@ -180,7 +180,7 @@ namespace StringParser {
         seqRight(p, skipMany(p))
 
 
-    def skipManyHelper(p: Parser[ans], inp: Str, pos: SrcPos, sk: SrcPos -> SkipAnswer): SkipAnswer = 
+    def skipManyHelper(p: Parser[ans], inp: String, pos: SrcPos, sk: SrcPos -> SkipAnswer): SkipAnswer = 
         match apply1(p, inp, pos) {
             case Err(_) => sk(pos)
             case Ok(_, pos1) => skipManyHelper(p, inp, pos1, posk -> sk(posk))
@@ -190,7 +190,7 @@ namespace StringParser {
         Parser((inp, pos) -> sepByHelper(p, sep, inp, pos, (xs,pos1)-> Ok(xs, pos1)))
 
 
-    def sepByHelper(p: Parser[ans], sep: Parser[sep], inp: Str, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
+    def sepByHelper(p: Parser[ans], sep: Parser[sep], inp: String, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
         match apply1(p, inp, pos) {
             case Err(_) => sk(Nil, pos)
             case Ok(a, pos1) => manyHelper(seqRight(sep, p), inp, pos1, (xs,posk) -> sk(a :: xs, posk))
@@ -209,7 +209,7 @@ namespace StringParser {
     pub def sepEndBy(p: Parser[ans], sep: Parser[sep]): Parser[List[ans]] = 
         Parser((inp, pos) -> sepEndByHelper(p, sep, inp, pos, (xs,pos1)-> Ok(xs, pos1)))
 
-    def sepEndByHelper(p: Parser[ans], sep: Parser[sep], inp: Str, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
+    def sepEndByHelper(p: Parser[ans], sep: Parser[sep], inp: String, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans]): ListAnswer[ans] = 
         match apply1(p, inp, pos) {
             case Err(_) => sk(Nil, pos)
             case Ok(a, pos1) => match apply1(sep, inp, pos1) {
@@ -239,13 +239,13 @@ namespace StringParser {
             })
 
     pub def anyChar(): Parser[Char] = 
-        Parser((inp, pos) -> match Util.charAtSafe(pos, inp) {
+        Parser((inp, pos) -> match Internal.charAtSafe(pos, inp) {
                 case None => Err("anyChar")
                 case Some(ch) => Ok(ch, pos+1)
             })
 
     pub def satisfy(test: Char -> Bool): Parser[Char] = 
-        Parser((inp, pos) -> match Util.charAtSafe(pos, inp) {
+        Parser((inp, pos) -> match Internal.charAtSafe(pos, inp) {
                 case None => Err("satisfy")
                 case Some(ch) => 
                     if (test(ch)) Ok(ch, pos+1) else Err("satisfy")
@@ -254,7 +254,7 @@ namespace StringParser {
     pub def manyTill(p: Parser[ans], end: Parser[sep]): Parser[List[ans]] = 
         Parser((inp, pos) -> manyTillHelper(p, end, inp, pos, (xs, posk) -> Ok(xs, posk), () -> Err("manyTill")))
 
-    def manyTillHelper(p: Parser[ans], end: Parser[sep], inp: Str, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans], fk: Unit -> ListAnswer[ans]): ListAnswer[ans] = 
+    def manyTillHelper(p: Parser[ans], end: Parser[sep], inp: String, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans], fk: Unit -> ListAnswer[ans]): ListAnswer[ans] = 
         match apply1(end, inp, pos) {
             case Ok(_, pos1) => sk(Nil, pos1)
             case Err(_) => match apply1(p, inp, pos) {
@@ -264,14 +264,14 @@ namespace StringParser {
         }
 
     pub def manyChars(p: Parser[Char]): Parser[String] = 
-        fmap(Util.makeString, many(p))
+        fmap(Internal.makeString, many(p))
 
     pub def manyChars2(p1: Parser[Char], p2: Parser[Char]): Parser[String] = 
-        bind(p1, c -> bind(many(p2), cs -> return(Util.makeString(c :: cs))))
+        bind(p1, c -> bind(many(p2), cs -> return(Internal.makeString(c :: cs))))
 
 
     pub def many1Chars(p: Parser[Char]): Parser[String] = 
-        fmap(Util.makeString, many1(p))
+        fmap(Internal.makeString, many1(p))
 
     // TODO chain combinators
     pub def chainl1(p: Parser[a], op: Parser[(a, a) -> a]): Parser[a] = 
@@ -306,7 +306,7 @@ namespace StringParser {
     pub def restOfInput(): Parser[String] = 
         Parser((inp, pos) -> 
             let end = String.length(inp) - 1;
-            match Util.trySlice(pos, end, inp) {
+            match Internal.trySlice(pos, end, inp) {
                 case None => Ok("", end)
                 case Some(s) => Ok(s, end)
             })
@@ -319,10 +319,10 @@ namespace StringParser {
 
 
     pub def oneOf(cs: Array[Char]): Parser[Char] = 
-        satisfy(ch -> Util.arrayMemberOf(ch, cs)) |> swapError("oneOf")
+        satisfy(ch -> Internal.arrayMemberOf(ch, cs)) |> swapError("oneOf")
 
     pub def noneOf(cs: Array[Char]): Parser[Char] = 
-        satisfy(ch -> !Util.arrayMemberOf(ch, cs)) |> swapError("noneOf")
+        satisfy(ch -> !Internal.arrayMemberOf(ch, cs)) |> swapError("noneOf")
 
     pub def char(c: Char): Parser[Char] = 
         satisfy(ch -> ch == c) |> swapError("char")
@@ -331,14 +331,14 @@ namespace StringParser {
     /// 
     /// Returns a string of the next `n` characters from the current position.
     ///
-    pub def horizon(n: Int): Parser[Str] = 
-        Parser((inp, pos) -> match Util.trySlice(pos, pos+n, inp) {
+    pub def horizon(n: Int): Parser[String] = 
+        Parser((inp, pos) -> match Internal.trySlice(pos, pos+n, inp) {
                 case None => Err("horizon")
                 case Some(s) => Ok(s, pos+n)
             })
 
-    pub def string(needle: Str): Parser[Str] = 
-        Parser((inp, pos) -> match Util.trySlice(pos, pos + String.length(needle), inp) {
+    pub def string(needle: String): Parser[String] = 
+        Parser((inp, pos) -> match Internal.trySlice(pos, pos + String.length(needle), inp) {
                 case None => Err("string")
                 case Some(s) => 
                     if (s == needle) Ok(needle, pos + String.length(needle)) else Err("string")
@@ -370,7 +370,7 @@ namespace StringParser {
 
     pub def lexeme(p: Parser[ans]): Parser[ans] = seqLeft(p, spaces())
 
-    pub def symbol(s: Str): Parser[ans] = lexeme(string(s))
+    pub def symbol(s: String): Parser[ans] = lexeme(string(s))
 
     pub def parens(p: Parser[ans]): Parser[ans] = between(symbol("("), symbol(")"), p)
 
@@ -380,13 +380,13 @@ namespace StringParser {
 
     pub def squares(p: Parser[ans]): Parser[ans] = between(symbol("["), symbol("]"), p)
 
-    pub def semi(): Parser[Str] = symbol(";")
+    pub def semi(): Parser[String] = symbol(";")
 
-    pub def comma(): Parser[Str] = symbol(",")
+    pub def comma(): Parser[String] = symbol(",")
 
-    pub def colon(): Parser[Str] = symbol(":")
+    pub def colon(): Parser[String] = symbol(":")
 
-    pub def dot(): Parser[Str] = symbol(".")
+    pub def dot(): Parser[String] = symbol(".")
 
     pub def semiSep(p: Parser[ans]): Parser[List[ans]] = sepBy(p, semi())
 
@@ -399,13 +399,13 @@ namespace StringParser {
     // TODO - charLiteral and stringLiteral
 
 
-    def sign(): Parser[Str] = 
+    def sign(): Parser[String] = 
         option("", alt(string("+"), string("-")))
 
-    def digits(): Parser[Str] = 
+    def digits(): Parser[String] = 
         many1(digit()) |> fmap(List.toString)
 
-    def intString(): Parser[Str] = 
+    def intString(): Parser[String] = 
         liftM2((x,y) -> x + y, sign(), digits())
 
     def primInt8(): Parser[Int8] =
