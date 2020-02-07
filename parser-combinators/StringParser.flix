@@ -90,7 +90,7 @@ namespace StringParser {
     /// All lines must parse, otherwise the parse fails.
     ///
     pub def parseLines(parser: Parser[a], path: Path): Result[List[a], ErrMsg] = 
-        let failk = (n,msg) -> Err("Failed at line:" + Int32.toString(n) + "; " + msg);
+        let failk = (n,msg) -> Err("Failed at line: " + Int32.toString(n) + "; " + msg);
         match Path.exists(path) {
             case Ok(true) => match Path.readLines(path) {
                 case Ok(xs) => parseLinesHelper(parser, 1, xs, failk, vs -> Ok(vs))
@@ -120,7 +120,7 @@ namespace StringParser {
     /// have to generate a result. This parser can be used to skip lines.
     ///
     pub def chooseParseLines(parser: Parser[Option[a]], path: Path): Result[List[a], ErrMsg] = 
-        let failk = (n,msg) -> Err("Failed at line:" + Int32.toString(n) + "; " + msg);
+        let failk = (n,msg) -> Err("Failed at line: " + Int32.toString(n) + "; " + msg);
         match Path.exists(path) {
             case Ok(true) => match Path.readLines(path) {
                 case Ok(xs) => chooseParseLinesHelper(parser, 1, xs, failk, vs -> Ok(vs))
@@ -149,7 +149,10 @@ namespace StringParser {
     pub def bounded(p: Parser[a], length: Int32): Parser[a] = 
         Parser((inp, pos) -> match Internal.trySlice(0, pos+length, inp) {
             case None => Err("bounded")
-            case Some(s) => apply1(p, s, pos)
+            case Some(s) => match apply1(p, s, pos) {
+                case Err(msg) => Err(msg)
+                case Ok(a, _) => Ok(a, pos+length)
+            }
         })
 
     pub def throwError(msg: String): Parser[ans] = 
@@ -169,6 +172,16 @@ namespace StringParser {
 
     pub def optional(p: Parser[ans]): Parser[Option[ans]] = 
         alt(fmap(x -> Some(x), p), return(None))
+
+
+    pub def ignore(p: Parser[ans]): Parser[unit] = 
+        fmap(_ -> None, p)
+
+    ///
+    /// Parser the input with `p`, the if the parser succeed return None. 
+    ///
+    pub def assertNone(p: Parser[a]): Parser[Option[ans]] = 
+        fmap(_ -> None, p)
 
     pub def alt(p: Parser[ans], q: Parser[ans]): Parser[ans] =
         Parser((inp, pos) -> match (apply1(p, inp, pos), apply1(q, inp, pos)) {
@@ -228,7 +241,7 @@ namespace StringParser {
     pub def string5(p1: Parser[String], p2: Parser[String], p3: Parser[String], p4: Parser[String], p5: Parser[String]): Parser[String] = 
         pipe5(p1, p2, p3, p4, p5, (a,b,c,d, e) -> a + b + c + d + e)
 
-    // TODO `strings`
+    // TODO `strings` - a list version of the above
 
     pub def seqLeft(pa: Parser[a], pb: Parser[b]): Parser[a] =
         bind(pa, a -> bind(pb, _ -> return(a)))
@@ -375,6 +388,18 @@ namespace StringParser {
     pub def many1Chars(p: Parser[Char]): Parser[String] = 
         fmap(Internal.makeString, many1(p))
 
+    pub def many1Chars2(p1: Parser[Char], p2: Parser[Char]): Parser[String] = 
+        bind(p1, c -> bind(many1(p2), cs -> return(Internal.makeString(c :: cs))))
+
+    pub def manyCharsTill(p: Parser[Char], endp: Parser[a]): Parser[String] = 
+        fmap(Internal.makeString, manyTill(p, endp))
+
+    pub def manyCharsTill2(p1: Parser[Char], p2: Parser[Char], endp: Parser[a]): Parser[String] = 
+        pipe2(
+            p1, 
+            manyTill(p2, endp), 
+            (c, cs) -> Internal.makeString(c :: cs))
+
     // TODO chain combinators
     pub def chainl1(p: Parser[a], op: Parser[(a, a) -> a]): Parser[a] = 
         bind(p, v1 -> chainl1Helper(p, op, v1))
@@ -402,8 +427,8 @@ namespace StringParser {
     pub def chainr(p: Parser[a], op: Parser[(a, a) -> a], x: a): Parser[a] = 
         alt(chainr1(p, op), return(x))
 
-    pub def eof() : Parser[Unit] = 
-        Parser((inp, pos) -> if (pos >= String.length(inp)) Ok((), pos) else Err("eof"))
+    pub def endOfInput() : Parser[Unit] = 
+        Parser((inp, pos) -> if (pos >= String.length(inp)) Ok((), pos) else Err("endOfInput"))
 
     pub def restOfInput(): Parser[String] = 
         Parser((inp, pos) -> 

@@ -31,6 +31,14 @@ def alt01() : Result[Char, String] =
     StringParser.run(parser, "abc")
 
 @test
+def alt02(): Bool =
+    let prefix: StringParser.Parser[String] = StringParser.string("// ");
+    let p1 = StringParser.seqRight(prefix, StringParser.char('A'));
+    let p2 = StringParser.seqRight(prefix, StringParser.char('B'));
+    let parser = StringParser.alt(p1, p2);
+    StringParser.run(parser, "// B") == Ok('B')
+
+@test
 def count01() : Result[List[Char], String] = 
     let parser = StringParser.count(3, StringParser.letter());
     StringParser.run(parser, "ABCdefg")
@@ -251,3 +259,5 @@ def restOfInput03(): Bool =
         case Err(_) => false
     }
 
+@test
+def alt02()
