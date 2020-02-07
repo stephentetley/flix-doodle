@@ -15,6 +15,12 @@
  */
 
 ///
+/// Represents a line of text (a String).
+///
+opaque type TextLine = String
+
+
+///
 /// Represents a source of text lines (internally an iterator on a text file).
 ///
 opaque type LinesSource = ##flix.runtime.factimport.LinesIterator
@@ -23,6 +29,9 @@ type alias LineResult[t] = Validation[t, String]
 
 namespace LinesImport {
 
+    ///
+    /// TODO - use Flix's paths...
+    ///
     pub def newLinesSource(filepath: String): Result[LinesSource, String] =
         try {
             import new flix.runtime.factimport.LinesIterator(String) as newLinesIterator;
@@ -38,29 +47,56 @@ namespace LinesImport {
         import flix.runtime.factimport.LinesIterator.hasNext();
         iterator.hasNext()
 
-    def nextRow(src: LinesSource): String =
+    def nextLine(src: LinesSource): TextLine =
         let LinesSource(iterator) = src;
         import flix.runtime.factimport.LinesIterator.next();
-        iterator.next()
+        let line = iterator.next();
+        TextLine(line)
 
     ///
     /// Track line number for errors.
     ///
-    pub def collect(f: String -> LineResult[reln], src: LinesSource): Result[reln, String] =
+    pub def collect(f: TextLine -> LineResult[reln], src: LinesSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectHelper(f, src, 0, failk, relns -> Ok(relns))
 
-    def collectHelper(f: String -> LineResult[reln], src: LinesSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
+    def collectHelper(f: TextLine -> LineResult[reln], src: LinesSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
         if (!hasNext(src))
             sk(#{ })
         else {
-            match nextRow(src) |> (Validation.validate << f) {
+            match nextLine(src) |> (Validation.validate << f) {
                 case Err(xs) => fk(n, xs)
                 case Ok(x) => collectHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
             }
         }
 
-    pub def nonempty(s: String): LineResult[String] =
+    pub def choose(f: TextLine -> LineResult[Option[reln]], src: LinesSource): Result[reln, String] =
+        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        chooseHelper(f, src, 0, failk, relns -> Ok(relns))
+
+    def chooseHelper(f: TextLine -> LineResult[Option[reln]], src: LinesSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
+        if (!hasNext(src))
+            sk(#{ })
+        else {
+            match nextLine(src) |> (Validation.validate << f) {
+                case Err(xs) => fk(n, xs)
+                case Ok(None) => chooseHelper(f, src, n+1, fk, relns -> sk(relns))
+                case Ok(Some(x)) => chooseHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
+            }
+        }
+
+    pub def nonempty(line: TextLine): LineResult[String] =
+        let TextLine(s) = line;
         if (String.length(s) > 0) Validation.pure(s) else Validation.error("nonempty")
 
+    pub def apply(f: String -> a, line: TextLine): LineResult[a] =
+        let TextLine(s) = line;
+        Validation.pure(f(s))
+
+    pub def applyRes(f: String -> Result[a, String], line: TextLine): LineResult[a] =
+        let TextLine(s) = line;
+        match f(s) {
+            case Ok(a) => Validation.pure(a)
+            case Err(msg) => Validation.fatal(msg)
+        }
 }
