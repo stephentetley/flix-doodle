@@ -212,7 +212,7 @@ def bounded01(): Result[(String, String), String] =
                     StringParser.bounded(token, 10), 
                     StringParser.restOfInput(),
                     (x,y) -> (x,y));
-    StringParser.run(parser, "1234567     rest")
+    StringParser.parseString(parser, "1234567     rest")
 
 
 
@@ -227,44 +227,27 @@ def temp02(): Float64 =
     Float64.fromString("2000") |> x -> Result.getWithDefault(x, 0.0f64)
 
 
-/// temp
-
-def prefix(): StringParser.Parser[String] = 
-    StringParser.manyChars(StringParser.oneOf([ ' ', '|', '-' ]))
+@test
+def restOfInput01(): Bool = 
+    let src = "";
+    match StringParser.parseString(StringParser.restOfInput(), src) {
+        case Ok(s) => s == src
+        case Err(_) => false
+    }
 
 @test
-def prefix01(): Result[String, String] = 
-    StringParser.run(prefix(), "   |       |---   ")
-
-def path(): StringParser.Parser[String] = 
-    let rest = StringParser.choice([
-                    StringParser.upper(), 
-                    StringParser.digit(), 
-                    StringParser.char('-')]);
-    StringParser.manyChars2(StringParser.upper(), rest)
+def restOfInput02(): Bool = 
+    let src = "1";
+    match StringParser.parseString(StringParser.restOfInput(), src) {
+        case Ok(s) => s == src
+        case Err(_) => false
+    }
 
 @test
-def path01(): Result[String, String] = 
-    StringParser.run(path(), "YWS-C-DMA-F651")
-
-def description1(): StringParser.Parser[String] = 
-    StringParser.many1Chars(StringParser.anyChar())
-
-@test
-def description101(): Result[String, String] = 
-    StringParser.run(description1(), "North Station")
-
-def description(): StringParser.Parser[String] = 
-    StringParser.fmap(
-        String.trim, 
-        StringParser.bounded(description1(), 40))
-
-@test
-def description01(): Result[String, String] = 
-    StringParser.run(description(), "South Station                               ")
-
-
-
-
-
+def restOfInput03(): Bool = 
+    let src = "123";
+    match StringParser.parseString(StringParser.restOfInput(), src) {
+        case Ok(s) => s == src
+        case Err(_) => false
+    }
 

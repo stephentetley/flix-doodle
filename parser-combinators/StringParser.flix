@@ -72,11 +72,75 @@ namespace StringParser {
                     bind(p4, v4 -> 
                         bind(p5, v5 -> return(f(v1, v2, v3, v4, v5)))))))
 
-    pub def run(parser: Parser[a], input: String): Result[a, ErrMsg] = 
+    pub def parseString(parser: Parser[a], input: String): Result[a, ErrMsg] = 
         let Parser(f) = parser;
         match f(input, 0) {
             case Err(msg) => Err(msg)
             case Ok((a, _)) => Ok(a)
+        }
+
+    ///
+    /// Alias for `parseString`.
+    ///
+    pub def run(parser: Parser[a], input: String): Result[a, ErrMsg] = parseString(parser, input)
+    
+    ///
+    /// Parse each line of the input file with `parser`, collect the results in a list.
+    ///
+    /// All lines must parse, otherwise the parse fails.
+    ///
+    pub def parseLines(parser: Parser[a], path: Path): Result[List[a], ErrMsg] = 
+        let failk = (n,msg) -> Err("Failed at line:" + Int32.toString(n) + "; " + msg);
+        match Path.exists(path) {
+            case Ok(true) => match Path.readLines(path) {
+                case Ok(xs) => parseLinesHelper(parser, 1, xs, failk, vs -> Ok(vs))
+                case Err(_) => Err("readLines failed")
+            }
+            case Ok(false) => Err("Missing file:" + Result.getWithDefault(Path.getName(path), "???"))
+            case Err(_) => Err("Exception")
+        }   
+
+    ///
+    /// Helper for `parseLines`
+    ///
+    def parseLinesHelper(parser: Parser[a], n: Int32, src: List[String], fk:(Int32, String) -> Result[List[a], ErrMsg], sk: List[a] -> Result[List[a], ErrMsg]): Result[List[a], ErrMsg] = 
+        match src {
+            case Nil => sk(Nil)
+            case x :: rs => match parseString(parser, x) {
+                case Err(msg) => fk(n, msg)
+                case Ok(a) => parseLinesHelper(parser, n+1, rs, fk, vs -> sk(a :: vs))
+            }
+        }
+
+    ///
+    /// Parse each line of the input file with `parser`, if parse produces `Some(a)` collect `a` in 
+    /// the result list. If the parser produces `None`, proceed anyway.
+    ///
+    /// All lines must parse successfully, otherwise the parse fails, but parsing a line does not 
+    /// have to generate a result. This parser can be used to skip lines.
+    ///
+    pub def chooseParseLines(parser: Parser[Option[a]], path: Path): Result[List[a], ErrMsg] = 
+        let failk = (n,msg) -> Err("Failed at line:" + Int32.toString(n) + "; " + msg);
+        match Path.exists(path) {
+            case Ok(true) => match Path.readLines(path) {
+                case Ok(xs) => chooseParseLinesHelper(parser, 1, xs, failk, vs -> Ok(vs))
+                case Err(_) => Err("readLines failed")
+            }
+            case Ok(false) => Err("Missing file:" + Result.getWithDefault(Path.getName(path), "???"))
+            case Err(_) => Err("Exception")
+        }   
+
+    ///
+    /// Helper for `chooseParseLines`
+    ///
+    def chooseParseLinesHelper(parser: Parser[Option[a]], n: Int32, src: List[String], fk:(Int32, String) -> Result[List[a], ErrMsg], sk: List[a] -> Result[List[a], ErrMsg]): Result[List[a], ErrMsg] = 
+        match src {
+            case Nil => sk(Nil)
+            case x :: rs => match parseString(parser, x) {
+                case Err(msg) => fk(n, msg)
+                case Ok(None) => chooseParseLinesHelper(parser, n+1, rs, fk, vs -> sk(vs))
+                case Ok(Some(a)) => chooseParseLinesHelper(parser, n+1, rs, fk, vs -> sk(a :: vs))
+            }
         }
         
     pub def position(): Parser[Int32] =
@@ -121,6 +185,11 @@ namespace StringParser {
     pub def ap(pf: Parser[a -> b], pa: Parser[a]): Parser[b] =
         bind(pf, f -> bind(pa, a -> return(f(a))))
 
+    ///
+    /// `pipe1` is `fmap` with the arguments flipped.
+    ///
+    pub def pipe1(p1: Parser[a], f: a -> ans): Parser[ans] = 
+        fmap(f, p1)
 
     pub def pipe2(p1: Parser[a], p2: Parser[b], f: (a,b) -> ans): Parser[ans] = 
         liftM2(f, p1, p2)
@@ -338,9 +407,9 @@ namespace StringParser {
 
     pub def restOfInput(): Parser[String] = 
         Parser((inp, pos) -> 
-            let end = String.length(inp) - 1;
+            let end = String.length(inp);
             match Internal.trySlice(pos, end, inp) {
-                case None => Ok("", end)
+                case None => Err("restOfInput")
                 case Some(s) => Ok(s, end)
             })
 
