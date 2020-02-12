@@ -39,4 +39,7 @@ namespace Internal {
         List.foldLeft((_,x) -> StringBuilder.appendChar(sb, x), (), chars);
         StringBuilder.toString(sb)
 
+    pub def prefix(c: Char, s: String): String = Char.toString(c) + s
+
+
 }

@@ -178,6 +178,16 @@ namespace StringParser {
         fmap(_ -> None, p)
 
     ///
+    /// lookahead - run the parser but don't consume input on success
+    /// On fail, fail.
+    /// 
+    pub def lookahead(p: Parser[a]): Parser[a] = 
+        Parser((inp, pos) -> match apply1(p, inp, pos) {
+            case Err(_) => Err("lookahead")
+            case Ok(a,_) => Ok(a, pos)
+        })
+
+    ///
     /// Parser the input with `p`, the if the parser succeed return None. 
     ///
     pub def assertNone(p: Parser[a]): Parser[Option[ans]] = 
@@ -366,17 +376,65 @@ namespace StringParser {
                     if (test(ch)) Ok(ch, pos+1) else Err("satisfy")
             }) 
 
-    pub def manyTill(p: Parser[ans], end: Parser[sep]): Parser[List[ans]] = 
-        Parser((inp, pos) -> manyTillHelper(p, end, inp, pos, (xs, posk) -> Ok(xs, posk), () -> Err("manyTill")))
+    def primitiveManyTill(p: Parser[a], endp: Parser[e], f: (List[a], e) -> ans, errMsg: String): Parser[ans] =
+        let fk = _ -> Err(errMsg);
+        let sk = (xs, end1, pos) -> Ok(f(xs, end1), pos);
+        Parser((inp, pos) -> primitiveManyTillHelper(p, endp, inp, pos, fk, sk))
 
-    def manyTillHelper(p: Parser[ans], end: Parser[sep], inp: String, pos: SrcPos, sk: (List[ans], SrcPos) -> ListAnswer[ans], fk: Unit -> ListAnswer[ans]): ListAnswer[ans] = 
-        match apply1(end, inp, pos) {
-            case Ok(_, pos1) => sk(Nil, pos1)
+    
+    def primitiveManyTillHelper(p: Parser[a], endp: Parser[e], inp: String, pos: SrcPos, fk: Unit -> Result[ans, ErrMsg], sk: (List[a], e, SrcPos) -> Result[ans, ErrMsg]): Result[ans, ErrMsg] = 
+        match apply1(endp, inp, pos) {
+            case Ok(end1, pos1) => sk(Nil, end1, pos1)
             case Err(_) => match apply1(p, inp, pos) {
                 case Err(_) => fk()
-                case Ok(a, pos1) => manyTillHelper(p, end, inp, pos1, (xs,posk) -> sk(a :: xs, posk), fk)
+                case Ok(a, pos1) => primitiveManyTillHelper(p, endp, inp, pos1, fk, (xs, end2, pos2) -> sk(a :: xs, end2, pos2))
             }
         }
+
+    pub def manyTill(p: Parser[a], endp: Parser[e]): Parser[List[a]] =
+        primitiveManyTill(p, endp, (xs,_) -> xs, "manyTill")
+
+
+    pub def manyTillApply(p: Parser[a], endp: Parser[e], f: (List[a], e) -> ans): Parser[ans] =
+        primitiveManyTill(p, endp, f, "manyTillApply")
+
+    pub def many1Till(p: Parser[a], end: Parser[sep]): Parser[List[a]] = 
+        pipe2(p, manyTill(p,end), (v, vs) -> v :: vs)
+
+    /// p1 must succeed
+    pub def manyTill2(p1: Parser[a], p2: Parser[a], end: Parser[sep]): Parser[List[a]] = 
+        pipe2(p1, manyTill(p2,end), (v, vs) -> v :: vs)
+
+    /// p1 must succeed, p2 must succeed at least once.
+    pub def many1Till2(p1: Parser[a], p2: Parser[a], end: Parser[sep]): Parser[List[a]] = 
+        pipe2(p1, many1Till(p2,end), (v, vs) -> v :: vs)
+
+
+    pub def skipManyTill(p: Parser[a], end: Parser[e]): Parser[Unit] = 
+        let fk = _ -> Err("skipManyTill");
+        let sk = pos -> Ok((), pos);
+        Parser((inp, pos) -> skipManyTillHelper(p, end, inp, pos, fk, sk))
+
+    def skipManyTillHelper(p: Parser[a], end: Parser[e], inp: String, pos: SrcPos, fk: Unit -> Result[(Unit, SrcPos), ErrMsg], sk: SrcPos -> Result[(Unit, SrcPos), ErrMsg]): Result[(Unit, SrcPos), ErrMsg] = 
+        match apply1(end, inp, pos) {
+            case Ok(_, pos1) => sk(pos1)
+            case Err(_) => match apply1(p, inp, pos) {
+                case Err(_) => fk()
+                case Ok(_, pos1) => skipManyTillHelper(p, end, inp, pos1, fk, sk)
+            }
+        }
+
+    pub def skipMany1Till(p: Parser[a], end: Parser[sep]): Parser[Unit] = 
+        seqRight(p, skipManyTill(p, end))
+
+    /// p1 must succeed
+    pub def skipManyTill2(p1: Parser[a], p2:Parser[a], end: Parser[sep]): Parser[Unit] = 
+        seqRight(p1, skipManyTill(p2, end))
+
+    /// p1 must succeed, p2 must succeed at least once.
+    pub def skipMany1Till2(p1: Parser[a], p2:Parser[a], end: Parser[sep]): Parser[Unit] = 
+        seqRight(p1, skipMany1Till(p2, end))
+    
 
     pub def manyChars(p: Parser[Char]): Parser[String] = 
         fmap(Internal.makeString, many(p))
@@ -395,12 +453,38 @@ namespace StringParser {
         fmap(Internal.makeString, manyTill(p, endp))
 
     pub def manyCharsTill2(p1: Parser[Char], p2: Parser[Char], endp: Parser[a]): Parser[String] = 
+        fmap(Internal.makeString, manyTill2(p1, p2, endp))
+            
+    
+    
+    pub def manyCharsTillApply(p: Parser[Char], endp: Parser[e], f: (String, e) -> a): Parser[a] = 
+        primitiveManyTill(p, endp, (xs,e) -> f(Internal.makeString(xs), e), "manyCharsTillApply")
+        
+
+    pub def manyCharsTillApply2(p1: Parser[Char], p2: Parser[Char], endp: Parser[e], f: (String, e) -> a): Parser[a] = 
+        let f1 = (c, ss, e) -> f(Internal.prefix(c, ss), e);
+        bind(p1, c1 -> manyCharsTillApply(p2, endp, f1(c1)))
+
+
+    pub def many1CharsTill(p: Parser[Char], endp: Parser[e]): Parser[String] = 
+        fmap(Internal.makeString, many1Till(p, endp))
+
+    pub def many1CharsTill2(p1: Parser[Char], p2: Parser[Char], endp: Parser[e]): Parser[String] = 
         pipe2(
             p1, 
-            manyTill(p2, endp), 
-            (c, cs) -> Internal.makeString(c :: cs))
+            many1CharsTill(p2, endp),
+            Internal.prefix)
 
-    // TODO chain combinators
+
+    pub def skipped(p: Parser[Unit]): Parser[String] = 
+        Parser((inp,pos) -> match apply1(p, inp, pos) {
+            case Err(_) => Err("skipped")
+            case Ok(_, pos1) => match Internal.trySlice(pos, pos1, inp) {
+                case None => Err("skipped")
+                case Some(s) => Ok(s, pos1)
+            }
+        })
+
     pub def chainl1(p: Parser[a], op: Parser[(a, a) -> a]): Parser[a] = 
         bind(p, v1 -> chainl1Helper(p, op, v1))
 
