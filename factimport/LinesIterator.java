@@ -21,17 +21,24 @@ import java.util.Scanner;
 
 public class LinesIterator {
 
-    private Scanner scanner;
+    private BufferedReader bufreader;
+    private String currentLine;
 
     public LinesIterator(String filepath) throws Exception {
-        this.scanner = new Scanner(new File(filepath));
+        this.bufreader = new BufferedReader(new FileReader(filepath));
     }
 
     public boolean hasNext() throws Exception {
-        return this.scanner.hasNextLine();
+        this.currentLine = bufreader.readLine();
+        return(this.currentLine != null);
     }
 
-    public String next() throws Exception {
-        return this.scanner.nextLine();
+    public String getLine() {
+        return this.currentLine;
+    }
+
+    public void close() throws Exception {
+        this.bufreader.close();
+        return;
     }
 }

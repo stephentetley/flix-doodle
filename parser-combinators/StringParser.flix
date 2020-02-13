@@ -15,8 +15,6 @@
  */
 
 
-
-
 namespace StringParser {
     
     type alias SrcPos = Int32
@@ -84,6 +82,13 @@ namespace StringParser {
     ///
     pub def run(parser: Parser[a], input: String): Result[a, ErrMsg] = parseString(parser, input)
     
+
+    pub def parseFile(parser: Parser[a], path: Path): Result[a, ErrMsg] = 
+        match Internal.readAll(path) {
+            case Err(_) => Err("io error")
+            case Ok(text) => run(parser, text)
+        }
+
     ///
     /// Parse each line of the input file with `parser`, collect the results in a list.
     ///
@@ -352,6 +357,16 @@ namespace StringParser {
             }
         })
 
+    pub def choose(p: Parser[Option[a]]): Parser[List[a]] = 
+        Parser((inp, pos) -> chooseHelper(p, inp, pos, (xs, posk) -> Ok(xs, posk)))
+    
+    def chooseHelper(p: Parser[Option[a]], inp: String, pos: SrcPos, sk: (List[a], SrcPos) ->  ListAnswer[a]): ListAnswer[a] = 
+        match apply1(p, inp, pos) {
+            case Err(_) => sk(Nil, pos)
+            case Ok(Some(a), pos1) => chooseHelper(p, inp, pos1, (xs,posk) -> sk(a :: xs, posk))
+            case Ok(None, pos1) => chooseHelper(p, inp, pos1, (xs,posk) -> sk(xs, posk))
+        }
+
     pub def choice(ps: Array[Parser[ans]]): Parser[ans] = choiceHelper(Array.toList(ps))
 
     def choiceHelper(ps: List[Parser[ans]]): Parser[ans] = 
@@ -522,6 +537,10 @@ namespace StringParser {
                 case Some(s) => Ok(s, end)
             })
 
+    
+    pub def restOfLine(): Parser[String] = 
+        manyCharsTill(anyChar(), newline())
+
     pub def notFollowedBy(p: Parser[ans]): Parser[Unit] = 
         Parser((inp, pos) -> match apply1(p, inp, pos) {
             case Err(_) => Ok((), pos)
@@ -571,7 +590,14 @@ namespace StringParser {
     pub def hexDigit(): Parser[Char] = 
         oneOf(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'a', 'b', 'c', 'd', 'e', 'f'])
 
-    // TODO newline() 
+    // newline() needs testing
+
+    pub def newline(): Parser[Unit] = 
+        pipe2(
+            alt(char('\r'), char('\n')),
+            optional(char('\n')),
+            (_,_) -> ()
+        )
 
     pub def tab(): Parser[Char] = char('\t')
 

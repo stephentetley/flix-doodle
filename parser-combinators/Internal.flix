@@ -41,5 +41,16 @@ namespace Internal {
 
     pub def prefix(c: Char, s: String): String = Char.toString(c) + s
 
+    pub def readAll(p: Path): Result[String, String] = 
+        match Path.readLines(p) {
+            case Err(_) => Err("io error")
+            case Ok(xs) => { 
+                let sb = StringBuilder.new();
+                List.foldLeft((_,a) -> StringBuilder.appendLine(sb, a), (), xs);
+                StringBuilder.toString(sb) |> Ok
+            }
+        }
+    
+
 
 }
