@@ -47,10 +47,10 @@ namespace LinesImport {
         import flix.runtime.factimport.LinesIterator.hasNext();
         iterator.hasNext()
 
-    def nextLine(src: LinesSource): TextLine =
+    def getLine(src: LinesSource): TextLine =
         let LinesSource(iterator) = src;
-        import flix.runtime.factimport.LinesIterator.next();
-        let line = iterator.next();
+        import flix.runtime.factimport.LinesIterator.getLine();
+        let line = iterator.getLine();
         TextLine(line)
 
     ///
@@ -64,7 +64,7 @@ namespace LinesImport {
         if (!hasNext(src))
             sk(#{ })
         else {
-            match nextLine(src) |> (Validation.validate << f) {
+            match getLine(src) |> (Validation.validate << f) {
                 case Err(xs) => fk(n, xs)
                 case Ok(x) => collectHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
             }
@@ -78,7 +78,7 @@ namespace LinesImport {
         if (!hasNext(src))
             sk(#{ })
         else {
-            match nextLine(src) |> (Validation.validate << f) {
+            match getLine(src) |> (Validation.validate << f) {
                 case Err(xs) => fk(n, xs)
                 case Ok(None) => chooseHelper(f, src, n+1, fk, relns -> sk(relns))
                 case Ok(Some(x)) => chooseHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
