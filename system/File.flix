@@ -18,11 +18,12 @@
  namespace File {
 
     /// TODO - test exception
-    pub def readFile(path: FilePath): Result[String, String] = 
+    pub def readFile(path: FilePath, cs: Charset): Result[String, String] = 
         try {
-            import java.nio.file.Files:readString(##java.nio.file.Path);
+            import java.nio.file.Files:readString(##java.nio.file.Path, ##java.nio.charset.Charset);
             let FilePath(path1) = path;
-            readString(path1) |> Ok
+            let Charset(cs1) = cs;
+            readString(path1, cs1) |> Ok
         }
         catch {
             case _: ##java.io.IOException => Err("IOException")

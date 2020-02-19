@@ -15,13 +15,13 @@
  */
 
 ///
-/// Represents a StringBuilder.
+/// Represents a FilePath.
 ///
 opaque type FilePath = ##java.nio.file.Path
 
 namespace FilePath {
 
-     ///
+    ///
     /// Returns a new FilePath.
     ///
     pub def new(uri: String): FilePath =
