@@ -17,15 +17,24 @@
 package flix.runtime.factimport;
 
 import java.io.*;
-import java.util.Scanner;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class LinesIterator {
 
     private BufferedReader bufreader;
     private String currentLine;
 
-    public LinesIterator(String filepath) throws Exception {
-        this.bufreader = new BufferedReader(new FileReader(filepath));
+    public LinesIterator(String filepath, Charset cs) throws Exception {
+        try {
+            Path path = Paths.get(filepath, new String[0]);
+            this.bufreader = Files.newBufferedReader(path, cs);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new IOException();
+        }
     }
 
     public boolean hasNext() throws Exception {

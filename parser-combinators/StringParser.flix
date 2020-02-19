@@ -83,8 +83,8 @@ namespace StringParser {
     pub def run(parser: Parser[a], input: String): Result[a, ErrMsg] = parseString(parser, input)
     
 
-    pub def parseFile(parser: Parser[a], path: Path): Result[a, ErrMsg] = 
-        match Internal.readAll(path) {
+    pub def parseFile(parser: Parser[a], path: FilePath, cs: Charset): Result[a, ErrMsg] = 
+        match File.readFile(path, cs) {
             case Err(_) => Err("io error")
             case Ok(text) => run(parser, text)
         }

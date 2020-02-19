@@ -32,10 +32,11 @@ namespace LinesImport {
     ///
     /// TODO - use Flix's paths...
     ///
-    pub def newLinesSource(filepath: String): Result[LinesSource, String] =
+    pub def newLinesSource(filepath: String, cs: Charset): Result[LinesSource, String] =
         try {
-            import new flix.runtime.factimport.LinesIterator(String) as newLinesIterator;
-            let iterator = newLinesIterator(filepath);
+            import new flix.runtime.factimport.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
+            let Charset(cs1) = cs;
+            let iterator = newLinesIterator(filepath, cs1);
             LinesSource(iterator) |> Ok
         } catch {
             case _: ##java.io.FileNotFoundException => Err("newTextLineSource - file not found")
