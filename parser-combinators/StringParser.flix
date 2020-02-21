@@ -539,7 +539,8 @@ namespace StringParser {
 
     
     pub def restOfLine(): Parser[String] = 
-        manyCharsTill(anyChar(), newline())
+        let endp = alt(newline(), endOfInput());
+        manyCharsTill(anyChar(), endp)
 
     pub def notFollowedBy(p: Parser[ans]): Parser[Unit] = 
         Parser((inp, pos) -> match apply1(p, inp, pos) {
@@ -566,6 +567,15 @@ namespace StringParser {
                 case None => Err("horizon")
                 case Some(s) => Ok(s, pos+n)
             })
+
+    /// 
+    /// Returns the "content" (i.e the trimmed text) of the next `n` characters from 
+    /// the current position.
+    ///
+    pub def content(n: Int): Parser[String] = 
+        fmap(String.trim, horizon(n))
+
+    
 
     pub def string(needle: String): Parser[String] = 
         Parser((inp, pos) -> match Internal.trySlice(pos, pos + String.length(needle), inp) {
@@ -607,7 +617,7 @@ namespace StringParser {
 
     pub def lexeme(p: Parser[ans]): Parser[ans] = seqLeft(p, spaces())
 
-    pub def symbol(s: String): Parser[ans] = lexeme(string(s))
+    pub def symbol(s: String): Parser[String] = lexeme(string(s))
 
     pub def parens(p: Parser[ans]): Parser[ans] = between(symbol("("), symbol(")"), p)
 
