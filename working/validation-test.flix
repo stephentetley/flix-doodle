@@ -32,9 +32,11 @@ def test06(): Result[Str, List[Str]] =
         Validation.valid("World"),
         (x,y,z) -> x + y + z
         ) |> Validation.validate
-// @test
-// def test02(): Validation[List[String], String] = 
-//     let xs = Validation.pure("hello") :: Validation.pure("world") :: Nil;
-//     Validation.mapV(x -> x, xs)
+
+
+@test
+def test07(): Result[List[Str], List[Str]] = 
+    Validation.mapV(x -> if (x >= 0) Validation.valid("Good:" + Int32.toString(x)) else Validation.error("negative"), 1 :: 2 :: Nil)
+        |> Validation.validate
     
 

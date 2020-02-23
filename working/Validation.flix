@@ -56,36 +56,36 @@ namespace Validation {
         case Failure(xs) => Failure(xs)
     }
 
-    // ///
-    // /// AKA mapM
-    // ///
-    // pub def mapV(f: a -> Validation[b, e], xs:List[a]): Validation[List[b], e] =
-    //     mapVHelper1(f, xs, errs -> Fail(errs), x -> Valid(x))
+    ///
+    /// AKA mapM
+    ///
+    pub def mapV(f: a -> Validation[b, e], xs:List[a]): Validation[List[b], e] =
+        mapVHelper1(f, xs, errs -> Failure(errs), x -> Valid(x))
 
-    // ///
-    // ///
-    // /// 
-    // pub def mapVHelper1(f: a -> Validation[b, e], xs:List[a], fk: DList[e] -> Validation[List[b], e], sk: List[b] -> Validation[List[b], e]): Validation[List[b], e] =
-    //     match xs {
-    //         case Nil => sk(Nil)
-    //         case x :: rs => {
-    //             match f(x) {
-    //                 case Valid(a) => mapVHelper1(f, rs, fk, ys -> sk(a :: ys))
-    //                 case Fail(errs) => mapVHelper2(f, rs, errs, fk)
-    //             }
-    //         }
-    //     }
+    ///
+    ///
+    /// 
+    pub def mapVHelper1(f: a -> Validation[b, e], xs:List[a], fk: DList[e] -> Validation[List[b], e], sk: List[b] -> Validation[List[b], e]): Validation[List[b], e] =
+        match xs {
+            case Nil => sk(Nil)
+            case x :: rs => {
+                match f(x) {
+                    case Valid(a) => mapVHelper1(f, rs, fk, ys -> sk(a :: ys))
+                    case Failure(errs) => mapVHelper2(f, rs, errs, fk)
+                }
+            }
+        }
 
-    // def mapVHelper2(f: a -> Validation[b, e], xs:List[a], ac: DList[e], fk: DList[e] -> Validation[List[b], e]): Validation[List[b], e] =
-    //     match xs {
-    //         case Nil => fk(ac)
-    //         case x :: rs => {
-    //             match f(x) {
-    //                 case Valid(_) => mapVHelper2(f, rs, ac, fk)
-    //                 case Fail(e) => mapVHelper2(f, rs, append(ac, e), fk)
-    //             }
-    //         }
-    //     }
+    def mapVHelper2(f: a -> Validation[b, e], xs:List[a], ac: DList[e], fk: DList[e] -> Validation[List[b], e]): Validation[List[b], e] =
+        match xs {
+            case Nil => fk(ac)
+            case x :: rs => {
+                match f(x) {
+                    case Valid(_) => mapVHelper2(f, rs, ac, fk)
+                    case Failure(e) => mapVHelper2(f, rs, append(ac, e), fk)
+                }
+            }
+        }
 
     pub def ap(vf: Validation[t -> t1, e], va: Validation[t, e]): Validation[t1, e1] = match vf {
         case Valid(f) => fmap(f, va)
