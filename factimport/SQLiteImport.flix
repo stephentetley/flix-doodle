@@ -152,9 +152,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getStringByIndex(Int32);
             let a = r1.getStringByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getStringByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getStringByIndex: " + Int32.toString(ix))
         }
 
     pub def getStringByLabel(row: SQLiteRow, label: String): SQLiteResult[String] =
@@ -162,9 +162,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getStringByLabel(String);
             let a = r1.getStringByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getStringByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getStringByLabel: " + label)
         }
 
     pub def getInt8ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int8] =
@@ -172,10 +172,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getByteByIndex(Int32);
             let a = r1.getByteByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt8ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt8ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getInt8ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt8ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int8] =
@@ -183,10 +182,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getByteByLabel(String);
             let a = r1.getByteByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt8ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt8ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getInt8ByLabel: " + label)
         }
 
     pub def getInt16ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int16] =
@@ -194,10 +192,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getShortByIndex(Int32);
             let a = r1.getShortByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt16ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt16ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getInt16ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt16ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int16] =
@@ -205,10 +202,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getShortByLabel(String);
             let a = r1.getShortByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt16ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt16ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getInt16ByLabel: " + label)
         }
 
     pub def getInt32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int32] =
@@ -216,10 +212,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getIntByIndex(Int32);
             let a = r1.getIntByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt32ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt32ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getInt32ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int32] =
@@ -227,10 +222,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getIntByLabel(String);
             let a = r1.getIntByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt32ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt32ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getInt32ByLabel: " + label)
         }
 
     pub def getInt64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int64] =
@@ -238,10 +232,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getLongByIndex(Int32);
             let a = r1.getLongByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt64ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt64ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getInt64ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int64] =
@@ -249,10 +242,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getLongByLabel(String);
             let a = r1.getLongByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt64ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt64ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getInt64ByLabel: " + label)
         }
 
     pub def getFloat32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float32] =
@@ -260,10 +252,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getFloatByIndex(Int32);
             let a = r1.getFloatByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getFloat32ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getFloat32ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getFloat32ByIndex: " + Int32.toString(ix))
         }
 
     pub def getFloat32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float32] =
@@ -271,10 +262,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getFloatByLabel(String);
             let a = r1.getFloatByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getFloat32ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getFloat32ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getFloat32ByLabel: " + label)
         }
 
     pub def getFloat64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float64] =
@@ -282,10 +272,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getDoubleByIndex(Int32);
             let a = r1.getDoubleByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getFloat64ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getFloat64ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getFloat64ByIndex: " + Int32.toString(ix))
         }
 
     pub def getFloat64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float64] =
@@ -293,10 +282,9 @@ namespace SQLiteImport {
         try {
             import flix.runtime.factimport.SQLiteRow.getDoubleByLabel(String);
             let a = r1.getDoubleByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getFloat64ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getFloat64ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getFloat64ByLabel: " + label)
         }
 
 }

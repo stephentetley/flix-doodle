@@ -32,11 +32,10 @@ namespace LinesImport {
     ///
     /// TODO - use Flix's paths...
     ///
-    pub def newLinesSource(filepath: String, cs: Charset): Result[LinesSource, String] =
+    pub def newLinesSource(filepath: String): Result[LinesSource, String] =
         try {
-            import new flix.runtime.factimport.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
-            let Charset(cs1) = cs;
-            let iterator = newLinesIterator(filepath, cs1);
+            import new flix.runtime.factimport.LinesIterator(String) as newLinesIterator;
+            let iterator = newLinesIterator(filepath);
             LinesSource(iterator) |> Ok
         } catch {
             case _: ##java.io.FileNotFoundException => Err("newTextLineSource - file not found")
@@ -88,16 +87,16 @@ namespace LinesImport {
 
     pub def nonempty(line: TextLine): LineResult[String] =
         let TextLine(s) = line;
-        if (String.length(s) > 0) Validation.pure(s) else Validation.error("nonempty")
+        if (String.length(s) > 0) Validation.valid(s) else Validation.error("nonempty")
 
     pub def apply(f: String -> a, line: TextLine): LineResult[a] =
         let TextLine(s) = line;
-        Validation.pure(f(s))
+        Validation.valid(f(s))
 
     pub def applyRes(f: String -> Result[a, String], line: TextLine): LineResult[a] =
         let TextLine(s) = line;
         match f(s) {
-            case Ok(a) => Validation.pure(a)
-            case Err(msg) => Validation.fatal(msg)
+            case Ok(a) => Validation.valid(a)
+            case Err(msg) => Validation.error(msg)
         }
 }

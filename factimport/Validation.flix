@@ -14,66 +14,98 @@
  * limitations under the License.
  */
 
-enum Validation[t, e] {
-    case Okay(t),
-    case Error(JoinList[e]),
-    case Fatal(JoinList[e])
+
+enum DList[a] {
+    case DList(List[a] -> List[a])
 }
+
+
+enum Validation[t, e] {
+    case Valid(t),
+    case Failure(DList[e])
+}
+
+
 
 namespace Validation {
 
-    pub def pure(x: t): Validation[t, e] = Okay(x)
+    pub def dlistToList(xs: DList[a]): List[a] = 
+        let DList(f) = xs; 
+        f(Nil)
+
+    pub def singleton(x: a): DList[a] = DList(xs -> x :: xs)
+
+    pub def append(xs: DList[a], ys: DList[a]): DList[a] = 
+        let DList(f) = xs;
+        let DList(g) = ys;
+        DList(f << g)
+
+    pub def valid(x: t): Validation[t, e] = Valid(x)
     
-    pub def error(err: e): Validation[t, e] = Error(ImportBase.singleton(err))
+    pub def error(err: e): Validation[t, e] = 
+        let x: DList[e] = singleton(err);
+        Failure(x)
 
-    pub def fatal(err: e): Validation[t, e] = Fatal(ImportBase.singleton(err))
+    pub def validate(va: Validation[t, e]): Result[t, List[e]] =  match va {
+        case Valid(a) => Result.Ok(a)
+        case Failure(xs) => Result.Err(dlistToList(xs))
+    }
 
-    pub def validate(va: Validation[t, e]): Result[t, List[e]] =  
-        match va {
-            case Okay(a) => Result.Ok(a)
-            case (Error(xs)) => Result.Err(ImportBase.toList(xs))
-            case (Fatal(xs)) => Result.Err(ImportBase.toList(xs))
-        }
+    pub def fmap(f: t -> t1, va: Validation[t, e]): Validation[t1, e] = match va {
+        case Valid(a) => Valid(f(a))
+        case Failure(xs) => Failure(xs)
+    }
 
-    pub def fmap(f: t -> t1, va: Validation[t, e]): Validation[t1, e] = 
-        match va {
-            case Okay(a) => Okay(f(a))
-            case Error(xs) => Error(xs)
-            case Fatal(xs) => Fatal(xs)
-        }
+    ///
+    /// AKA mapM
+    ///
+    pub def mapV(f: a -> Validation[b, e], xs:List[a]): Validation[List[b], e] =
+        mapVHelper1(f, xs, errs -> Failure(errs), x -> Valid(x))
 
-
-    pub def ap(vf: Validation[t -> t1, e], va: Validation[t, e]): Validation[t1, e1] =
-        match vf {
-            case Okay(f) => fmap(f, va)
-            case Error(xs) => match va {
-                case Okay(_) => Error(xs)
-                case Error(ys) => Error(ImportBase.append(xs,ys))
-                case Fatal(ys) => Fatal(ys)
+    ///
+    ///
+    /// 
+    pub def mapVHelper1(f: a -> Validation[b, e], xs:List[a], fk: DList[e] -> Validation[List[b], e], sk: List[b] -> Validation[List[b], e]): Validation[List[b], e] =
+        match xs {
+            case Nil => sk(Nil)
+            case x :: rs => {
+                match f(x) {
+                    case Valid(a) => mapVHelper1(f, rs, fk, ys -> sk(a :: ys))
+                    case Failure(errs) => mapVHelper2(f, rs, errs, fk)
+                }
             }
-            case Fatal(xs) => match va {
-                case Fatal(ys) => Fatal(ImportBase.append(xs,ys))
-                case _ => Fatal(xs)
+        }
+
+    def mapVHelper2(f: a -> Validation[b, e], xs:List[a], ac: DList[e], fk: DList[e] -> Validation[List[b], e]): Validation[List[b], e] =
+        match xs {
+            case Nil => fk(ac)
+            case x :: rs => {
+                match f(x) {
+                    case Valid(_) => mapVHelper2(f, rs, ac, fk)
+                    case Failure(e) => mapVHelper2(f, rs, append(ac, e), fk)
+                }
             }
         }
+
+    pub def ap(vf: Validation[t -> t1, e], va: Validation[t, e]): Validation[t1, e1] = match vf {
+        case Valid(f) => fmap(f, va)
+        case Failure(xs) => match va {
+            case Valid(_) => Failure(xs)
+            case Failure(ys) => Failure(append(xs,ys))
+        }
+    }
 
     pub def alt(va: Validation[t, e], vb: Validation[t, e]): Validation[t, e] = match va {
-        case Okay(a) => Okay(a)
-        case Error(xs) => match vb {
-            case Okay(b) => Okay(b)
-            case Error(ys) => Error(ImportBase.append(xs,ys))
-            case Fatal(ys) => Fatal(ys)
-        }
-        case Fatal(xs) => match vb {
-            case Fatal(ys) => Fatal(ImportBase.append(xs,ys))
-            case _ => Fatal(xs)
+        case Valid(a) => Valid(a)
+        case Failure(xs) => match vb {
+            case Valid(b) => Valid(b)
+            case Failure(ys) => Failure(append(xs,ys))
         }
     }
 
     pub def withDefault(x: t, va: Validation[t, e]): Validation[t, e] = match va {
-        case Okay(a) => Okay(a)
-        case Error(_) => Okay(x)
-        case Fatal(xs) => Fatal(xs)
+        case Valid(a) => Valid(a)
+        case Failure(_) => Valid(x)
     }
 
     pub def liftV2(f: (t1,t2) -> t3, v1: Validation[t1, e], v2: Validation[t2, e]): Validation[t3, e] = 
@@ -129,4 +161,5 @@ namespace Validation {
 
     pub def pipeV10(v1: Validation[t1, e], v2: Validation[t2, e], v3: Validation[t3, e], v4: Validation[t4, e], v5: Validation[t5, e], v6: Validation[t6, e], v7: Validation[t7, e], v8: Validation[t8, e], v9: Validation[t9, e], v10: Validation[t10, e], f: (t1,t2,t3,t4,t5,t6,t7,t8,t9,t10) -> t11): Validation[t11, e] = 
         liftV10(f, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)
+
 }

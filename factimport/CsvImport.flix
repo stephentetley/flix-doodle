@@ -186,9 +186,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getStringByIndex(Int32);
             let a = r1.getStringByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getStringByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getStringByIndex: " + Int32.toString(ix))
         }
 
     ///
@@ -199,9 +199,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getStringByLabel(String);
             let a = r1.getStringByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getStringByLabel:" + label)
+            case _: ##java.lang.Exception => Validation.error("getStringByLabel:" + label)
         }
 
     pub def getInt8ByIndex(row: CsvRow, ix: Int32): CsvResult[Int8] =
@@ -209,10 +209,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getByteByIndex(Int32);
             let a = r1.getByteByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt8ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt8ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getInt8ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt8ByLabel(row: CsvRow, label: String): CsvResult[Int8] =
@@ -220,10 +219,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getByteByLabel(String);
             let a = r1.getByteByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt8ByLabel:" + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt8ByLabel:" + label)
+            case _: ##java.lang.Exception => Validation.error("getInt8ByLabel:" + label)
         }
 
     pub def getInt16ByIndex(row: CsvRow, ix: Int32): CsvResult[Int16] =
@@ -231,10 +229,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getShortByIndex(Int32);
             let a = r1.getShortByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt16ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt16ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getInt16ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt16ByLabel(row: CsvRow, label: String): CsvResult[Int16] =
@@ -242,10 +239,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getShortByLabel(String);
             let a = r1.getShortByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt16ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt16ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getInt16ByLabel: " + label)
         }
 
     pub def getInt32ByIndex(row: CsvRow, ix: Int32): CsvResult[Int32] =
@@ -253,10 +249,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getIntByIndex(Int32);
             let a = r1.getIntByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt32ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt32ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getInt32ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt32ByLabel(row: CsvRow, label: String): CsvResult[Int32] =
@@ -264,10 +259,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getIntByLabel(String);
             let a = r1.getIntByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt32ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt32ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getInt32ByLabel: " + label)
         }
 
     pub def getInt64ByIndex(row: CsvRow, ix: Int32): CsvResult[Int64] =
@@ -275,10 +269,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getLongByIndex(Int32);
             let a = r1.getLongByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt64ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt64ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getInt64ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt64ByLabel(row: CsvRow, label: String): CsvResult[Int64] =
@@ -286,10 +279,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getLongByLabel(String);
             let a = r1.getLongByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getInt64ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getInt64ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getInt64ByLabel: " + label)
         }
 
     pub def getFloat32ByIndex(row: CsvRow, ix: Int32): CsvResult[Float32] =
@@ -297,10 +289,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getFloatByIndex(Int32);
             let a = r1.getFloatByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getFloat32ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getFloat32ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getFloat32ByIndex: " + Int32.toString(ix))
         }
 
     pub def getFloat32ByLabel(row: CsvRow, label: String): CsvResult[Float32] =
@@ -308,10 +299,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getFloatByLabel(String);
             let a = r1.getFloatByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getFloat32ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getFloat32ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getFloat32ByLabel: " + label)
         }
 
     pub def getFloat64ByIndex(row: CsvRow, ix: Int32): CsvResult[Float64] =
@@ -319,10 +309,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getDoubleByIndex(Int32);
             let a = r1.getDoubleByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getFloat64ByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getFloat64ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getFloat64ByIndex: " + Int32.toString(ix))
         }
 
     pub def getFloat64ByLabel(row: CsvRow, label: String): CsvResult[Float64] =
@@ -330,10 +319,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getDoubleByLabel(String);
             let a = r1.getDoubleByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getFloat64ByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getFloat64ByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getFloat64ByLabel: " + label)
         }
 
     pub def getBigIntByIndex(row: CsvRow, ix: Int32): CsvResult[BigInt] =
@@ -341,10 +329,9 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getBigIntegerByIndex(Int32);
             let a = r1.getBigIntegerByIndex(ix);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getBigIntByIndex: " + Int32.toString(ix))
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getBigIntByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Validation.error("getBigIntByIndex: " + Int32.toString(ix))
         }
 
     pub def getBigIntByLabel(row: CsvRow, label: String): CsvResult[BigInt] =
@@ -352,9 +339,8 @@ namespace CsvImport {
         try {
             import flix.runtime.factimport.CsvRow.getBigIntegerByLabel(String);
             let a = r1.getBigIntegerByLabel(label);
-            Validation.pure(a)
+            Validation.valid(a)
         } catch {
-            case _: ##java.lang.NumberFormatException => Validation.error("getBigIntByLabel: " + label)
-            case _: ##java.lang.IllegalArgumentException => Validation.fatal("getBigIntByLabel: " + label)
+            case _: ##java.lang.Exception => Validation.error("getBigIntByLabel: " + label)
         }
 }

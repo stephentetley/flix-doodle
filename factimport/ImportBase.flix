@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-///
-/// A Non-empty JoinList (JoinLists have cheap append)
-///
-enum JoinList[a] {
-    case One(a),
-    case Join(JoinList[a], JoinList[a])
-}
 
 namespace ImportBase {
 
@@ -28,21 +21,6 @@ namespace ImportBase {
         case Nil => ()
         case x :: rs => { f(x); listIter(f, rs) }
     }
-
-    pub def singleton(x: a): JoinList[a] = One(x)
-
-    pub def append(a: JoinList[a], b: JoinList[a]): JoinList[a] = Join(a,b)
-
-    pub def toList(a: JoinList[a]): List[a] = toListHelper(a, Nil, xs -> xs)
-
-    def toListHelper(xs: JoinList[a], acc:List[a], cont: List[a] -> List[a]): List[a] =
-        match xs {
-            case One(a) => cont(a :: acc)
-            case Join(l, r) =>
-                // Go Right first
-                toListHelper(r, acc, acc1 ->
-                    toListHelper(l, acc1, cont))
-        }
 
     pub def collectErrors(line: Int32, errs: List[String]): String =
         let sb = StringBuilder.new();
