@@ -32,10 +32,11 @@ namespace LinesImport {
     ///
     /// TODO - use Flix's paths...
     ///
-    pub def newLinesSource(filepath: String): Result[LinesSource, String] =
+    pub def newLinesSource(filepath: String, cs: Charset): Result[LinesSource, String] =
         try {
-            import new flix.runtime.factimport.LinesIterator(String) as newLinesIterator;
-            let iterator = newLinesIterator(filepath);
+            import new flix.runtime.factimport.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
+            let Charset(cs1) = cs;
+            let iterator = newLinesIterator(filepath, cs1);
             LinesSource(iterator) |> Ok
         } catch {
             case _: ##java.io.FileNotFoundException => Err("newTextLineSource - file not found")
@@ -53,12 +54,16 @@ namespace LinesImport {
         let line = iterator.getLine();
         TextLine(line)
 
+    def makeLinesIterator(): RowIterator[LinesSource, TextLine] =
+        { hasNext = hasNext,  getRow = getLine }
+
     ///
     /// Track line number for errors.
     ///
     pub def collect(f: TextLine -> LineResult[reln], src: LinesSource): Result[reln, String] =
-        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
-        collectHelper(f, src, 0, failk, relns -> Ok(relns))
+        let iterator = makeLinesIterator();
+        Strategies.collect(iterator, f, src)
+
 
     def collectHelper(f: TextLine -> LineResult[reln], src: LinesSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
         if (!hasNext(src))

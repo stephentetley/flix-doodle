@@ -18,7 +18,7 @@
 /// A DList
 ///
 enum DList[a] {
-    case DList(List[a] ->List[a])
+    case DList(List[a] -> List[a])
 }
 
 namespace DList {

@@ -42,7 +42,7 @@ namespace Charset {
         Charset(get_utf_16le())
 
     pub def utf_8(): Charset = 
-        import get java.nio.charset.StandardCharsets:UTF_16LE as get_utf_8;
+        import get java.nio.charset.StandardCharsets:UTF_8 as get_utf_8;
         Charset(get_utf_8())
 
     pub def getRepr(cs: Charset): ##java.nio.charset.Charset = 

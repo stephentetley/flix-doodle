@@ -14,7 +14,7 @@ def getColour(line: TextLine): LineResult[#{ Colour }] =
 
 
 pub def test01(): #{ Colour } =
-    let path = "d:/coding/flix/flix-doodle/factimport/data/colours.txt";
+    let path = "e:/coding/flix/flix-doodle/factimport/data/colours.txt";
     match LinesImport.newLinesSource(path, Charset.utf_8()) {
         case Err(msg) => fail1(msg)
         case Ok(linesSource) => 
@@ -27,7 +27,7 @@ pub def test01(): #{ Colour } =
 
 
 pub def test02(): #{ Colour } =
-    let path = "d:/coding/flix/flix-doodle/factimport/data/colours.utf16le.txt";
+    let path = "e:/coding/flix/flix-doodle/factimport/data/colours.utf16le.txt";
     match LinesImport.newLinesSource(path, Charset.utf_16le()) {
         case Err(msg) => fail1(msg)
         case Ok(linesSource) => 

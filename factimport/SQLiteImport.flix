@@ -56,19 +56,12 @@ namespace SQLiteImport {
         let row = rator1.getRow();
         SQLiteRow(row)
 
-    pub def collect(f: SQLiteRow -> SQLiteResult[reln], src: SQLiteSource): Result[reln, String] =
-        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
-        collectHelper(f, src, 0, failk, relns -> Ok(relns))
+    def makeSQLiteIterator(): RowIterator[SQLiteSource, SQLiteRow] =
+        { hasNext = next,  getRow = getRow }
 
-    def collectHelper(f: SQLiteRow -> SQLiteResult[reln], src: SQLiteSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
-        if (!next(src))
-            sk(#{ })
-        else {
-            match getRow(src) |> (Validation.validate << f) {
-                case Err(xs) => fk(n, xs)
-                case Ok(x) => collectHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
-            }
-        }
+    pub def collect(f: SQLiteRow -> SQLiteResult[reln], src: SQLiteSource): Result[reln, String] =
+        let iterator = makeSQLiteIterator();
+        Strategies.collect(iterator, f, src)
 
     pub def collectWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln], src: SQLiteSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;

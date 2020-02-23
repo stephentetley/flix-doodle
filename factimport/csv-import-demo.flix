@@ -12,7 +12,6 @@ def getName(row: CsvRow): CsvResult[#{Name}] =
     Validation.fmap(makeName, CsvImport.getStringByLabel(row, "Name"))
 
 
-
 pub def test01(): #{Name} =
     let path = "e:/coding/flix/flix-doodle/factimport/data/stations.csv";
     match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
@@ -24,7 +23,6 @@ pub def test01(): #{Name} =
             }
     }
     
-
 
 rel Station(name: String, gridref: String)
 

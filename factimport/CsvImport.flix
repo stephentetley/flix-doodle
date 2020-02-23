@@ -76,43 +76,37 @@ namespace CsvImport {
             case _: ##java.io.IOException => Err("newCsvSource - io exception")
         }
 
-    def hasNext(src: CsvSource): Bool =
+    def csvHasNext(src: CsvSource): Bool =
         let CsvSource(iterator) = src;
         import flix.runtime.factimport.CsvIterator.hasNext();
         iterator.hasNext()
 
-    def nextRow(src: CsvSource): CsvRow =
+    def csvNextRow(src: CsvSource): CsvRow =
         let CsvSource(iterator) = src;
         import flix.runtime.factimport.CsvIterator.next();
         let csvRow = iterator.next();
         CsvRow(csvRow)
 
+    def makeCsvIterator(): RowIterator[CsvSource, CsvRow] =
+        { hasNext = csvHasNext,  getRow = csvNextRow }
+
     ///
     /// Track row number for errors.
     ///
     pub def collect(f: CsvRow -> CsvResult[reln], src: CsvSource): Result[reln, String] =
-        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
-        collectHelper(f, src, 0, failk, relns -> Ok(relns))
+        let iterator = makeCsvIterator();
+        Strategies.collect(iterator, f, src)
 
-    def collectHelper(f: CsvRow -> CsvResult[reln], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] =
-        if (!hasNext(src))
-            sk(#{ })
-        else {
-            match nextRow(src) |> (Validation.validate << f) {
-                case Err(xs) => fk(n, xs)
-                case Ok(x) => collectHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
-            }
-        }
 
     pub def collectWithCount(f: (CsvRow, Int32) -> CsvResult[reln], src: CsvSource): Result[reln, String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectWithCountHelper(f, src, 0, failk, relns -> Ok(relns))
 
     def collectWithCountHelper(f: (CsvRow, Int32) -> CsvResult[reln], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] =
-        if (!hasNext(src))
+        if (!csvHasNext(src))
             sk(#{ })
         else {
-            let row = nextRow(src);
+            let row = csvNextRow(src);
             match Validation.validate(f(row, n)) {
                 case Err(xs) => fk(n, xs)
                 case Ok(x) => collectWithCountHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
@@ -124,10 +118,10 @@ namespace CsvImport {
         collectAccumHelper(f, state, src, 0, failk, (relns, st) -> Ok(relns, st))
 
     def collectAccumHelper(f: (CsvRow, st) -> CsvResult[(reln, st)], state: st, src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] =
-        if (!hasNext(src))
+        if (!csvHasNext(src))
             sk(state, #{ })
         else {
-            let row = nextRow(src);
+            let row = csvNextRow(src);
             match Validation.validate(f(row, state)) {
                 case Err(xs) => fk(n, xs)
                 case Ok(x, st1) => collectAccumHelper(f, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
@@ -139,10 +133,10 @@ namespace CsvImport {
         chooseHelper(f, src, 0, failk, relns -> Ok(relns))
 
     def chooseHelper(f: CsvRow -> CsvResult[Option[reln]], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
-        if (!hasNext(src))
+        if (!csvHasNext(src))
             sk(#{ })
         else {
-            match nextRow(src) |> (Validation.validate << f) {
+            match csvNextRow(src) |> (Validation.validate << f) {
                 case Err(xs) => fk(n, xs)
                 case Ok(None) => chooseHelper(f, src, n+1, fk, relns -> sk(relns))
                 case Ok(Some(x)) => chooseHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
@@ -154,10 +148,10 @@ namespace CsvImport {
         chooseWithCountHelper(f, src, 0, 0, failk, relns -> Ok(relns))
 
     def chooseWithCountHelper(f: (CsvRow,Int32)-> CsvResult[Option[reln]], src: CsvSource, rownum: Int32, count: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
-        if (!hasNext(src))
+        if (!csvHasNext(src))
             sk(#{ })
         else {
-            let row = nextRow(src);
+            let row = csvNextRow(src);
             match Validation.validate(f(row, count)) {
                 case Err(xs) => fk(rownum, xs)
                 case Ok(None) => chooseWithCountHelper(f, src, rownum+1, count, fk, relns -> sk(relns))
@@ -170,10 +164,10 @@ namespace CsvImport {
         chooseAccumHelper(f, state, src, 0, failk, (relns, st) -> Ok(relns, st))
 
     def chooseAccumHelper(f: (CsvRow, st) -> CsvResult[(Option[reln], st)], state: st, src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] =
-        if (!hasNext(src))
+        if (!csvHasNext(src))
             sk(state, #{ })
         else {
-            let row = nextRow(src);
+            let row = csvNextRow(src);
             match Validation.validate(f(row, state)) {
                 case Err(xs) => fk(n, xs)
                 case Ok((None, st1)) => chooseAccumHelper(f, st1, src, n+1, fk, (relns, st) -> sk(relns, st))
