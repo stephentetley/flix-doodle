@@ -29,11 +29,11 @@ namespace Strategies {
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
         if (!hasNext(src)) {
-            finalize();
+            finalize(src);
             sk(#{ })
         } else {
             match getRow(src) |> (Validation.validate << rowreader) {
-                case Err(xs) => { finalize(); fk(n, xs) }
+                case Err(xs) => { finalize(src); fk(n, xs) }
                 case Ok(x) => collectHelper(iterator, rowreader, src, n+1, fk, relns -> sk(x <+> relns))
             }
         }
@@ -47,12 +47,12 @@ namespace Strategies {
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
         if (!hasNext(src)) {
-            finalize();
+            finalize(src);
             sk(#{ })
         } else {
             let row = getRow(src);
             match Validation.validate(f(row, n)) {
-                case Err(xs) => { finalize(); fk(n, xs) }
+                case Err(xs) => { finalize(src); fk(n, xs) }
                 case Ok(x) => collectWithCountHelper(iterator, f, src, n+1, fk, relns -> sk(x <+> relns))
             }
         }
@@ -66,12 +66,12 @@ namespace Strategies {
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
         if (!hasNext(src)) {
-            finalize();
+            finalize(src);
             sk(state, #{ })
         } else {
             let row = getRow(src);
             match Validation.validate(f(row, state)) {
-                case Err(xs) => { finalize(); fk(n, xs) }
+                case Err(xs) => { finalize(src); fk(n, xs) }
                 case Ok(x, st1) => collectAccumHelper(iterator, f, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
             }
         }
@@ -85,11 +85,11 @@ namespace Strategies {
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
         if (!hasNext(src)) {
-            finalize();
+            finalize(src);
             sk(#{ })
         } else {
             match getRow(src) |> (Validation.validate << f) {
-                case Err(xs) => { finalize(); fk(n, xs) }
+                case Err(xs) => { finalize(src); fk(n, xs) }
                 case Ok(None) => chooseHelper(iterator, f, src, n+1, fk, relns -> sk(relns))
                 case Ok(Some(x)) => chooseHelper(iterator, f, src, n+1, fk, relns -> sk(x <+> relns))
             }
@@ -104,12 +104,12 @@ namespace Strategies {
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
         if (!hasNext(src)) {
-            finalize()
+            finalize(src);
             sk(#{ })
         } else {
             let row = getRow(src);
             match Validation.validate(f(row, count)) {
-                case Err(xs) => {finalize(); fk(rownum, xs) }
+                case Err(xs) => {finalize(src); fk(rownum, xs) }
                 case Ok(None) => chooseWithCountHelper(iterator, f, src, rownum+1, count, fk, relns -> sk(relns))
                 case Ok(Some(x)) => chooseWithCountHelper(iterator, f, src, rownum+1, count+1, fk, relns -> sk(x <+> relns))
             }
@@ -124,12 +124,12 @@ namespace Strategies {
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
         if (!hasNext(src)) {
-            finalize();
+            finalize(src);
             sk(state, #{ })
         } else {
             let row = getRow(src);
             match Validation.validate(f(row, state)) {
-                case Err(xs) => { finalize(); fk(n, xs) }
+                case Err(xs) => { finalize(src); fk(n, xs) }
                 case Ok((None, st1)) => chooseAccumHelper(iterator, f, st1, src, n+1, fk, (relns, st) -> sk(relns, st))
                 case Ok((Some(x), st1)) => chooseAccumHelper(iterator, f, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
             }
