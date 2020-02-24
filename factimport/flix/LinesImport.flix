@@ -54,8 +54,14 @@ namespace LinesImport {
         let line = iterator.getLine();
         TextLine(line)
 
+    def finalize(src: LinesSource): Unit =
+        let LinesSource(iterator) = src;
+        import flix.runtime.factimport.LinesIterator.close();
+        iterator.close()
+
+
     def makeLinesIterator(): RowIterator[LinesSource, TextLine] =
-        { hasNext = hasNext,  getRow = getLine }
+        { hasNext = hasNext,  getRow = getLine, finalize = finalize }
 
     ///
     /// Track line number for errors.

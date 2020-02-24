@@ -87,8 +87,10 @@ namespace CsvImport {
         let csvRow = iterator.next();
         CsvRow(csvRow)
 
+    def finalize(_: CsvSource): Unit = ()
+
     def makeCsvIterator(): RowIterator[CsvSource, CsvRow] =
-        { hasNext = hasNext,  getRow = getRow }
+        { hasNext = hasNext,  getRow = getRow, finalize = finalize }
 
     ///
     /// Track row number for errors.

@@ -56,8 +56,10 @@ namespace SQLiteImport {
         let row = rator1.getRow();
         SQLiteRow(row)
 
+    def finalize(_: SQLiteSource): Unit = ()
+
     def makeSQLiteIterator(): RowIterator[SQLiteSource, SQLiteRow] =
-        { hasNext = hasNext,  getRow = getRow }
+        { hasNext = hasNext,  getRow = getRow, finalize = finalize }
 
     pub def collect(f: SQLiteRow -> SQLiteResult[reln], src: SQLiteSource): Result[reln, String] =
         let iterator = makeSQLiteIterator();
