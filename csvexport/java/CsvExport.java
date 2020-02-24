@@ -19,6 +19,7 @@ package flix.runtime.csvexport;
 import org.apache.commons.csv.*;
 import java.io.Writer;
 import java.io.FileWriter;
+import java.util.Arrays;
 
 public class CsvExport {
 
@@ -78,7 +79,9 @@ public class CsvExport {
     }
 
     public void printRow(String rowdata) throws Exception {
-        String[] row = rowdata.split(getDelim());
+        String[] cells = rowdata.split(getDelim());
+        Iterable<String> row = Arrays.asList(cells);
+
         printer.printRecord(row);
     }
 
