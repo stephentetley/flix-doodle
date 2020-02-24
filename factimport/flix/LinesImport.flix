@@ -64,31 +64,29 @@ namespace LinesImport {
         let iterator = makeLinesIterator();
         Strategies.collect(iterator, f, src)
 
+    pub def collectWithCount(f: (TextLine, Int32) -> LineResult[reln], src: LinesSource): Result[reln, String] =
+        let iterator = makeLinesIterator();
+        Strategies.collectWithCount(iterator, f, src)
 
-    def collectHelper(f: TextLine -> LineResult[reln], src: LinesSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
-        if (!hasNext(src))
-            sk(#{ })
-        else {
-            match getLine(src) |> (Validation.validate << f) {
-                case Err(xs) => fk(n, xs)
-                case Ok(x) => collectHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
-            }
-        }
+    pub def collectAccum(f: (TextLine, st) -> LineResult[(reln, st)], state: st, src: LinesSource): Result[(reln, st), String] =
+        let iterator = makeLinesIterator();
+        Strategies.collectAccum(iterator, f, state, src)
+
 
     pub def choose(f: TextLine -> LineResult[Option[reln]], src: LinesSource): Result[reln, String] =
-        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
-        chooseHelper(f, src, 0, failk, relns -> Ok(relns))
+        let iterator = makeLinesIterator();
+        Strategies.choose(iterator, f, src)
 
-    def chooseHelper(f: TextLine -> LineResult[Option[reln]], src: LinesSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
-        if (!hasNext(src))
-            sk(#{ })
-        else {
-            match getLine(src) |> (Validation.validate << f) {
-                case Err(xs) => fk(n, xs)
-                case Ok(None) => chooseHelper(f, src, n+1, fk, relns -> sk(relns))
-                case Ok(Some(x)) => chooseHelper(f, src, n+1, fk, relns -> sk(x <+> relns))
-            }
-        }
+    pub def chooseWithCount(f: (TextLine,Int32) -> LineResult[Option[reln]], src: LinesSource): Result[reln, String] =
+        let iterator = makeLinesIterator();
+        Strategies.chooseWithCount(iterator, f, src)
+
+
+    pub def chooseAccum(f: (TextLine, st) -> LineResult[(Option[reln], st)], state: st, src: LinesSource): Result[(reln, st), String] =
+        let iterator = makeLinesIterator();
+        Strategies.chooseAccum(iterator, f, state, src)
+
+    /// Line readers
 
     pub def nonempty(line: TextLine): LineResult[String] =
         let TextLine(s) = line;
