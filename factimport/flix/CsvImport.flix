@@ -137,7 +137,7 @@ namespace CsvImport {
 
     ///
     /// Get a string
-    ///
+    /// TODO - does not appear to be working...
     pub def getStringByLabel(row: CsvRow, label: String): CsvResult[String] =
         let CsvRow(r1) = row;
         try {

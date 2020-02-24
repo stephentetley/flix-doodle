@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-
-
 rel FuncLoc2(floc: String, description: String)
 rel FuncLoc3(floc: String, description: String, parent: String)
 rel Equi3(eqnum: String, floc: String, description: String)
 rel SubEqui(equiId: String, parent: String)
+
+rel FlocAib(floc: String, aibref: String)
+rel EquiAib(equiId: String, aibref: String)
 
 namespace FactLoader {
 
@@ -99,5 +100,53 @@ namespace FactLoader {
             }
         }
     
+    pub def importHierarchy[r](path: String, cs: Charset): Result[#{ FuncLoc2, FuncLoc3, Equi3, SubEqui  | r }, String] =
+        Result.flatMap(
+            f1 -> Result.flatMap(
+                f2 -> Result.flatMap(
+                    f3 -> Ok(solve f1 <+> f2 <+> f3),
+                    importEquis(path, cs)
+                ),
+                importFuncLoc3(path, cs)
+            ),
+            importFuncLoc2(path, cs)
+        )
+
+
+    /// AIB Refs
+
+    def readFlocCsv1[r](row: CsvRow): CsvResult[#{ FlocAib | r }] = 
+        Validation.pipeV2(
+            CsvImport.getStringByIndex(row, 0),
+            CsvImport.getStringByIndex(row, 3),
+            (x,y) -> FlocAib(x, y).
+        )
+
+    pub def importFlocAibs[r](path: String): Result[#{ FlocAib  | r }, String] =    
+        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
+            case Err(msg) => Err(msg)
+            case Ok(src) => 
+                match CsvImport.collect(readFlocCsv1, src) {
+                    case Err(msg) => Err(msg)
+                    case Ok(relns) => Ok(solve relns)
+                }
+        }
+
+    def readEquiCsv1[r](row: CsvRow): CsvResult[#{ EquiAib | r }] = 
+        Validation.pipeV2(
+            CsvImport.getStringByIndex(row, 0),
+            CsvImport.getStringByIndex(row, 10),
+            (x,y) -> EquiAib(x, y).
+        )
+
+    pub def importEquiAibs[r](path: String): Result[#{ EquiAib | r }, String] =    
+        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
+            case Err(msg) => Err(msg)
+            case Ok(src) => 
+                match CsvImport.collect(readEquiCsv1, src) {
+                    case Err(msg) => Err(msg)
+                    case Ok(relns) => Ok(solve relns)
+                }
+        }
 
 }
