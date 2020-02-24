@@ -42,7 +42,7 @@ namespace Strategies {
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectWithCountHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
 
-    def collectWithCountHelper(iterator: RowIterator[src, row], f: (row, Int32) -> RowResult[reln], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] =
+    def collectWithCountHelper(iterator: RowIterator[src, row], f: (row, Int32) -> RowResult[reln], src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] =
         let hasNext = iterator.hasNext;
         let getRow = iterator.getRow;
         if (!hasNext(src))
@@ -55,7 +55,7 @@ namespace Strategies {
             }
         }
 
-    pub def collectAccum(iterator: RowIterator[src, row], rowreader: (row, st) -> CsvResult[(reln, st)], state: st, source: src): Result[(reln, st), String] =
+    pub def collectAccum(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)], state: st, source: src): Result[(reln, st), String] =
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         collectAccumHelper(iterator, rowreader, state, source, 0, failk, (relns, st) -> Ok(relns, st))
 
@@ -76,7 +76,7 @@ namespace Strategies {
         let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
         chooseHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
 
-    def chooseHelper(iterator: RowIterator[src, row], f: CsvRow -> CsvResult[Option[reln]], src: CsvSource, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
+    def chooseHelper(iterator: RowIterator[src, row], f: row -> RowResult[Option[reln]], src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] =
         let hasNext = iterator.hasNext;
         let getRow = iterator.getRow;
         if (!hasNext(src))
