@@ -54,4 +54,15 @@ namespace CsvExport {
         import flix.runtime.csvexport.CsvExport.close();
         handle.close()
 
+    ///
+    /// Wrap a "cell printer" i.e. a function from the tuple of a relations fields
+    /// to the step function of a fixpoint fold, the fold should be seeded
+    /// with a CsvWriter.
+    ///
+    /// When all the relations have been folded over the fold emits the CsvWriter
+    /// so client code can close it.
+    ///
+    pub def wrapCellPrinterForFixpointFold(f: x -> Array[String]): (x, CsvWriter) -> CsvWriter =
+        (x, w) -> { let cells = f(x); writeRow(w, cells); w }
+
  }

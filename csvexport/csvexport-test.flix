@@ -20,20 +20,35 @@ pub def dummyRelations(): #{ Dummy } = solve #{
     Dummy("d", 1).
 }
 
+
+/// A "cell printer" for the body of Dummy.
 def dummyCells(src: (String,Int)): Array[String] = 
     let (name,i) = src;
     [name, Int32.toString(i)]
 
 
-pub def exportDummy(filepath: String, d1: #{ Dummy }): Unit = 
-    let writer = CsvExport.new(filepath, ["Name", "Grid_Ref"]);
-    let writeRow = (x, _) -> { let cells = dummyCells(x); CsvExport.writeRow(writer, cells) };
-    fold Dummy () writeRow d1;
-    CsvExport.close(writer)
 
 @test
 def test01(): Unit = 
     let dest = "d:/coding/flix/flix-doodle/csvexport/data/dummy_export.csv";
-    exportDummy(dest, dummyRelations())
+    let writer = CsvExport.new(dest, ["Name", "Grid_Ref"]);
+    let writeRow = (x, _) -> { let cells = dummyCells(x); CsvExport.writeRow(writer, cells) };
+    fold Dummy () writeRow dummyRelations();
+    CsvExport.close(writer)
+
+///
+/// Because fixpoint fold is not first class we cannot abstract over Dummy
+/// and make our own strategies, this is about the neatest I think we can get.
+///
+/// Of course `writer` is in scope after the fold so we could "directly" close it
+/// by name.
+///
+@test
+def test02(): Unit = 
+    let dest = "d:/coding/flix/flix-doodle/csvexport/data/dummy_export2.csv";
+    let writer = CsvExport.new(dest, ["Name", "Grid_Ref"]);
+    let step = CsvExport.wrapCellPrinterForFixpointFold(dummyCells);
+    { fold Dummy writer step dummyRelations() } |> CsvExport.close
+
 
 
