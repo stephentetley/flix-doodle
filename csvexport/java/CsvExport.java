@@ -27,7 +27,7 @@ public class CsvExport {
     CSVPrinter printer;
 
     public static String getDelim() {
-        return "\u00DE";
+        return "\u22B6\u22B7";
     }
 
     public CsvExport(String filepath, int format, String headerdata) throws Exception {
@@ -78,7 +78,7 @@ public class CsvExport {
         return;
     }
 
-    public void printRow(String rowdata) throws Exception {
+    public void writeRow(String rowdata) throws Exception {
         String[] cells = rowdata.split(getDelim());
         Iterable<String> row = Arrays.asList(cells);
 
