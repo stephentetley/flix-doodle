@@ -17,7 +17,7 @@
  namespace File {
 
     /// TODO - test exception
-    pub def readFile(path: FilePath, cs: Charset): Result[String, String] = 
+    pub def readFile(path: FilePath, cs: Charset): Result[String, String] & Impure =
         try {
             import java.nio.file.Files:readString(##java.nio.file.Path, ##java.nio.charset.Charset);
             let FilePath(path1) = path;
@@ -29,7 +29,7 @@
             case _: ##java.lang.Exception => Err("Exception")
         }
 
-    pub def writeFile(path: FilePath, content: String): Result[Unit, String] = 
+    pub def writeFile(path: FilePath, content: String): Result[Unit, String] & Impure =
         try {
             import flix.runtime.library.System:writeString(##java.nio.file.Path, String);
             let FilePath(path1) = path;

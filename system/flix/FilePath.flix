@@ -26,17 +26,17 @@ namespace FilePath {
     ///
     pub def new(uri: String): FilePath =
         import flix.runtime.library.System:pathsGet(String) as pathsGet;
-        FilePath(pathsGet(uri))
+        FilePath(pathsGet(uri) as & Pure)
 
     pub def toString(path: FilePath): String = 
         import flix.runtime.library.System:pathToString(##java.nio.file.Path) as toString;
         let FilePath(path1) = path;
-        path1.toString()
+        path1.toString() as & Pure
 
     pub def normalize(path: FilePath): FilePath = 
         import flix.runtime.library.System:pathNormalize(##java.nio.file.Path) as pathNoramlize;
         let FilePath(path1) = path;
-        FilePath(path1.pathNoramlize())
+        FilePath(path1.pathNoramlize() as & Pure)
 
     
 
