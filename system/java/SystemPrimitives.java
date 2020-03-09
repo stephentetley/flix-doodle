@@ -50,11 +50,20 @@ public class SystemPrimitives {
     }
 
     // Stub function for `resolve` as it is an interface method.
-    // Note - may return null.
     public static Path pathResolve(Path path, Path other) {
         return path.resolve(other);
     }
 
+    // Stub function for `getNameCount` as it is an interface method.
+    public static int pathGetNameCount(Path path) {
+        return path.getNameCount();
+    }
+
+    // Stub function for `getNameCount` as it is an interface method.
+    // Note - may throw an exception.
+    public static Path pathGetName(Path path, int index) throws Exception {
+        return path.getName(index);
+    }
 
     public static Path currentDirectory() {
         Path currentDir = Path.of(".");

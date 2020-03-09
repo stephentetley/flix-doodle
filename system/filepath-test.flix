@@ -65,3 +65,17 @@ def append01(): String & Impure =
     let p2 = FilePath.new("file1.txt");
     FilePath.append(p1,p2) |> FilePath.toString
     
+@test
+def getNameCount01(): Int32 & Impure = 
+    FilePath.new("g:\directory1\directory2\file1.txt") |> FilePath.getNameCount
+    
+@test
+def getNameCount02(): Int32 & Impure = 
+    FilePath.new("g:") |> FilePath.getNameCount
+
+@test 
+def getExtension01(): String & Impure = 
+    match FilePath.new("g:\directory1\directory2\file1.txt") |> FilePath.getExtension {
+        case None => "**fail**"
+        case Some(x) => x
+    }

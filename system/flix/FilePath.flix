@@ -69,4 +69,28 @@ namespace FilePath {
         let FilePath(other1) = other;
         FilePath(pathResolve(path1, other1))
 
+    pub def getNameCount(path: FilePath): Int32 & Impure =
+        import flix.runtime.library.SystemPrimitives:pathGetNameCount(##java.nio.file.Path);
+        let FilePath(path1) = path;
+        path1.pathGetNameCount()
+
+    pub def getName(index: Int32, path: FilePath): Option[FilePath] & Impure =
+        try {
+            import flix.runtime.library.SystemPrimitives:pathGetName(##java.nio.file.Path, Int32);
+            let FilePath(path1) = path;
+            path1.pathGetName(index) |> FilePath |> Some
+        } catch {
+            case _: ##java.lang.Exception => None
+        }
+
+    pub def getExtension(path: FilePath): Option[String] & Impure =
+        match getFileName(path) |> Option.map(toString) {
+            case None => None
+            case Some(s) => match String.indexOfRight(s, ".") {
+                case None => None
+                case Some(ix) => Some(String.slice(ix+1, String.length(s), s))
+            }
+        }
+
+
  }
