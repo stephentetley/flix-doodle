@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 // Use flix 0.10.0
 
 pub opaque type Stream[a] = Unit -> (Unit -> Step[a])
@@ -212,5 +212,39 @@ namespace Stream {
             case Done       => Done
             case Skip       => zipHelperRight(sf, y)
         }
-        
+
+    pub def fold(f: (b, a) -> b, ac: b, s: Stream[a]): b = 
+        let Stream(body) = s;
+        foldHelper(f, ac, body()) 
+
+    def foldHelper(f: (b,a) -> b, ac: b, sf : Unit -> Step[a]): b = 
+        match sf() {
+            case Done => ac
+            case Skip => foldHelper(f, ac, sf)
+            case Yield(a) => foldHelper(f, f(ac,a), sf)
+        }
+
+    pub def append(s1: Stream[a], s2: Stream[a]): Stream[a] = 
+        Stream(() -> 
+            let Stream(body1) = s1;
+            let Stream(body2) = s2;
+            let sf1 = body1();
+            let sf2 = body2();
+            let from1 = ref true;
+            let next = () ->
+                if (deref from1 == false)
+                    sf2()
+                else  
+                    match sf1() {
+                        case Skip => Skip
+                        case Yield(a) => Yield(a)
+                        case Done => {
+                            from1 := false;
+                            Skip
+                        }
+                    };
+            next 
+        )
+
+
 }

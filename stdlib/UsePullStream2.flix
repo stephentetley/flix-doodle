@@ -37,3 +37,14 @@ def test07(): Unit =
     let s1 = Stream.ofArray([1,2,3,4,5,6,7,8,9,10]);
     let s2 = Stream.ofArray(['a', 'b', 'c']);
     Stream.zip(s1, s2) |> Stream.foreach(match (x,y) -> Console.printLine(Int32.toString(x) + " " + Char.toString(y)))
+
+@test
+def test08(): Int32 = 
+    let s1 = Stream.ofArray([1,2,3,4,5,6,7,8,9,10]);
+    Stream.fold((x,y) -> x + y, 0, s1)
+
+@test
+def test09(): Unit = 
+    let s1 = Stream.ofArray([1,2,3,4,5,6,7,8,9,10]);
+    let s2 = Stream.ofList(100 :: 101 :: Nil);
+    Stream.append(s1, s2) |> Stream.foreach(x -> Console.printLine(Int32.toString(x)))
