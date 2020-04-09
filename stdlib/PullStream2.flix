@@ -1,11 +1,15 @@
 
 // Use flix 0.10.0
 
-pub opaque type Stream[a] = Unit -> (Unit -> Option[a])
+pub opaque type Stream[a] = Unit -> (Unit -> Step[a])
 
-// TODO - drop not working do we need a Skip constructor?
+enum Step[a] {
+    case Done,
+    case Skip,
+    case Yield(a)
+}
 
-namespace PullStream { 
+namespace Stream { 
 
     pub def map(f: a -> b, s: Stream[a]): Stream[b] = 
         Stream(() -> 
@@ -13,8 +17,8 @@ namespace PullStream {
             let sf = body();
             let next = () -> 
                 match sf() {
-                    case None => None
-                    case Some(a) => Some(f(a))
+                    case Yield(a) => Yield(f(a))
+                    case x        => x                    
                 };
             next 
         )
@@ -27,14 +31,14 @@ namespace PullStream {
             let sf = body();
             let next = () -> 
                 if (deref x >= n)
-                    None
+                    Done
                 else {
                     match sf() {
-                        case None => None
-                        case Some(a) => {
+                        case Yield(a) => {
                             x := deref x + 1;
-                            Some(a)
+                            Yield(a)
                         }
+                        case ans => ans
                     }
                 };
             next 
@@ -45,59 +49,47 @@ namespace PullStream {
             let x = ref n;
             let Stream(body) = s;
             let sf = body();
-            let next = () -> 
-                if (deref x >= 0)
-                    None
-                else {
-                    match sf() {
-                        case None => None
-                        case Some(a) => {
-                            x := deref x - 1;
-                            Some(a)
-                        }
+            let next = () -> match sf() {
+                case Yield(a) =>
+                    if (deref x < 0)
+                        Yield(a)
+                    else {                
+                        x := deref x - 1;
+                        Skip
                     }
+                case ans => ans
                 };
             next 
         )
-
-    def dropHelper(sf : Unit -> Option[a], n: Int32) : Option[a] = match sf() {
-        case None => None
-        case Some(a) => 
-            if (n <= 0)
-                Some(a)
-            else            
-                dropHelper(sf, n - 1)
-    }
-
 
     pub def filter(f: a -> Bool, s: Stream[a]): Stream[a] = 
         Stream(() -> 
             let Stream(body) = s;
             let sf = body();
-            let next = () -> filterHelper(f, sf);
+            let next = () -> 
+                match sf() { 
+                    case Done => Done
+                    case Skip => Skip
+                    case Yield(a) => 
+                        if (f(a) == false) 
+                            Skip
+                        else
+                            Yield(a)    
+                };
             next 
         )
 
-    def filterHelper(f: a -> Bool, sf : Unit -> Option[a]) : Option[a] = 
-        match sf() {
-            case None => None
-            case Some(a) => 
-                if (f(a)) 
-                    Some(a)
-                else 
-                    filterHelper(f, sf)
-        }
-
+    
     pub def range(b: Int32, e: Int32): Stream[Int32] = 
         Stream(() -> 
             let x = ref b;
             let next = () -> 
                 if (deref x > e)
-                    None
+                    Done
                 else {
                     let p = deref x;
                     x := deref x + 1;
-                    Some(p)
+                    Yield(p)
                 };
             next 
         )
@@ -106,10 +98,11 @@ namespace PullStream {
         let Stream(body) = s;
         toListHelper(body(), Nil) 
 
-    def toListHelper(sf : Unit -> Option[a], ac: List[a]) : List[a] = 
+    def toListHelper(sf : Unit -> Step[a], ac: List[a]) : List[a] = 
         match sf() {
-            case None => List.reverse(ac)
-            case Some(a) => toListHelper(sf, a :: ac)
+            case Done     => List.reverse(ac)
+            case Skip     => toListHelper(sf, ac)
+            case Yield(a) => toListHelper(sf, a :: ac)
         }
 
     pub def ofList(xs: List[a]): Stream[a] = 
@@ -117,10 +110,10 @@ namespace PullStream {
             let rxs = ref xs;
             let next = () -> 
                 match (deref rxs) {
-                    case Nil => None
+                    case Nil => Done
                     case x :: rs => {
                         rxs := rs;
-                        Some(x)
+                        Yield(x)
                     }
                 };
             next 
@@ -132,11 +125,11 @@ namespace PullStream {
             let next = () -> {
                 let ix = deref x;
                 if (ix >= Array.length(arr))
-                    None
+                    Done
                 else {
                     let p = Array.get(arr, ix);
                     x := ix + 1;
-                    Some(p)
+                    Yield(p)
                 }
             };
             next 
@@ -147,12 +140,14 @@ namespace PullStream {
         let Stream(body) = s;
         foreachHelper(f, body()) 
 
-    def foreachHelper(f: a -> Unit, sf : Unit -> Option[a]): Unit = 
+    def foreachHelper(f: a -> Unit, sf : Unit -> Step[a]): Unit = 
         match sf() {
-            case None => ()
-            case Some(a) => {
+            case Done => ()
+            case Skip => foreachHelper(f, sf)
+            case Yield(a) => {
                 f(a);
                 foreachHelper(f, sf)
             }
         }
+
 }
