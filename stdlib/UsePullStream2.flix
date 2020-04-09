@@ -26,3 +26,14 @@ def test04(): Unit  =
 def test05(): Unit = 
     let s = Stream.ofArray([1,2,3,4,5,6,7,8,9,10]) |> Stream.drop(3);
     Stream.foreach(x -> Console.printLine(Int32.toString(x)), s)
+
+@test
+def test06(): Unit = 
+    let s = Stream.ofArray([1,2,3,4,5,6,7,8,9,10]) |> Stream.cons(-1000);
+    Stream.foreach(x -> Console.printLine(Int32.toString(x)), s)
+
+@test
+def test07(): Unit = 
+    let s1 = Stream.ofArray([1,2,3,4,5,6,7,8,9,10]);
+    let s2 = Stream.ofArray(['a', 'b', 'c']);
+    Stream.zip(s1, s2) |> Stream.foreach(match (x,y) -> Console.printLine(Int32.toString(x) + " " + Char.toString(y)))

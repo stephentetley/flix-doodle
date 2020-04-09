@@ -1,4 +1,19 @@
-
+/*
+ * Copyright 2020 Stephen Tetley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 // Use flix 0.10.0
 
 pub opaque type Stream[a] = Unit -> (Unit -> Step[a])
@@ -150,4 +165,52 @@ namespace Stream {
             }
         }
 
+    
+    pub def cons(x: a, s: Stream[a]) : Stream[a] = 
+        Stream(() -> 
+            let Stream(body) = s;
+            let sf = body();
+            let initial = ref true;
+            let next = () -> 
+                if (deref initial != true) 
+                    sf()
+                else {
+                    initial := false;
+                    Yield(x)
+                };            
+            next
+        )
+
+    pub def zip(s1: Stream[a], s2: Stream[b]): Stream[(a,b)] = 
+        Stream(() -> 
+            let Stream(body1) = s1;
+            let Stream(body2) = s2;
+            let sf1 = body1();
+            let sf2 = body2();
+            let next = () -> zipHelper(sf1, sf2);
+            next 
+        )
+
+    def zipHelper(sf1: Unit -> Step[a], sf2: Unit -> Step[b]) : Step[(a,b)] = 
+        match (sf1(), sf2()) {
+            case (Yield(a), Yield(b)) => Yield((a,b))
+            case (Yield(a), Skip)     => zipHelperLeft(a, sf2)
+            case (Skip, Yield(b))     => zipHelperRight(sf1, b)
+            case (_,_)                => Done
+        }
+
+    def zipHelperLeft(x: a, sf: Unit -> Step[b]) : Step[(a,b)] = 
+        match sf() {
+            case Yield(y)   => Yield((x,y))
+            case Done       => Done
+            case Skip       => zipHelperLeft(x, sf)
+        }
+
+    def zipHelperRight(sf: Unit -> Step[a], y: b) : Step[(a,b)] = 
+        match sf() {
+            case Yield(x)   => Yield((x,y))
+            case Done       => Done
+            case Skip       => zipHelperRight(sf, y)
+        }
+        
 }
