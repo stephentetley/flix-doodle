@@ -181,36 +181,39 @@ namespace Stream {
             next
         )
 
-    pub def zip(s1: Stream[a], s2: Stream[b]): Stream[(a,b)] = 
+    pub def zip(s1: Stream[a], s2: Stream[b]): Stream[(a,b)] = zipWith((a,b) -> (a,b), s1, s2)
+        
+    pub def zipWith(f: (a,b) -> c, s1: Stream[a], s2: Stream[b]): Stream[c] = 
         Stream(() -> 
             let Stream(body1) = s1;
             let Stream(body2) = s2;
             let sf1 = body1();
             let sf2 = body2();
-            let next = () -> zipHelper(sf1, sf2);
+            let next = () -> zipWithHelper(f, sf1, sf2);
             next 
         )
 
-    def zipHelper(sf1: Unit -> Step[a], sf2: Unit -> Step[b]) : Step[(a,b)] = 
+
+    def zipWithHelper(f: (a,b) -> c, sf1: Unit -> Step[a], sf2: Unit -> Step[b]) : Step[c] = 
         match (sf1(), sf2()) {
-            case (Yield(a), Yield(b)) => Yield((a,b))
-            case (Yield(a), Skip)     => zipHelperLeft(a, sf2)
-            case (Skip, Yield(b))     => zipHelperRight(sf1, b)
+            case (Yield(a), Yield(b)) => Yield(f(a,b))
+            case (Yield(a), Skip)     => zipWithHelperLeft(f, a, sf2)
+            case (Skip, Yield(b))     => zipWithHelperRight(f, sf1, b)
             case (_,_)                => Done
         }
 
-    def zipHelperLeft(x: a, sf: Unit -> Step[b]) : Step[(a,b)] = 
+    def zipWithHelperLeft(f: (a,b) -> c, x: a, sf: Unit -> Step[b]) : Step[(a,b)] = 
         match sf() {
-            case Yield(y)   => Yield((x,y))
+            case Yield(y)   => Yield(f(x,y))
             case Done       => Done
-            case Skip       => zipHelperLeft(x, sf)
+            case Skip       => zipWithHelperLeft(f, x, sf)
         }
 
-    def zipHelperRight(sf: Unit -> Step[a], y: b) : Step[(a,b)] = 
+    def zipWithHelperRight(f: (a,b) -> c,sf: Unit -> Step[a], y: b) : Step[(a,b)] = 
         match sf() {
-            case Yield(x)   => Yield((x,y))
+            case Yield(x)   => Yield(f(x,y))
             case Done       => Done
-            case Skip       => zipHelperRight(sf, y)
+            case Skip       => zipWithHelperRight(f, sf, y)
         }
 
     pub def fold(f: (b, a) -> b, ac: b, s: Stream[a]): b = 
@@ -246,5 +249,18 @@ namespace Stream {
             next 
         )
 
+    pub def unfold(f: b -> Option[(a,b)], st: b): Stream[a] = 
+        Stream(() -> 
+            let state = ref st;
+            let next = () -> 
+                match f(deref state) {
+                    case None => Done
+                    case Some(x,st2) => {
+                        state := st2;
+                        Yield(x)
+                    }
+                };        
+            next
+        )
 
 }

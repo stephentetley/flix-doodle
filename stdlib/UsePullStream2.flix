@@ -48,3 +48,9 @@ def test09(): Unit =
     let s1 = Stream.ofArray([1,2,3,4,5,6,7,8,9,10]);
     let s2 = Stream.ofList(100 :: 101 :: Nil);
     Stream.append(s1, s2) |> Stream.foreach(x -> Console.printLine(Int32.toString(x)))
+
+
+@test
+def test10(): Unit = 
+    let s1 = Stream.unfold(x -> if (x > 6) None else Some(x, x+1), -3);
+    Stream.foreach(x -> Console.printLine(Int32.toString(x)), s1)
