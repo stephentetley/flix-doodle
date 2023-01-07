@@ -15,6 +15,18 @@ def main(): Int32 \ IO = region rh {
     List.forEach(println, list3);
     println("Cursor.append");
     Cursor.forEach(println, Cursor.append(iter1(), iter2()));
+    let iter4 = Cursor.flatMap(x -> Cursor.flatMap(y -> Cursor.singleton(rh, (x, y)), iter2()), iter1());
+    println("First five...");
+    Cursor.next(iter4) |> println;
+    Cursor.next(iter4) |> println;
+    Cursor.next(iter4) |> println;
+    Cursor.next(iter4) |> println;
+    Cursor.next(iter4) |> println;
+    let filtList = () -> Cursor.range(rh, 1, 10) |> Cursor.filter(x -> x mod 2 == 0);
+    println("Cons");
+    filtList() |> Cursor.cons(100) |> Cursor.toList |> println;
+    println("Intersperse");
+    filtList() |> Cursor.intersperse(100) |> Cursor.toList |> println;
     0
 }
 
@@ -70,6 +82,14 @@ namespace Cursor {
             Cursor(r, f1)
         }
         
+    pub def next(iter: Cursor[a, r]): Option[a] \ Read(r) = 
+        let Cursor(_, iterF) = iter;
+        def loop() = match iterF() {
+            case Ans(a) => Some(a)
+            case Skip   => loop()
+            case Done   => None
+        };
+        loop()
 
     pub def map(f: a -> b \ ef, iter: Cursor[a, r]): Cursor[b, r] \ { Read(r), ef } =
         let Cursor(r, iterF) = iter;
@@ -113,7 +133,7 @@ namespace Cursor {
             case Done   => Done
         };
         def loop1(x) = match x {
-            case Ans(a) => Ans(a)            
+            case Ans(a) => Ans(a)
             case Skip   => loop1(iter1F())
             case Done   => loop2(iter2F())
         };
@@ -178,5 +198,58 @@ namespace Cursor {
             }
         };
         Cursor(r, f)        
+
+    pub def cons(x: a, iter: Cursor[a, r]): Cursor[a, r] \ Write(r) = 
+        let Cursor(r, iterF) = iter;
+        let first = ref true @ r;
+        let f = () ->  { 
+            if (deref first) {
+                first := false;
+                Ans(x)
+            }
+            else
+                iterF()
+        };
+        let iter1F = () -> unsafe_cast f() as _ \ r;
+        Cursor(r, iter1F)
+
+    
+    pub def intersperse(sep: a, iter: Cursor[a, r]): Cursor[a, r] \ Write(r) =
+        let Cursor(r, _) = iter;
+        let start = ref true @ r;
+        let step = x -> 
+            if (deref start) {
+                start := false; 
+                singleton(r, x)
+            } else { 
+                cons(sep, singleton(r, x))
+            };
+        flatMap(step, iter)
+
+ 
+
+    pub def foldLeft(f: (b, a) -> b \ ef, s: b, iter: Cursor[a, r]): b \ { ef, Read(r) } = 
+        let Cursor(_, iterF) = iter;
+        def loop(acc) = match iterF() {
+            case Skip   => loop(acc)
+            case Ans(a) => loop(f(acc, a))
+            case Done   => acc
+            
+        };
+        loop(s)
+
+    pub def foldRight(f: (a, b) -> b \ ef, s: b, iter: Cursor[a, r]): b \ { ef, Read(r) } = 
+        let Cursor(_, iterF) = iter;
+        def loop(k) = match iterF() {
+            case Skip   => loop(k)
+            case Ans(a) => loop(ks -> k(f(a, ks)))
+            case Done   => k(s)
+            
+        };
+        loop(upcast(identity))
+
+    pub def toList(iter: Cursor[a, r]): List[a] \ Read(r) = 
+        foldRight((a, acc) -> a :: acc, Nil, iter)
+
 
 }
