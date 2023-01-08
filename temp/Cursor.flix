@@ -22,11 +22,23 @@ def main(): Int32 \ IO = region rh {
     Cursor.next(iter4) |> println;
     Cursor.next(iter4) |> println;
     Cursor.next(iter4) |> println;
+    println("filterMap");
+    Cursor.range(rh, 1, 10) |> Cursor.filterMap(x -> if (x mod 2 == 0) Some("${x+100}i32") else None) |> Cursor.toList |> println;
     let filtList = () -> Cursor.range(rh, 1, 10) |> Cursor.filter(x -> x mod 2 == 0);
-    println("Cons");
+    println("cons");
     filtList() |> Cursor.cons(100) |> Cursor.toList |> println;
-    println("Intersperse");
+    println("intersperse");
     filtList() |> Cursor.intersperse(100) |> Cursor.toList |> println;
+    println("intercalate");
+    filtList() |> Cursor.intercalate(Cursor.range(rh, 1000, 1002)) |> Cursor.toList |> println;
+    println("drop(3)");
+    Cursor.range(rh, 1, 10) |> Cursor.drop(3) |> Cursor.toList |> println;
+    println("dropWhile(<5)");
+    Cursor.range(rh, 1, 10) |> Cursor.dropWhile(i -> i < 5) |> Cursor.toList |> println;
+    println("take(3)");
+    Cursor.range(rh, 1, 10) |> Cursor.take(3) |> Cursor.toList |> println;    
+    println("takeWhile(<5)");
+    Cursor.range(rh, 1, 10) |> Cursor.takeWhile(i -> i < 5) |> Cursor.toList |> println;    
     0
 }
 
@@ -151,6 +163,19 @@ namespace Cursor {
         let iterF1 = () -> unsafe_cast step(iterF()) as _ \ r;
         unsafe_cast Cursor(r, iterF1) as _ \ { Read(r), ef }
 
+    pub def filterMap(f: a -> Option[b] \ ef, iter: Cursor[a, r]): Cursor[b, r] \ { ef, Read(r) } =
+        let Cursor(r, iterF) = iter;
+        let step = x -> match x {
+            case Ans(a) => match (f(a)) {
+                case Some(a1) => Ans(a1)
+                case None     => Skip
+            } 
+            case Skip   => Skip
+            case Done   => Done
+        };
+        let iterF1 = () -> unsafe_cast step(iterF()) as _ \ r;
+        unsafe_cast Cursor(r, iterF1) as _ \ { Read(r), ef }
+
 
     pub def forEach(f: a -> Unit \ ef, iter: Cursor[a , r]): Unit \ { ef, Read(r) } =
         let Cursor(_, iterF) = iter;
@@ -161,9 +186,10 @@ namespace Cursor {
         };
         loop()
 
-    pub def zip(iter1: Cursor[a, r1], iter2: Cursor[b, r1]): Cursor[(a, b), r1] = zipWith((a, b) -> (a, b), iter1, iter2)
+    pub def zip(iter1: Cursor[a, r], iter2: Cursor[b, r]): Cursor[(a, b), r] \ Read(r) = 
+        zipWith((a, b) -> (a, b), iter1, iter2)
 
-    pub def zipWith(f: (a, b) -> c \ ef, iter1: Cursor[a, r1], iter2: Cursor[b, r1]): Cursor[c, r1] \ ef =
+    pub def zipWith(f: (a, b) -> c \ ef, iter1: Cursor[a, r], iter2: Cursor[b, r]): Cursor[c, r] \ { ef, Read(r) } =
         let Cursor(r1, iter1F) = iter1;
         let Cursor(_,  iter2F) = iter2;
         let step = (l, r) -> match (l, r) {
@@ -174,8 +200,8 @@ namespace Cursor {
             case (_, _)           => Done            
             
         };
-        let iter3F = () -> unsafe_cast step(iter1F(), iter2F()) as _ \ r1;
-        unsafe_cast Cursor(r1, iter3F) as _ \ ef
+        let iter3F = () -> unsafe_cast step(iter1F(), iter2F()) as _ \ r;
+        unsafe_cast Cursor(r1, iter3F) as _ \ { ef, Read(r) }
 
     def zipWithGoLeft(iter: Unit -> Step[a] \ ef1, f: a -> c \ ef2): Step[c] \ { ef1, ef2 } = match iter() {
         case Ans(a) => Ans(f(a))
@@ -188,6 +214,14 @@ namespace Cursor {
         case Skip   => zipWithGoRight(f, iter)
         case Done   => Done
     }
+
+
+    pub def zipWithIndex(iter: Cursor[a, r]): Cursor[(Int32, a), r] \ Write(r) = 
+        let Cursor(r, _) = iter;
+        let ix = ref 0 @ r;
+        map(x -> {let i = deref ix; ix:= i + 1; (i, x)}, iter)
+
+    pub def enumerator(iter: Cursor[a, r]): Cursor[(Int32, a), r] \ Write(r) = zipWithIndex(iter)
 
     pub def ofList(r: Region[r], xs: List[a]): Cursor[a, r] \ Write(r) = 
         let ls = ref xs @ r;
@@ -226,6 +260,19 @@ namespace Cursor {
             };
         flatMap(step, iter)
 
+    /// Performance warning: `intercalate` must copy `sep` each time it is used.
+    pub def intercalate(sep: Cursor[a, r], iter: Cursor[a, r]): Cursor[a, r] \ Write(r) =
+        let Cursor(r, _) = iter;
+        let start = ref true @ r;
+        let sepList = toList(sep);
+        let step = x -> 
+            if (deref start) {
+                start := false; 
+                singleton(r, x)
+            } else { 
+                append(ofList(r, sepList), singleton(r, x))
+            };
+        flatMap(step, iter)
  
 
     pub def foldLeft(f: (b, a) -> b \ ef, s: b, iter: Cursor[a, r]): b \ { ef, Read(r) } = 
@@ -247,6 +294,69 @@ namespace Cursor {
             
         };
         loop(upcast(identity))
+
+    pub def foldMap(f: a -> b \ ef, iter: Cursor[a, r]): b \ { ef, Read(r) } with Monoid[b] =
+        foldLeft((acc, x) -> Monoid.combine(acc, f(x)), Monoid.empty(), iter)
+
+    pub def reduceLeft(f: (a, a) -> a \ ef, iter: Cursor[a, r]): Option[a] \ { ef, Read(r) } =
+        match next(iter) {
+            case Some(x) => foldLeft(f, x, iter) |> Some
+            case None    => None
+        }
+
+
+    pub def drop(n: Int32, iter: Cursor[a, r]): Cursor[a, r] \ Read(r) =
+        let Cursor(r, _) = iter;
+        let ix = ref n @ r;
+        def loop() = {
+            let i = deref ix;
+            ix := i - 1;
+            if (i < 1)
+                iter
+            else { 
+                discard next(iter);
+                loop()
+            }
+        };
+        loop()
+
+    pub def dropWhile(f: a -> Bool, iter: Cursor[a, r]): Cursor[a, r] \ { ef, Read(r) } =
+        let Cursor(r, _) = iter;
+        def loop() = match next(iter) {
+            case Some(x) => if (f(x)) loop() else cons(x, iter)
+            case None    => empty(r)
+        };
+        loop()
+
+
+    pub def take(n: Int32, iter: Cursor[a, r]): Cursor[a, r] \ Read(r) =
+        let Cursor(r, iterF) = iter;
+        let ix = ref n @ r;
+        def loop() = {
+            let i = deref ix;            
+            if (i < 1)
+                Done
+            else
+                match iterF() {
+                    case Ans(a) => {ix := i-1; Ans(a)}
+                    case Skip   => loop()
+                    case Done   => Done
+                }
+        };
+        let iter1F = () -> unsafe_cast loop() as _ \ r;
+        Cursor(r, iter1F)
+
+
+    pub def takeWhile(f: a -> Bool \ ef, iter: Cursor[a, r]): Cursor[a, r] \ { ef, Read(r) } =
+        let Cursor(r, iterF) = iter;
+        def loop(x) = match x {
+            case Ans(a) => if (f(a)) Ans(a) else Done
+            case Skip   => loop(iterF())
+            case Done   => Done
+        };
+        let iter1F = () -> unsafe_cast loop(iterF()) as _ \ r;
+        unsafe_cast Cursor(r, iter1F) as _ \ { ef, Read(r) }
+
 
     pub def toList(iter: Cursor[a, r]): List[a] \ Read(r) = 
         foldRight((a, acc) -> a :: acc, Nil, iter)
