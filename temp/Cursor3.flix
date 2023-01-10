@@ -9,6 +9,8 @@ def main(): Int32 \ IO = region rh {
     let iter2 = () -> Cursor.ofList(rh, 1 :: 2 :: 3 :: Nil);
     let iter3 = Cursor.flatMap(x -> Cursor.flatMap(y -> Cursor.singleton(rh, (x, y)), iter2()), iter1());
     iter3 |> Cursor.toList |> println;
+    println("Nel..,");
+    Cursor.range(rh, 1, 10) |> Cursor.toNel |> println;
     0
 }
 
@@ -372,7 +374,60 @@ namespace Cursor {
             case None    => None
         }
 
+    pub def sum(iter: Cursor[Int32, ef, r]): Int32 \ { ef, Read(r) } = 
+        foldLeft((acc, x) -> acc + x, 0, iter)
+
+    pub def sumWith(f: a -> Int32 \ ef1, iter: Cursor[a, ef, r]): Int32 \ { ef, ef1, Read(r) } =
+        foldLeft((acc, x) -> acc + f(x), 0, iter)
+
+    pub def product(iter: Cursor[Int32, ef, r]): Int32 \ { ef, Read(r) } = match next(iter) {
+        case Some(i) => foldLeft((acc, x) -> acc * x, i, iter)
+        case None    => 1
+    } 
+
+    pub def productWith(f: a -> Int32 \ ef1, iter: Cursor[a, ef, r]): Int32 \ { ef, ef1, Read(r) } = match next(iter) {
+        case Some(a) => foldLeft((acc, x) -> acc * f(x), f(a), iter)
+        case None    => 1
+    } 
+
     pub def toList(iter: Cursor[a, ef, r]): List[a] \ { ef, Read(r) } = 
         foldRight((a, acc) -> a :: acc, Nil, iter)
 
+    pub def toArray(r1: Region[r1], iter: Cursor[a, ef, r2]): Array[a, r1] \ { ef, Read(r2), Write(r1) } = region r0 {
+        let m = new MutList(r0);
+        forEach(a -> MutList.push!(a, m), iter);
+        MutList.toArray(r1, m)
+    }
+
+
+
+    pub def toSet(iter: Cursor[a, ef, r]): Set[a] \ { ef, Read(r) } with Order[a] = 
+        foldLeft((acc, a) -> Set.insert(a, acc), Set.empty(), iter)
+
+    pub def toMap(iter: Cursor[(k, v), ef, r]): Map[k, v] \ { ef, Read(r) } with Order[k] = 
+        foldLeft((acc, a) -> {let (k, v) = a; Map.insert(k, v, acc)}, Map.empty(), iter)
+
+
+    pub def toChain(iter: Cursor[a, ef, r]): Chain[a] \ { ef, Read(r) } = 
+        foldLeft((acc, a) -> Chain.snoc(acc, a), Chain.empty(), iter)
+
+    pub def toNec(iter: Cursor[a, ef, r]): Option[Nec[a]] \ { ef, Read(r) } = match next(iter) {
+        case Some(a) => foldLeft((acc, x) -> Nec.snoc(acc, x), Nec.singleton(a), iter) |> Some
+        case None    => None
+    } 
+
+    pub def toNel(iter: Cursor[a, ef, r]): Option[Nel[a]] \ { ef, Read(r) } = 
+        let swapCons = (a, acc) -> match acc { 
+            case Nel(x, xs) => Nel(x, a :: xs)
+        };
+        match next(iter) {
+            case Some(a) => foldRight((x, acc) -> swapCons(x, acc), Nel.singleton(a), iter) |> Some
+            case None    => None
+        }
+
+    pub def toMutDeque(r1: Region[r1], iter: Cursor[a, ef, r2]): MutDeque[a, r1] \ { ef, Read(r2), Write(r1) } =
+        let d = new MutDeque(r1);
+        forEach(x -> MutDeque.pushBack(x, d), iter);
+        d
+        
 }
