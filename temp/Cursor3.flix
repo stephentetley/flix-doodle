@@ -25,7 +25,7 @@ namespace Cursor {
     }
 
     /// TODO should return type be effect polymorphic?
-    pub def new(r: Region[r], f: Unit -> Option[a] \ r): Cursor[a, true, r] = 
+    pub def new(r: Region[r], f: Unit -> Option[a] \ r): Cursor[a, r, r] = 
         let f1 = () -> match f() {
             case Some(a) => Ans(a)
             case None    => Done
@@ -37,9 +37,9 @@ namespace Cursor {
         let f = () -> unsafe_cast Done as _ \ ef;
         Cursor(r, f)
 
-    pub def singleton(r: Region[r], x: a): Cursor[a, true, r] \ Write(r) = repeat(r, 1, x)
+    pub def singleton(r: Region[r], x: a): Cursor[a, r, r] \ Write(r) = repeat(r, 1, x)
 
-    pub def repeat(r: Region[r], n: Int32, x: a): Cursor[a, true, r] \ Write(r) = 
+    pub def repeat(r: Region[r], n: Int32, x: a): Cursor[a, r, r] \ Write(r) = 
         let ix = ref n @ r;
         let f = () -> { 
             let i = deref ix; 
@@ -53,7 +53,7 @@ namespace Cursor {
         Cursor(r, f)
 
 
-    pub def range(r: Region[r], b: Int32, e: Int32): Cursor[Int32, true, r] \ Write(r) = 
+    pub def range(r: Region[r], b: Int32, e: Int32): Cursor[Int32, r, r] \ Write(r) = 
         let pos = ref b @ r;
         if (e <= b)
             empty(r)
@@ -98,16 +98,6 @@ namespace Cursor {
         let iter3F = () -> step(iter1F(), iter2F());
         Cursor(r, iter3F)
 
-/*
-    pub def flatMap(f: a -> Cursor[b, ef1, r] \ ef2, ma: Cursor[a, ef, r]): Cursor[b, ef and ef1 and ef2, r] =
-        let Cursor(r, iterF) = ma;
-        def loop(x, acc) = match x {
-            case Ans(a) => loop(iterF(), append(acc, f(a)))
-            case Skip   => loop(iterF(), acc)
-            case Done   => acc
-        };
-        loop(iterF(), empty(r))
-*/
 
     pub def flatMap(f: a -> Cursor[b, ef1, r] \ ef2, ma: Cursor[a, ef, r]): Cursor[b, ef and ef1 and ef2, r] \ Write(r) =
         let Cursor(r, iterF) = ma;
@@ -255,8 +245,8 @@ namespace Cursor {
         Cursor(r, iter1F)
 
 
-/*    
-    pub def intersperse(sep: a, iter: Cursor[a, r]): Cursor[a, r] \ Write(r) =
+
+    pub def intersperse(sep: a, iter: Cursor[a, ef, r]): Cursor[a, ef and r, r] \ Write(r) =
         let Cursor(r, _) = iter;
         let start = ref true @ r;
         let step = x -> 
@@ -268,8 +258,12 @@ namespace Cursor {
             };
         flatMap(step, iter)
 
+/*
+    // TODO - needs rewriting in the "encapsulated loop" style
+
     /// Performance warning: `intercalate` must copy `sep` each time it is used.
-    pub def intercalate(sep: Cursor[a, r], iter: Cursor[a, r]): Cursor[a, r] \ Write(r) =
+    /// TODO - shouldn't iter be a Cursor of Cursors? e.g `iter: Cursor[Cursor[a, r], r]`
+    pub def intercalate(sep: Cursor[a, ef2, r], iter: Cursor[a, ef1, r]): Cursor[a, ef1 and ef2 and r, r] \ Write(r) =
         let Cursor(r, _) = iter;
         let start = ref true @ r;
         let sepList = toList(sep);
@@ -281,9 +275,8 @@ namespace Cursor {
                 append(ofList(r, sepList), singleton(r, x))
             };
         flatMap(step, iter)
- 
-
 */
+
 
 
     pub def drop(n: Int32, iter: Cursor[a, ef, r]): Cursor[a, ef and r, r] \ Write(r) =
