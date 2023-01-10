@@ -2,6 +2,13 @@
 def main(): Int32 \ IO = region rh {
     println("Cursor3...");
     Cursor.range(rh, 1, 10) |> Cursor.toList |> println;
+    Cursor.range(rh, 1, 10) |> Cursor.dropWhile(x -> x < 5) |> Cursor.toList |> println;
+    Cursor.range(rh, 1, 10) |> Cursor.drop(2) |> Cursor.toList |> println;
+    println("flatMap");
+    let iter1 = () -> Cursor.ofList(rh, 1 :: 2 :: 3 :: Nil);
+    let iter2 = () -> Cursor.ofList(rh, 1 :: 2 :: 3 :: Nil);
+    let iter3 = Cursor.flatMap(x -> Cursor.flatMap(y -> Cursor.singleton(rh, (x, y)), iter2()), iter1());
+    iter3 |> Cursor.toList |> println;
     0
 }
 
@@ -26,8 +33,8 @@ namespace Cursor {
         Cursor(r, f1)
 
     /// TODO should return type be effect polymorphic?
-    pub def empty(r: Region[r]): Cursor[a, true, r] = 
-        let f = () -> unsafe_cast Done as _ \ r;
+    pub def empty(r: Region[r]): Cursor[a, ef, r] = 
+        let f = () -> unsafe_cast Done as _ \ ef;
         Cursor(r, f)
 
     pub def singleton(r: Region[r], x: a): Cursor[a, true, r] \ Write(r) = repeat(r, 1, x)
@@ -101,6 +108,34 @@ namespace Cursor {
         };
         loop(iterF(), empty(r))
 */
+
+    pub def flatMap(f: a -> Cursor[b, ef1, r] \ ef2, ma: Cursor[a, ef, r]): Cursor[b, ef and ef1 and ef2, r] \ Write(r) =
+        let Cursor(r, iterF) = ma;
+        let innerIter = ref empty(r) @ r;
+        let inside = ref false @ r;
+        def innerLoop() = {
+            let Cursor(_, innerF) = deref innerIter;
+            match innerF() {
+                case Ans(b) => Ans(b)
+                case Skip   => innerLoop()
+                case Done   => {inside := false; Done}
+            }
+        };
+        def outerLoop() = {
+            if (deref inside) {
+                innerLoop()
+            } else {
+                match iterF() {
+                    case Ans(a) => {inside := true; innerIter := f(a); innerLoop()}
+                    case Skip   => outerLoop()
+                    case Done   => Done
+                }
+            }
+        };
+        let iter1F = () -> outerLoop();
+        Cursor(r, iter1F)
+
+
 
     pub def append(iter1: Cursor[a, ef1, r], iter2: Cursor[a, ef2, r]): Cursor[a, ef1 and ef2, r] = 
         let Cursor(r, iter1F) = iter1;
@@ -245,32 +280,35 @@ namespace Cursor {
         flatMap(step, iter)
  
 
+*/
 
 
-    pub def drop(n: Int32, iter: Cursor[a, r]): Cursor[a, r] \ Read(r) =
-        let Cursor(r, _) = iter;
+    pub def drop(n: Int32, iter: Cursor[a, ef, r]): Cursor[a, ef and r, r] \ Write(r) =
+        let Cursor(r, iterF) = iter;
         let ix = ref n @ r;
         def loop() = {
             let i = deref ix;
             ix := i - 1;
-            if (i < 1)
-                iter
-            else { 
-                discard next(iter);
-                loop()
+            match iterF() {
+                case Ans(a)  => if (i > 0) loop() else Ans(a)
+                case Skip    => loop()
+                case Done    => Done
             }
         };
-        loop()
+        let iter1F = () -> loop();
+        Cursor(r, iter1F)
 
 
-    pub def dropWhile(f: a -> Bool \ ef1, iter: Cursor[a, ef, r]): Cursor[a, r and ef and ef1, r] \ Read(r) =
-        let Cursor(r, _) = iter;
-        def loop() = match next(iter) {
-            case Some(x) => if (f(x)) loop() else cons(x, iter)
-            case None    => empty(r)
+    pub def dropWhile(f: a -> Bool \ ef1, iter: Cursor[a, ef, r]): Cursor[a, ef and ef1, r] =
+        let Cursor(r, iterF) = iter;
+        def loop() = match iterF() {
+            case Ans(a)  => if (f(a)) loop() else Ans(a)
+            case Skip    => loop()
+            case Done    => Done
         };
-        loop()
-*/
+        let iter1F = () -> loop();
+        Cursor(r, iter1F)
+
 
     pub def take(n: Int32, iter: Cursor[a, ef and r, r]): Cursor[a, ef, r] \ Write(r) =
         let Cursor(r, iterF) = iter;
