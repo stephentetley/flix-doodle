@@ -118,12 +118,15 @@ namespace Cursor {
             match innerF() {
                 case Ans(b) => Ans(b)
                 case Skip   => innerLoop()
-                case Done   => {inside := false; Done}
+                case Done   => Done
             }
         };
         def outerLoop() = {
             if (deref inside) {
-                innerLoop()
+                match innerLoop() { 
+                    case Done => {inside := false; outerLoop()}
+                    case ans  => ans
+                }
             } else {
                 match iterF() {
                     case Ans(a) => {inside := true; innerIter := f(a); innerLoop()}
