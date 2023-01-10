@@ -258,24 +258,31 @@ namespace Cursor {
             };
         flatMap(step, iter)
 
-/*
-    // TODO - needs rewriting in the "encapsulated loop" style
+
+    
 
     /// Performance warning: `intercalate` must copy `sep` each time it is used.
     /// TODO - shouldn't iter be a Cursor of Cursors? e.g `iter: Cursor[Cursor[a, r], r]`
     pub def intercalate(sep: Cursor[a, ef2, r], iter: Cursor[a, ef1, r]): Cursor[a, ef1 and ef2 and r, r] \ Write(r) =
         let Cursor(r, _) = iter;
         let start = ref true @ r;
-        let sepList = toList(sep);
-        let step = x -> 
+        let sepList = ref Nil @ r;
+        let step = x -> {
+            // Cache `sepList` first time in the loop. Unfortunately we must test for Nil inside the loop [test each time]
+            // to prevent `ef2` leaking to the top level of the function.
+            match (deref sepList) {
+                case Nil => sepList := toList(sep)
+                case _   => ()
+            };
             if (deref start) {
                 start := false; 
                 singleton(r, x)
             } else { 
-                append(ofList(r, sepList), singleton(r, x))
-            };
+                append(ofList(r, deref sepList), singleton(r, x))
+            }
+        };
         flatMap(step, iter)
-*/
+
 
 
 
