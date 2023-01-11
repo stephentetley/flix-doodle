@@ -182,6 +182,16 @@ namespace Cursor {
         };
         loop()
 
+    pub def forEachWithIndex(f: (Int32, a) -> Unit \ ef1, iter: Cursor[a, ef, r]): Unit \ { ef, ef1, Read(r) } =
+        let Cursor(_, iterF) = iter;
+        def loop(i) = match iterF() {
+            case Skip   => loop(i)
+            case Ans(a) => f(i, a); loop(i+1)
+            case Done   => ()
+        };
+        loop(0)
+
+
     pub def zip(iter1: Cursor[a, ef1, r], iter2: Cursor[b, ef, r]): Cursor[(a, b), ef and ef1, r] = 
         zipWith((a, b) -> (a, b), iter1, iter2)
 
@@ -220,6 +230,15 @@ namespace Cursor {
     pub def enumerator(iter: Cursor[a, ef, r]): Cursor[(Int32, a), ef and r, r] \ Write(r) = 
         zipWithIndex(iter)
 
+    /// `liftRegion` instead of `unsafe_cast` ?
+    pub def unfoldWithOk(r: Region[r], f: Unit -> Result[e, a] \ ef): Cursor[a, ef, r] =
+        def loop() = match f() { 
+            case Ok(a)  => Ans(a)
+            case Err(_) => Done
+        };
+        let iterF = () -> unsafe_cast loop() as _ \ {ef, r};
+        Cursor(r, iterF)
+
 
     pub def ofList(r: Region[r], xs: List[a]): Cursor[a, true, r] \ Write(r) = 
         let ls = ref xs @ r;
@@ -246,7 +265,8 @@ namespace Cursor {
         let iter1F = () -> f();
         Cursor(r, iter1F)
 
-
+    pub def replace(from: {from = a}, to: {to = a}, iter: Cursor[a, ef, r]): Cursor[a, ef, r] with Eq[a] =
+        map(a -> if (a == from.from) to.to else a, iter)
 
     pub def intersperse(sep: a, iter: Cursor[a, ef, r]): Cursor[a, ef and r, r] \ Write(r) =
         let Cursor(r, _) = iter;
@@ -430,4 +450,19 @@ namespace Cursor {
         forEach(x -> MutDeque.pushBack(x, d), iter);
         d
         
+    pub def joinWith(f: a -> String \ ef1, sep: String, iter: Cursor[a, ef, r]): String \ { ef, ef1, Read(r) } = region rh {
+        let sb = new StringBuilder(rh);
+        match next(iter) {
+            case Some(a) => {
+                StringBuilder.append!(f(a), sb);
+                forEach(x -> {StringBuilder.append!(sep, sb); StringBuilder.append!(f(x), sb)}, iter)
+            }
+            case None    => ()
+        };
+        StringBuilder.toString(sb)
+    }
+
+    pub def join(sep: String, iter: Cursor[a, ef, r]): String \ { ef, Read(r) } with ToString[a] =
+        joinWith(ToString.toString, sep, iter)
+
 }
