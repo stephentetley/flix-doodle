@@ -15,11 +15,8 @@ def main(): Int32 \ IO = region rh {
     let iterIter = () -> Cursor.ofList(rh, oneToFour() :: oneToFour() :: oneToFour() :: Nil);
     println("concat");
     Cursor.concat(iterIter()) |> Cursor.toList |> println;
-
     println("intercalate...");
-    // let oneToFour = () -> Cursor.range(rh, 1, 4);
-    // let iterIter = () -> Cursor.ofList(rh, oneToFour() :: oneToFour() :: oneToFour() :: Nil);
-    // Cursor.intercalate(Cursor.singleton(rh, 10), iterIter()) |> Cursor.toList |> println;
+    Cursor.intercalate(Cursor.range(rh, 1000, 1002), iterIter()) |> Cursor.toList |> println;
     0
 }
 
@@ -164,35 +161,6 @@ namespace Cursor {
 
     pub def concat(iter: Cursor[Cursor[a, ef1, r], ef2, r]): Cursor[a, ef1 and ef2, r] \ Write(r) = 
         flatMap(identity, iter)
-
-    // pub def concat(iter: Cursor[Cursor[a, ef1, r], ef2, r]): Cursor[a, ef1 and ef2, r] \ Write(r) = 
-    //     let Cursor(r, iterF) = iter;
-    //     let innerIter = ref empty(r) @ r;
-    //     let inside = ref false @ r;
-    //     def innerLoop() = {
-    //         let Cursor(_, innerF) = deref innerIter;
-    //         match innerF() {
-    //             case Ans(b) => Ans(b)
-    //             case Skip   => innerLoop()
-    //             case Done   => Done
-    //         }
-    //     };
-    //     def outerLoop() = {
-    //         if (deref inside) {
-    //             match innerLoop() { 
-    //                 case Done => {inside := false; outerLoop()}
-    //                 case ans  => ans
-    //             }
-    //         } else {
-    //             match iterF() {
-    //                 case Ans(a) => {inside := true; innerIter := a; innerLoop()}
-    //                 case Skip   => outerLoop()
-    //                 case Done   => Done
-    //             }
-    //         }
-    //     };
-    //     let iter1F = () -> outerLoop();
-    //     Cursor(r, iter1F)
 
 
     pub def filter(f: a -> Bool \ ef1, iter: Cursor[a, ef, r]): Cursor[a, ef and ef1, r] =
@@ -351,36 +319,25 @@ namespace Cursor {
         };
         flatMap(step, iter)
 
-    // pub def intercalate(_sep: Cursor[a, ef2, r], iter: Cursor[Cursor[a, ef1, r], ef1, r]): Cursor[a, ef1 and ef2 and r, r] \ Write(r) =
-    //     let Cursor(r, iterF) = iter;
-    //     let innerIter = ref empty(r) @ r;
-    //     let inside = ref false @ r;
-    //     let start = ref true @ r;
-    //     let sepList = ref Nil @ r;
-    //     def innerLoop() = {
-    //         let Cursor(_, innerF) = deref innerIter;
-    //         match innerF() {
-    //             case Ans(b) => Ans(b)
-    //             case Skip   => innerLoop()
-    //             case Done   => Done
-    //         }
-    //     };
-    //     def outerLoop() = {
-    //         if (deref inside) {
-    //             match innerLoop() { 
-    //                 case Done => {inside := false; outerLoop()}
-    //                 case ans  => ans
-    //             }
-    //         } else {
-    //             match iterF() {
-    //                 case Ans(a) => {inside := true; innerIter := a; innerLoop()}
-    //                 case Skip   => outerLoop()
-    //                 case Done   => Done
-    //             }
-    //         }
-    //     };
-    //     let iter1F = () -> outerLoop();
-    //     Cursor(r, iter1F)
+    pub def intercalate(sep: Cursor[a, ef2, r], iter: Cursor[Cursor[a, ef1, r], ef1, r]): Cursor[a, ef1 and ef2 and r, r] \ Write(r) =
+        let Cursor(r, _) = iter;
+        let start = ref true @ r;
+        let sepList = ref Nil @ r;
+        let step = innerIter -> {
+            // Cache `sepList` first time in the loop. Unfortunately we must test for Nil inside the loop [test each time]
+            // to prevent `ef2` leaking to the top level of the function.
+            match (deref sepList) {
+                case Nil => sepList := toList(sep)
+                case _   => ()
+            };
+            if (deref start) {
+                start := false; 
+                innerIter
+            } else { 
+                append(ofList(r, deref sepList), innerIter)
+            }
+        };
+        flatMap(step, iter)
 
 
     pub def drop(n: Int32, iter: Cursor[a, ef, r]): Cursor[a, ef and r, r] \ Write(r) =
